@@ -1120,4 +1120,16 @@ export const BOOKS: Book[] = [
     publicationYear: 1941,
     category: "Politics",
   },
+  ,
+  {
+    "id": 77,
+    "title": "Masla Qomiyat",
+    "author": "Syed Abul A'la Maududi",
+    "description": "A concise treatise in Urdu in which Maududi examines the idea of nationalism (qaumiyat) from an Islamic perspective — its origins, moral/political consequences, and why nationalism conflicts with the concept of an Islamic polity if it places national identity above religious identity.",
+    "imageUrl": "https://idarapublications.com/cdn/shop/products/MaslaQaumiat_900x.png?v=1619778161",
+    "pdfUrl": "https://drive.google.com/file/d/1GOko0ouXCaPWjM8UQq-An0peQyWOHM54/view?usp=sharing",
+    "aiContext": "You are an expert on Syed Abul A'la Maududi's 'Masla Qomiyat'. Answer questions using Maududi's perspective and arguments as presented in this work: explain his critique of modern nationalism, how he contrasts religious (Islamic) identity with national identity, the historical context of British India and the early Pakistan movement, and the political-theological implications for Muslim societies. When asked, give verse/contextual references only insofar as Maududi uses them in this text, and be explicit when you are summarizing Maududi versus offering broader scholarly interpretation.",
+    "publicationYear": 1944,
+    "category": "Politics"
+  }
 ];
