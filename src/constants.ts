@@ -1120,7 +1120,6 @@ export const BOOKS: Book[] = [
     publicationYear: 1941,
     category: "Politics",
   },
-  ,
   {
     "id": 77,
     "title": "Masla Qomiyat",
@@ -1132,4 +1131,4 @@ export const BOOKS: Book[] = [
     "publicationYear": 1944,
     "category": "Politics"
   }
-];
+  ];
