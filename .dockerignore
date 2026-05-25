@@ -6,8 +6,15 @@ node_modules
 .env.*.local
 dist
 build
+.next
 coverage
 *.log
+*.db
+*.sqlite
+__pycache__
+*.pyc
 .DS_Store
 .vscode
 .idea
+client_secret_*.json
+*.tsbuildinfo

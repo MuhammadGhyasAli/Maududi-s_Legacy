@@ -3,7 +3,7 @@ from typing import Optional
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from structlog import get_logger
-from sqlalchemy.orm import Session
+from pymongo.database import Database
 
 from models.book import Book, BookResponse
 from database import get_db
@@ -23,7 +23,7 @@ DEFAULT_CATEGORIES = [
 
 @router.get("", response_model=list[BookResponse])
 @limiter.limit("100/minute")
-async def get_books(request: Request, category: Optional[str] = None, db: Session = Depends(get_db)):
+async def get_books(request: Request, category: Optional[str] = None, db: Database = Depends(get_db)):
     """Get all books or filter by category"""
     logger.info("Fetching books", category=category)
     
@@ -46,7 +46,7 @@ async def get_books(request: Request, category: Optional[str] = None, db: Sessio
 
 @router.get("/categories", response_model=list[str])
 @limiter.limit("100/minute")
-async def get_categories(request: Request, db: Session = Depends(get_db)):
+async def get_categories(request: Request, db: Database = Depends(get_db)):
     """Get all available categories"""
     logger.info("Fetching categories")
     
@@ -63,7 +63,7 @@ async def get_categories(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/{book_id}", response_model=BookResponse)
 @limiter.limit("100/minute")
-async def get_book(request: Request, book_id: int, db: Session = Depends(get_db)):
+async def get_book(request: Request, book_id: int, db: Database = Depends(get_db)):
     """Get a specific book by ID"""
     logger.info("Fetching book", book_id=book_id)
     

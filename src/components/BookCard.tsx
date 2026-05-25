@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Book } from '../types';
 
 interface BookCardProps {
@@ -65,11 +66,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
             {!imageLoaded && (
               <div className="absolute inset-0 skeleton-shimmer" />
             )}
-            <img
+            <Image
               ref={imgRef}
               src={book.imageUrl}
               alt={book.title}
-              className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 relative z-10
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw"
+              className={`object-cover group-hover:scale-105 transition-all duration-500 relative z-10
                           ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               loading="lazy"
               onLoad={() => setImageLoaded(true)}

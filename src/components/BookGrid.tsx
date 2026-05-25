@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { Book } from '../types';
 import BookCard from './BookCard';
@@ -9,6 +10,8 @@ import SortFilterControls from './SortFilterControls';
 import SearchBar from './SearchBar';
 import { CATEGORIES } from '../constants';
 import { deslugifyCategory } from '../utils/slugify';
+import { useDebounce } from '../hooks/useDebounce';
+import Breadcrumbs from './Breadcrumbs';
 
 interface BookGridProps {
   books: Book[];
@@ -22,6 +25,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
   const category = (params?.category as string | undefined) || undefined;
   const categoryName = category ? deslugifyCategory(category) : 'All';
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -33,8 +37,8 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
       filteredBooks = filteredBooks.filter(book => book.category === categoryName);
     }
 
-    if (searchTerm) {
-      const lowercasedTerm = searchTerm.toLowerCase();
+    if (debouncedSearch) {
+      const lowercasedTerm = debouncedSearch.toLowerCase();
       filteredBooks = filteredBooks.filter(book =>
         book.title.toLowerCase().includes(lowercasedTerm) ||
         book.description.toLowerCase().includes(lowercasedTerm) ||
@@ -72,7 +76,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
     }
 
     return sortedBooks;
-  }, [books, categoryName, searchTerm, sortBy]);
+  }, [books, categoryName, debouncedSearch, sortBy]);
 
   const totalPages = Math.ceil(processedBooks.length / BOOKS_PER_PAGE);
   const paginatedBooks = useMemo(() => {
@@ -94,9 +98,30 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
     setCurrentPage(1);
   }, [searchTerm, category, sortBy]);
 
+  // Prefetch book detail pages for instant navigation
+  React.useEffect(() => {
+    const cat = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
+    paginatedBooks.slice(0, 6).forEach(book => {
+      const slug = book.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+      router.prefetch(`/${cat}/${slug}`);
+    });
+  }, [paginatedBooks, category, router]);
+
   return (
     <>
       <main className="flex-1 container mx-auto px-4 py-8">
+
+        {/* Breadcrumbs */}
+        <Breadcrumbs crumbs={[
+          { label: 'Home', href: '/' },
+          ...(category && category !== 'all'
+            ? [{ label: categoryName, href: `/${category}` }]
+            : []),
+        ]} />
 
         {/* Hero section */}
         <div className="text-center max-w-3xl mx-auto mb-10">
@@ -165,11 +190,14 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
                       transition-all duration-200 p-3
                     "
                   >
-                    <div className="w-24 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-brand-navy-mid">
-                      <img
+                    <div className="relative w-24 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-brand-navy-mid">
+                      <Image
                         src={book.imageUrl}
                         alt={book.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        sizes="96px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
                     </div>
                     <div className="flex-1 min-w-0 py-1">

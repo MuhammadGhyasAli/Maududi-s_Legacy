@@ -9,27 +9,11 @@ services:
       - "8000:8000"
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/maududi_legacy
+      - MONGODB_URL=${MONGODB_URL}
+      - MONGODB_DB_NAME=maududi_legacy
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
       - LOG_LEVEL=INFO
-    depends_on:
-      - db
-    volumes:
-      - ./backend:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=maududi_legacy
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   frontend:
     build:
       context: .
@@ -44,5 +28,4 @@ services:
       - NEXT_PUBLIC_API_KEY=${GOOGLE_API_KEY}
     command: npm run dev
 
-volumes:
-  postgres_data:
+

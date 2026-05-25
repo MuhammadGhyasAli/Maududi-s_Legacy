@@ -4,19 +4,21 @@ import { apiService, ChatMessage as ApiChatMessage } from '../services/apiServic
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
+import { useToast } from './Toast';
+import ChatMessageList from './chat/ChatMessageList';
+import ChatInputArea from './chat/ChatInputArea';
+
+const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 
 interface ChatPageProps {
   book: Book;
+  books?: Book[];
   onBack: () => void;
   onNavigateToBook: (book: Book) => void;
 }
 
-const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
-
-import ChatMessageList from './chat/ChatMessageList';
-import ChatInputArea from './chat/ChatInputArea';
-
-const ChatPage: React.FC<ChatPageProps> = ({ book, onBack, onNavigateToBook }) => {
+const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigateToBook }) => {
+  const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +47,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, onBack, onNavigateToBook }) =
     try {
         const newApiMessages: ApiChatMessage[] = [
             ...apiMessages,
-            { role: 'user', content: `Please provide a comprehensive answer in the ${selectedLanguage} language based on the book's content. Your entire response must be in ${selectedLanguage}. If you mention any book titles from the provided context, please state their full exact titles clearly.\n\nMy question is: "${textToSend}"` }
+            { role: 'user', content: `Provide a precise, well-researched answer based strictly on the book's content. Accuracy is critical — only state what you are certain of. If you are unsure about any detail, explicitly say so rather than speculating. Your entire response must be in ${selectedLanguage}. When citing, provide full exact book titles and specific context references.\n\nMy question: "${textToSend}"` }
         ];
         
         const response = await apiService.chat(book.id, newApiMessages);
@@ -77,7 +79,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, onBack, onNavigateToBook }) =
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(transcript);
-        alert('Chat copied to clipboard!');
+        toast('Chat copied to clipboard!');
       } catch (error) {
         console.error('Copying failed', error);
         fallbackCopyTextToClipboard(transcript);
@@ -98,10 +100,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, onBack, onNavigateToBook }) =
     textArea.select();
     try {
       document.execCommand('copy');
-      alert('Chat copied to clipboard!');
+      toast('Chat copied to clipboard!');
     } catch (err) {
       console.error('Fallback copy failed', err);
-      alert('Could not copy chat. Your browser may not support this feature.');
+      toast('Could not copy chat. Your browser may not support this feature.', 'error');
     }
     textArea.remove();
   };
@@ -155,6 +157,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, onBack, onNavigateToBook }) =
         isLoading={isLoading} 
         selectedLanguage={selectedLanguage}
         onNavigateToBook={onNavigateToBook}
+        books={books}
       />
 
       <ChatInputArea 

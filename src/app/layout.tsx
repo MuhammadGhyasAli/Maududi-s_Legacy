@@ -1,23 +1,73 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Noto_Nastaliq_Urdu, Amiri } from "next/font/google";
 import "./globals.css";
 import MainShell from "../components/MainShell";
+import { StoreProvider } from "../store/StoreProvider";
+import { AuthProvider } from "../contexts/AuthContext";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
-const notoNastaliq = Noto_Nastaliq_Urdu({ subsets: ["arabic"], variable: "--font-nastaliq" });
-const amiri = Amiri({ weight: ["400", "700"], subsets: ["arabic"], variable: "--font-amiri" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+  preload: true,
+});
+
+const notoNastaliq = Noto_Nastaliq_Urdu({
+  subsets: ["arabic"],
+  variable: "--font-nastaliq",
+  display: "swap",
+});
+
+const amiri = Amiri({
+  weight: ["400", "700"],
+  subsets: ["arabic"],
+  variable: "--font-amiri",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Maududi's Legacy",
+  title: {
+    default: "Maududi's Legacy",
+    template: "%s | Maududi's Legacy",
+  },
   description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat.",
+  icons: { icon: "/favicon.ico" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} ${notoNastaliq.variable} ${amiri.variable}`}>
-        <MainShell>{children}</MainShell>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="http://localhost:8000" />
+        <link rel="dns-prefetch" href="http://localhost:8000" />
+      </head>
+      <body className={`${inter.variable} ${playfair.variable} ${notoNastaliq.variable} ${amiri.variable}`} suppressHydrationWarning>
+        <StoreProvider>
+          <AuthProvider>
+            <a href="#main-content" className="skip-link">
+              Skip to main content
+            </a>
+            <MainShell>{children}</MainShell>
+          </AuthProvider>
+        </StoreProvider>
       </body>
     </html>
   );

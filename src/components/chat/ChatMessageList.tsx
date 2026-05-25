@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { ChatMessage, MessageSender, Book } from '../../types';
-import { BOOKS } from '../../constants';
 
 export interface StructuredResponse {
     bookTitle?: string;
@@ -16,6 +16,7 @@ interface ChatMessageListProps {
   selectedLanguage: string;
   onNavigateToBook?: (book: Book) => void;
   parseStructuredResponse?: (text: string) => StructuredResponse | null;
+  books?: Book[];
 }
 
 const getLangProps = (text: string, selectedLang: string): { dir: 'auto', className: string } => {
@@ -30,15 +31,38 @@ const getLangProps = (text: string, selectedLang: string): { dir: 'auto', classN
   return { dir: 'auto', className: '' };
 };
 
-const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) => void): React.ReactNode[] => {
-  const titles = BOOKS.map(book => book.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) => void, books: Book[] = []): React.ReactNode[] => {
+  if (!text) return [];
+
+  if (books.length === 0) {
+    const simpleParts: React.ReactNode[] = [];
+    let lastIdx = 0;
+    let kIdx = 0;
+    const simpleRegex = /(\*\*([\s\S]+?)\*\*)|(\*([\s\S]+?)\*)/g;
+    let m;
+    while ((m = simpleRegex.exec(text)) !== null) {
+      if (m.index > lastIdx) {
+        simpleParts.push(<React.Fragment key={`t-${kIdx++}`}>{text.substring(lastIdx, m.index)}</React.Fragment>);
+      }
+      if (m[2]) {
+        simpleParts.push(<strong key={`b-${kIdx++}`} className="font-semibold">{m[2]}</strong>);
+      } else if (m[4]) {
+        simpleParts.push(<em key={`i-${kIdx++}`}>{m[4]}</em>);
+      }
+      lastIdx = simpleRegex.lastIndex;
+    }
+    if (lastIdx < text.length) {
+      simpleParts.push(<React.Fragment key={`t-${kIdx++}`}>{text.substring(lastIdx)}</React.Fragment>);
+    }
+    return simpleParts;
+  }
+
+  const titles = books.map(book => book.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
   const regex = new RegExp(`(${titles})|(\\*\\*([\\s\\S]+?)\\*\\*)|(\\*([\\s\\S]+?)\\*)`, 'g');
-  
+
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let keyIndex = 0;
-
-  if (!text) return parts;
 
   let match;
   while ((match = regex.exec(text)) !== null) {
@@ -51,7 +75,7 @@ const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) =>
       const italicContent = match[5];
 
       if (bookTitle) {
-          const book = BOOKS.find(b => b.title === bookTitle);
+          const book = books.find(b => b.title === bookTitle);
           if (book && onNavigateToBook) {
               parts.push(
                   <button key={`book-${keyIndex++}`} className="cursor-pointer font-semibold underline text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" onClick={() => onNavigateToBook(book)}>
@@ -62,9 +86,9 @@ const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) =>
               parts.push(<React.Fragment key={`text-${keyIndex++}`}>{bookTitle}</React.Fragment>);
           }
       } else if (boldContent) {
-          parts.push(<strong key={`bold-${keyIndex++}`} className="font-semibold">{renderFormattedMessage(boldContent, onNavigateToBook)}</strong>);
+          parts.push(<strong key={`bold-${keyIndex++}`} className="font-semibold">{renderFormattedMessage(boldContent, onNavigateToBook, books)}</strong>);
       } else if (italicContent) {
-          parts.push(<em key={`italic-${keyIndex++}`}>{renderFormattedMessage(italicContent, onNavigateToBook)}</em>);
+          parts.push(<em key={`italic-${keyIndex++}`}>{renderFormattedMessage(italicContent, onNavigateToBook, books)}</em>);
       }
 
       lastIndex = regex.lastIndex;
@@ -82,7 +106,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   isLoading, 
   selectedLanguage, 
   onNavigateToBook,
-  parseStructuredResponse
+  parseStructuredResponse,
+  books = []
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +144,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 
                 {isUser ? (
                   <div className={`whitespace-pre-wrap leading-relaxed text-[16px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
-                    {msg.image && <img src={msg.image} alt="User upload" className="max-w-xs rounded-xl mb-3 shadow-sm border border-white/20" />}
+                    {msg.image && <Image src={msg.image} alt="User upload" width={320} height={240} className="max-w-xs rounded-xl mb-3 shadow-sm border border-white/20" />}
                     {msg.text}
                   </div>
                 ) : (() => {
@@ -136,37 +161,37 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                               {structuredDetails.bookTitle && (
                                 <div>
                                   <strong className="text-gray-900 dark:text-gray-100">Book:</strong>{' '}
-                                  <span className={className}>{renderFormattedMessage(structuredDetails.bookTitle, onNavigateToBook)}</span>
+                                  <span className={className}>{renderFormattedMessage(structuredDetails.bookTitle, onNavigateToBook, books)}</span>
                                 </div>
                               )}
                               {structuredDetails.chapter && (
                                 <div>
                                   <strong className="text-gray-900 dark:text-gray-100">Chapter:</strong>{' '}
-                                  <span className={className}>{renderFormattedMessage(structuredDetails.chapter, onNavigateToBook)}</span>
+                                  <span className={className}>{renderFormattedMessage(structuredDetails.chapter, onNavigateToBook, books)}</span>
                                 </div>
                               )}
                               {structuredDetails.page && (
                                 <div>
                                   <strong className="text-gray-900 dark:text-gray-100">Page:</strong>{' '}
-                                  <span className={className}>{renderFormattedMessage(structuredDetails.page, onNavigateToBook)}</span>
+                                  <span className={className}>{renderFormattedMessage(structuredDetails.page, onNavigateToBook, books)}</span>
                                 </div>
                               )}
                             </div>
                             {structuredDetails.context && (
                               <blockquote className={`mt-4 pl-4 border-l-2 border-brand-green/40 dark:border-brand-green-dark/40 text-gray-700 dark:text-gray-300 italic ${className}`}>
-                                {renderFormattedMessage(structuredDetails.context, onNavigateToBook)}
+                                {renderFormattedMessage(structuredDetails.context, onNavigateToBook, books)}
                               </blockquote>
                             )}
                           </div>
                           {structuredDetails.remainingText && (
                             <div className={`whitespace-pre-wrap leading-relaxed text-[16px] text-gray-800 dark:text-gray-200 ${className}`}>
-                              {renderFormattedMessage(structuredDetails.remainingText, onNavigateToBook)}
+                              {renderFormattedMessage(structuredDetails.remainingText, onNavigateToBook, books)}
                             </div>
                           )}
                         </div>
                       ) : (
                         <div className={`whitespace-pre-wrap leading-relaxed text-[16px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
-                          {renderFormattedMessage(msg.text, onNavigateToBook)}
+                          {renderFormattedMessage(msg.text, onNavigateToBook, books)}
                         </div>
                       )}
                     </div>

@@ -1,8 +1,14 @@
 from dotenv import load_dotenv
-load_dotenv()
+import os
+_env_path = os.path.join(os.path.dirname(__file__), ".env")
+if not os.path.isfile(_env_path):
+    _env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(os.path.abspath(_env_path))
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -12,8 +18,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from config import settings
 from logger import setup_logging, get_logger
 from middleware import logging_middleware, app_exception_handler, global_exception_handler
-from routers import books, chat
+from routers import books, chat, auth
 from exceptions import AppException
+from database import init_db
 
 # Setup logging
 setup_logging()
@@ -26,6 +33,12 @@ limiter = Limiter(key_func=get_remote_address)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting Maududi's Legacy Backend...")
+    try:
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error("Database initialization failed", error=str(e))
+        raise
     yield
     # Shutdown
     logger.info("Shutting down Maududi's Legacy Backend...")
@@ -58,10 +71,22 @@ app.add_middleware(
 )
 
 # Trusted host middleware (security)
+allowed_hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"]  # Configure appropriately for production
+    allowed_hosts=allowed_hosts
 )
+
+# Request body size limit (10 MB)
+MAX_BODY_SIZE = 10 * 1024 * 1024
+
+@app.middleware("http")
+async def limit_body_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > MAX_BODY_SIZE:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=413, content={"detail": "Request body too large (max 10 MB)"})
+    return await call_next(request)
 
 # Custom middleware
 app.add_middleware(BaseHTTPMiddleware, dispatch=logging_middleware)
@@ -78,6 +103,7 @@ async def security_headers_middleware(request, call_next):
     return response
 
 # Include routers with API versioning
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(books.router, prefix="/api/v1/books", tags=["books"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 

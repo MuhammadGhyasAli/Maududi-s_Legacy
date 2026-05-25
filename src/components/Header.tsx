@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import BookOpenIcon from './icons/BookOpenIcon';
+import Image from 'next/image';
 import SunIcon from './icons/SunIcon';
 import MoonIcon from './icons/MoonIcon';
 import SystemIcon from './icons/SystemIcon';
 import SparklesIcon from './icons/SparklesIcon';
 import { Theme } from '../types/theme';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   theme: Theme;
@@ -17,15 +18,25 @@ interface HeaderProps {
   onToggleDesktopSidebar: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
+const Header = React.memo(function Header({
   theme,
   setTheme,
   onToggleSidebar,
   isSidebarOpen: _isSidebarOpen,
   onToggleDesktopSidebar: _onToggleDesktopSidebar,
-}) => {
-  const [logoError, setLogoError] = useState(false);
+}: HeaderProps) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const { user, loading: authLoading, logout } = useAuth();
+
+  // Prefetch critical routes for instant navigation
+  useEffect(() => {
+    router.prefetch('/');
+    router.prefetch('/auth/login');
+    router.prefetch('/auth/register');
+    router.prefetch('/biography');
+    router.prefetch('/about');
+  }, [router]);
 
   const handleThemeChange = () => {
     const themes: Theme[] = ['light', 'dark', 'system'];
@@ -75,25 +86,14 @@ const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 group cursor-pointer"
             aria-label="Go to home"
           >
-            {logoError ? (
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center shadow-emerald">
-                  <BookOpenIcon className="w-5 h-5 text-white" />
-                </div>
-                <span className="hidden sm:block font-display font-bold text-lg
-                                 text-brand-green dark:text-brand-green-dark
-                                 group-hover:opacity-80 transition-opacity">
-                  Maududi's Legacy
-                </span>
-              </div>
-            ) : (
-              <img
-                src="/logo.png"
-                alt="Maududi's Legacy"
-                className="h-12 w-auto object-contain"
-                onError={() => setLogoError(true)}
-              />
-            )}
+            <Image
+              src="/logo.png"
+              alt="Maududi's Legacy"
+              width={180}
+              height={48}
+              className="h-12 w-auto object-contain"
+              priority
+            />
           </button>
         </div>
 
@@ -113,6 +113,53 @@ const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline">AI Search</span>
           </button>
 
+          {/* Auth */}
+          {authLoading ? null : user ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer
+                           text-gray-700 dark:text-gray-200
+                           hover:bg-gray-100 dark:hover:bg-white/10
+                           border border-transparent hover:border-gray-200 dark:hover:border-white/10
+                           transition-all duration-200"
+                aria-label="User menu"
+              >
+                <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                  {(user.display_name || user.username)[0].toUpperCase()}
+                </div>
+                <span className="hidden sm:inline">{user.display_name || user.username}</span>
+              </button>
+
+              {userMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 z-50 w-48 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
+                    <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+                      {user.email}
+                    </div>
+                    <button
+                      onClick={() => { logout(); setUserMenuOpen(false); router.push('/'); }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => router.push('/auth/login')}
+              className="px-3 py-2 rounded-xl text-sm font-medium cursor-pointer
+                         bg-emerald-600 hover:bg-emerald-700 text-white
+                         transition-colors duration-200"
+              aria-label="Sign in"
+            >
+              Sign In
+            </button>
+          )}
+
           {/* Theme toggle */}
           <button
             onClick={handleThemeChange}
@@ -130,6 +177,6 @@ const Header: React.FC<HeaderProps> = ({
       </div>
     </header>
   );
-};
+});
 
 export default Header;

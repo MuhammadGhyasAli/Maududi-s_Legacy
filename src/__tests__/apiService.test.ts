@@ -22,7 +22,7 @@ describe('apiService', () => {
 
       const books = await apiService.getBooks();
       expect(books).toEqual(mockBooks);
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/v1/books');
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books', { signal: undefined });
     });
 
     it('fetches books by category', async () => {
@@ -36,7 +36,7 @@ describe('apiService', () => {
 
       const books = await apiService.getBooks('Tafsir');
       expect(books).toEqual(mockBooks);
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/v1/books?category=Tafsir');
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books?category=Tafsir', { signal: undefined });
     });
 
     it('throws error when fetch fails', async () => {
@@ -58,7 +58,7 @@ describe('apiService', () => {
 
       const book = await apiService.getBook(1);
       expect(book).toEqual(mockBook);
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/v1/books/1');
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books/1', { signal: undefined });
     });
   });
 
@@ -74,7 +74,7 @@ describe('apiService', () => {
       const response = await apiService.chat(1, messages);
       expect(response).toEqual(mockResponse);
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/api/v1/chat',
+        '/api/v1/chat',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

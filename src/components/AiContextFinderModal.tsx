@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Book, MessageSender } from '../types';
-import { BOOKS } from '../constants';
 import { apiService, ChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
+import { useToast } from './Toast';
 import ChatMessageList from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
 
@@ -61,6 +61,7 @@ const parseStructuredResponse = (text: string): StructuredResponse | null => {
 
 const AiContextFinderPage: React.FC<AiContextFinderPageProps> = ({ onNavigateToBook }) => {
   const router = useRouter();
+  const { toast } = useToast();
   const [inputText, setInputText] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -69,13 +70,16 @@ const AiContextFinderPage: React.FC<AiContextFinderPageProps> = ({ onNavigateToB
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [fetchedBooks, setFetchedBooks] = useState<Book[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const systemInstruction = useRef('');
 
   useEffect(() => {
-    const bookListForPrompt = BOOKS.map(b => `- "${b.title}"`).join('\n');
+    apiService.getBooks().then(fetchedBooks => {
+      setFetchedBooks(fetchedBooks as any);
+      const bookListForPrompt = fetchedBooks.map(b => `- "${b.title}"`).join('\n');
     systemInstruction.current = `You are an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. Your knowledge base consists of the following books:\n---\n${bookListForPrompt}\n---\nYour function is two-fold:
 1.  **Locate & Cite:** First, when a user provides a quote or topic, your primary goal is to locate the most relevant source within these books. If you find a direct match or a highly relevant passage, you MUST present this information clearly at the beginning of your response, formatted like this:
     **Book Title:** [Full Book Title]
@@ -85,19 +89,24 @@ const AiContextFinderPage: React.FC<AiContextFinderPageProps> = ({ onNavigateToB
 2.  **Explain & Elaborate:** After providing the citation (if found), your second goal is to provide a comprehensive, detailed, and insightful explanation of the topic, drawing from the principles and context found in Maududi's works. Your explanation should be thorough and well-reasoned, similar to how an expert on his literature would respond.
 
 **Crucial Rules:**
-- **Accuracy is paramount.** Do not invent page numbers. If you are not certain, state that the page number is approximate (e.g., "Approx. page 277"). A correct chapter is more valuable than an incorrect page number.
+- **Accuracy is paramount.** Never invent or fabricate facts, page numbers, chapters, or quotes. Only provide information you are highly confident about. If uncertain, explicitly state your uncertainty.
+- **Admit when you don't know.** It is far better to say "I cannot find a specific reference for that" than to guess or hallucinate a source.
 - **Always use the exact book titles** from the list provided. For example, use "Tafheem ul Quran (Vol. 1)", not "Tafheem ul Quran, Volume 1".
-- **If no specific citation is found,** proceed directly to the detailed explanation based on the collective knowledge from the books.
+- **A correct chapter is more valuable than an incorrect page number.** Provide approximate page numbers only when prefixed with "Approx."
+- **Quality over quantity.** A concise, correct answer is superior to a lengthy, speculative one.
+- **If no specific citation is found,** proceed directly to the detailed explanation based on the collective knowledge from the books, and note that no direct citation was found.
 
 **Mandatory Two-Step Process for Image Queries:**
 If the user's message includes an image, you MUST follow this two-step process without exception:
 1.  **Step 1: Identification & Confirmation.** Your FIRST response must ONLY identify the book the image is from and ask for confirmation to proceed. DO NOT provide any other details, context, or explanation. Your response should be brief and direct, like this: "This image appears to be from [Book Title]. Would you like a detailed analysis and context?"
 2.  **Step 2: Detailed Analysis (On User Confirmation).** Only after the user confirms (e.g., they say "yes"), you will then provide the full, two-part response (citation + explanation) as described in the rules above. This is the only time you should provide a deep analysis for an image query.`;
       
-    setConversation([{
-        sender: MessageSender.AI,
-        text: `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`,
-    }]);
+      systemInstruction.current = systemInstruction.current.replace('---\n---', '---');
+      setConversation([{
+          sender: MessageSender.AI,
+          text: `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`,
+      }]);
+    });
   }, []);
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,7 +191,7 @@ If the user's message includes an image, you MUST follow this two-step process w
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(transcript);
-        alert('Chat copied!');
+        toast('Chat copied!');
       } catch (error) {
         console.error('Copying failed', error);
         fallbackCopyTextToClipboard(transcript);
@@ -203,10 +212,10 @@ If the user's message includes an image, you MUST follow this two-step process w
     textArea.select();
     try {
       document.execCommand('copy');
-      alert('Chat copied!');
+      toast('Chat copied!');
     } catch (err) {
       console.error('Fallback copy failed', err);
-      alert('Could not copy chat. Your browser may not support this feature.');
+      toast('Could not copy chat. Your browser may not support this feature.', 'error');
     }
     textArea.remove();
   };
@@ -259,6 +268,7 @@ If the user's message includes an image, you MUST follow this two-step process w
         selectedLanguage={selectedLanguage}
         onNavigateToBook={onNavigateToBook}
         parseStructuredResponse={parseStructuredResponse}
+        books={fetchedBooks}
       />
 
       <ChatInputArea 

@@ -3,6 +3,8 @@ from typing import Optional, Any
 from cachetools import TTLCache
 from structlog import get_logger
 
+from config import settings
+
 logger = get_logger(__name__)
 
 
@@ -10,10 +12,11 @@ class CacheService:
     """In-memory cache service using TTLCache"""
     
     def __init__(self):
-        # Cache with 5 minute TTL and max 1000 items
-        self.books_cache = TTLCache(maxsize=1000, ttl=300)
-        self.categories_cache = TTLCache(maxsize=100, ttl=300)
-        self.book_cache = TTLCache(maxsize=1000, ttl=300)
+        ttl = settings.cache_ttl_seconds
+        maxsize = settings.cache_maxsize
+        self.books_cache = TTLCache(maxsize=maxsize, ttl=ttl)
+        self.categories_cache = TTLCache(maxsize=100, ttl=ttl)
+        self.book_cache = TTLCache(maxsize=maxsize, ttl=ttl)
     
     def get_books(self, category: Optional[str] = None) -> Optional[list]:
         """Get books from cache"""

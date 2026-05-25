@@ -19,15 +19,18 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-nastaaliq"
+            aria-label="Previous page"
+            className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            → پچھلا صفحہ
+            <span aria-hidden="true">&larr;</span> Previous
           </button>
         </li>
         {pageNumbers.map(number => (
           <li key={number}>
             <button
               onClick={() => onPageChange(number)}
+              aria-label={`Page ${number}`}
+              aria-current={currentPage === number ? 'page' : undefined}
               className={`w-10 h-10 rounded-md transition-colors ${
                 currentPage === number
                   ? 'bg-brand-blue text-white font-bold'
@@ -42,9 +45,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-nastaaliq"
+            aria-label="Next page"
+            className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            اگلا صفحہ ←
+            Next <span aria-hidden="true">&rarr;</span>
           </button>
         </li>
       </ul>

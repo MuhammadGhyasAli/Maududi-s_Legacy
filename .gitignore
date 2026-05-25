@@ -25,6 +25,9 @@ coverage/
 .env.*
 !.env.example
 !.env.*.example
+backend/.env
+backend/.env.*
+!backend/.env.example
 
 # Local databases / data
 *.db
@@ -52,3 +55,14 @@ coverage/
 *.njsproj
 *.sln
 *.sw?
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Google OAuth secrets
+client_secret_*.json
+
+# Test artifacts
+test_out.txt
+test_output.txt

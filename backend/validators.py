@@ -1,3 +1,4 @@
+import html
 from typing import Optional
 from pydantic import BaseModel, field_validator, EmailStr
 from fastapi import HTTPException, status
@@ -125,15 +126,10 @@ def sanitize_string(input_string: str, max_length: Optional[int] = None) -> str:
     if not input_string:
         return ""
     
-    # Remove potentially dangerous characters
     sanitized = input_string.strip()
     
-    # Remove script tags and common XSS patterns
-    dangerous_patterns = ['<script', '</script>', 'javascript:', 'onerror=', 'onload=', 'onclick=']
-    for pattern in dangerous_patterns:
-        sanitized = sanitized.replace(pattern, '')
+    sanitized = html.escape(sanitized, quote=True)
     
-    # Truncate if max_length is specified
     if max_length and len(sanitized) > max_length:
         sanitized = sanitized[:max_length]
     

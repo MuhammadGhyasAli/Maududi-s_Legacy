@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import Image from 'next/image';
 import SendIcon from '../icons/SendIcon';
 import Spinner from '../icons/Spinner';
 import LanguageSelector from '../LanguageSelector';
@@ -86,7 +87,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           {imagePreview && (
             <div className="relative inline-block mb-3 ml-3">
               <div className="relative w-20 h-20 rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-white/10">
-                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover"/>
+                <Image src={imagePreview!} alt="Preview" fill sizes="80px" className="object-cover"/>
               </div>
               <button 
                 onClick={onRemoveImage}

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Book } from '../types';
 import BookOpenIcon from './icons/BookOpenIcon';
 import ChatIcon from './icons/ChatIcon';
@@ -33,11 +34,14 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onReadPdf, onStar
 
           {/* Book cover */}
           <div className="md:col-span-1">
-            <div className="relative rounded-2xl overflow-hidden shadow-card-lg dark:shadow-black/50 ring-1 ring-gray-200/60 dark:ring-white/10">
-              <img
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-card-lg dark:shadow-black/50 ring-1 ring-gray-200/60 dark:ring-white/10">
+              <Image
                 src={book.imageUrl}
                 alt={book.title}
-                className="w-full h-auto object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover"
+                loading="lazy"
               />
               {/* Subtle shimmer overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
