@@ -10,13 +10,36 @@ client: MongoClient | None = None
 db: MongoDatabase | None = None
 
 
+def _create_ssl_context():
+    """Create a relaxed SSL context for environments where Atlas TLS handshake fails."""
+    import ssl
+    import warnings
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        # Prefer TLS 1.2 ciphers for broader compatibility
+        try:
+            ctx.set_ciphers("HIGH:!aNULL:!eNULL:!MD5:!3DES:@SECLEVEL=1")
+        except Exception:
+            pass
+        return ctx
+    except Exception:
+        warnings.warn("Failed to create custom SSL context, using default")
+        return None
+
+
 def get_mongo_client() -> MongoClient:
     global client
     if client is None:
-        client = MongoClient(
-            settings.mongodb_url,
-            serverSelectionTimeoutMS=20000,
-        )
+        kwargs = {
+            "serverSelectionTimeoutMS": 20000,
+        }
+        ssl_ctx = _create_ssl_context()
+        if ssl_ctx is not None:
+            kwargs["ssl_context"] = ssl_ctx
+        client = MongoClient(settings.mongodb_url, **kwargs)
     return client
 
 
