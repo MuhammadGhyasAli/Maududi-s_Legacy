@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Noto+Nastaliq+Urdu:wght@400;700&family=Amiri:wght@400;700&display=swap');
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+/* ═══════════════════════════════════════════
+   Multi-language Typography
+═══════════════════════════════════════════ */
+.font-nastaaliq {
+  font-family: var(--font-nastaliq), 'Noto Nastaliq Urdu', serif;
+  line-height: 2.4 !important; /* Nastaliq needs extremely tall line-height to prevent clipping */
+  font-size: 110%; /* Nastaliq is naturally drawn smaller */
+}
+
+.font-arabic {
+  font-family: var(--font-amiri), 'Amiri', serif;
+  line-height: 2.0 !important;
+  font-size: 110%;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+/* ═══════════════════════════════════════════
+   Design Tokens
+═══════════════════════════════════════════ */
+:root {
+  --color-emerald:       #059669;
+  --color-emerald-light: #10b981;
+  --color-emerald-glow:  #34d399;
+  --color-gold:          #d97706;
+  --color-gold-light:    #f59e0b;
+  --color-navy:          #0f172a;
+  --color-navy-mid:      #1e293b;
+  --color-navy-card:     #1a2942;
+  --bg-light:            #f0f4f8;
+  --bg-dark:             #0b1220;
+  --gradient-brand:      linear-gradient(135deg, #059669 0%, #0891b2 100%);
+  --gradient-gold:       linear-gradient(90deg, #d97706, #f59e0b, #d97706);
+  --shadow-emerald:      0 4px 20px rgba(5,150,105,0.25);
+  --shadow-gold:         0 4px 20px rgba(217,119,6,0.30);
+}
+
+/* ═══════════════════════════════════════════
+   Base Reset & Typography
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════
+   Scrollbar
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #10b981, #059669);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+/* ═══════════════════════════════════════════
+   Selection
+═══════════════════════════════════════════ */
+::selection {
+  background-color: rgba(5,150,105,0.22);
+  color: inherit;
+}
+
+/* ═══════════════════════════════════════════
+   Gradient Utilities
+═══════════════════════════════════════════ */
+.gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════════
+   Glassmorphism Card
+═══════════════════════════════════════════ */
+.card-glass {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.55);
+}
+.dark .card-glass {
+  background: rgba(26,41,66,0.72);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+/* ═══════════════════════════════════════════
+   Animated Shimmer Skeleton
+═══════════════════════════════════════════ */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+.dark .skeleton-shimmer {
+  background: linear-gradient(90deg, #1e293b 25%, #243044 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}
+
+/* ═══════════════════════════════════════════
+   FadeIn Animation
+═══════════════════════════════════════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.45s ease both; }
+
+/* ═══════════════════════════════════════════
+   Glow Shadows
+═══════════════════════════════════════════ */
+.glow-emerald { box-shadow: var(--shadow-emerald); }
+.glow-gold    { box-shadow: var(--shadow-gold); }

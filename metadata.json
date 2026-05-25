@@ -1,0 +1,5 @@
+{
+  "name": "Maududi's legacy",
+  "description": "An interactive web application to explore the literary works of Sayyid Abul A'la Maududi. Users can browse key books, access their PDF versions, and engage in AI-powered conversations to discuss and understand the content of each book, powered by Gemini.",
+  "requestFramePermissions": []
+}

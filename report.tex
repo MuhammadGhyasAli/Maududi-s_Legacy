@@ -1,0 +1,198 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in, headheight=15pt}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{tabularx}
+
+% --- Colors ---
+\definecolor{brandgreen}{RGB}{16, 185, 129} % Emerald 500
+\definecolor{branddark}{RGB}{15, 23, 42}   % Slate 900
+\definecolor{codebg}{RGB}{241, 245, 249}   % Slate 100
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+
+% --- Hyperref config ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=brandgreen,
+    filecolor=brandgreen,
+    urlcolor=brandgreen,
+    pdftitle={Maududi's Legacy - System Report},
+    pdfauthor={System Architect}
+}
+
+% --- Code Listing Style ---
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{codebg},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{brandgreen},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{branddark},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{black!20}
+}
+\lstset{style=mystyle}
+
+% --- Chapter and Section Styling ---
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{branddark}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{brandgreen}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{branddark}}
+  {\thesubsection}{1em}{}
+
+% --- Headers and Footers ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\color{codegray} Maududi's Legacy}
+\fancyhead[R]{\color{codegray} \leftmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{codegray}\leaders\hrule height \headrulewidth\hfill}}
+
+% --- Custom Boxes ---
+\newtcolorbox{infobox}[1][]{
+  colback=brandgreen!5!white,
+  colframe=brandgreen,
+  fonttitle=\bfseries,
+  title=#1,
+  boxrule=0.5mm,
+  arc=3mm
+}
+
+\begin{document}
+
+% --- Title Page ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge\bfseries\color{brandgreen} Maududi's Legacy\par}
+    \vspace{1cm}
+    {\LARGE\bfseries Complete System Documentation and Report\par}
+    
+    \vspace{2cm}
+    \begin{tcolorbox}[colback=white,colframe=branddark,width=0.8\textwidth,halign=center,arc=3mm,boxrule=1pt]
+        A comprehensive overview of the architecture, design, and implementation of the AI-powered Islamic literature exploration platform.
+    \end{tcolorbox}
+    
+    \vfill
+    
+    {\Large\bfseries System Architect\par}
+    \vspace{0.5cm}
+    {\large \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\chapter{Executive Summary}
+\textbf{Maududi's Legacy} is a modern web application designed to preserve and provide intelligent access to the literary works of Sayyid Abul A'la Maududi. 
+
+\begin{infobox}[Mission Statement]
+To leverage modern AI and intuitive UI/UX to make profound Islamic literature accessible, interactive, and easily searchable for audiences worldwide.
+\end{infobox}
+
+The system integrates a \textbf{React 19} frontend with a \textbf{FastAPI} backend, utilizing \textbf{Google Gemini AI} for context-aware conversational exploration of over 76 categorized books. Recent architectural improvements have transformed the system to operate efficiently without user authentication, democratizing access to all knowledge modules.
+
+\chapter{System Architecture}
+The application adopts a robust client-server architecture, prioritizing performance, state-of-the-art AI interactions, and seamless user experience.
+
+\section{Tech Stack}
+\begin{itemize}[label=\textcolor{brandgreen}{\textbullet}]
+    \item \textbf{Frontend:} Next.js 15, React 19, TypeScript, TailwindCSS v4.3.
+    \item \textbf{Backend:} Python 3.13, FastAPI, SQLAlchemy, Pydantic.
+    \item \textbf{Artificial Intelligence:} Google Gemini (gemini-1.5-pro) accessed via \texttt{@google/genai}.
+    \item \textbf{Data Persistence:} PostgreSQL (production) / SQLite (development).
+\end{itemize}
+
+\section{Data Flow}
+Data flows linearly through the system, ensuring separation of concerns:
+\begin{enumerate}[label=\textcolor{brandgreen}{\arabic*.}]
+    \item \textbf{Client Request:} The React frontend initiates asynchronous HTTP requests.
+    \item \textbf{Backend Gateway:} FastAPI receives, validates via Pydantic, and routes requests.
+    \item \textbf{Service Layer:} Book retrieval or AI prompt orchestration occurs.
+    \item \textbf{AI API:} Gemini AI processes the context (book text, user query) and returns an intelligent response.
+    \item \textbf{Client Rendering:} Tailwind CSS and React smoothly update the UI.
+\end{enumerate}
+
+\chapter{Backend Implementation}
+The backend is meticulously structured for high concurrency and easy maintainability.
+
+\section{Core Modules}
+\begin{itemize}[label=\textcolor{brandgreen}{\textbullet}]
+    \item \textbf{Application Entry (\texttt{main.py}):} Configures CORS, sets up slowapi for rate limiting, injects security headers, and registers application routers.
+    \item \textbf{API Routers:} Split primarily into \texttt{books.py} and \texttt{chat.py}.
+    \item \textbf{AI Service (\texttt{llm\_service.py}):} Wraps the Gemini model logic, injecting system instructions and handling chat history formatting securely.
+\end{itemize}
+
+\section{Rate Limiting \& Security}
+\begin{infobox}[Security Posture]
+All routes are guarded against abuse using \texttt{slowapi}. The chat endpoints are restricted to 20 requests/minute, while general book exploration allows up to 100 requests/minute per IP address.
+\end{infobox}
+Security headers such as \texttt{X-Content-Type-Options}, \texttt{X-Frame-Options}, and \texttt{X-XSS-Protection} are injected globally via a custom BaseHTTPMiddleware.
+
+\chapter{Frontend Implementation}
+The frontend emphasizes a "wow-factor" visual aesthetic, heavily relying on glassmorphism, responsive design, and smooth React transitions.
+
+\section{User Interface Highlights}
+\begin{itemize}[label=\textcolor{brandgreen}{\textbullet}]
+    \item \textbf{Dynamic Theming:} Full support for light, dark, and system-defined color schemes natively handled through custom Tailwind variables.
+    \item \textbf{Interactive Grid:} The \texttt{BookGrid} component provides instantaneous filtering (by category) and search across the catalog of 76+ books.
+    \item \textbf{AI Context Finder:} A global conversational interface available throughout the app for querying the entire catalog.
+\end{itemize}
+
+\chapter{Deployment Guide}
+The platform is container-ready, utilizing Docker and \texttt{docker-compose} for reproducible environments.
+
+\section{Environment Configuration}
+To deploy the backend, configure the \texttt{.env} file:
+\begin{lstlisting}[language=bash]
+GOOGLE_API_KEY=your_gemini_key_here
+DATABASE_URL=sqlite:///./maududi_legacy.db
+PORT=8000
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_PERIOD=60
+\end{lstlisting}
+
+\section{Execution}
+Run the complete stack using:
+\begin{lstlisting}[language=bash]
+docker-compose up --build -d
+\end{lstlisting}
+This initiates the backend on port 8000 and the frontend on port 5173.
+
+\chapter{Future Roadmap}
+\begin{itemize}[label=\textcolor{brandgreen}{\textbullet}]
+    \item \textbf{Database Migration:} Transition from hardcoded data files to full PostgreSQL ORM mapping.
+    \item \textbf{Caching Layer:} Introduce Redis to cache AI responses and book catalog queries, significantly reducing latency.
+    \item \textbf{State Management:} Adopt Redux Toolkit for complex global state.
+    \item \textbf{PWA Capabilities:} Implement service workers to enable offline reading and installation as a native application.
+\end{itemize}
+
+\end{document}

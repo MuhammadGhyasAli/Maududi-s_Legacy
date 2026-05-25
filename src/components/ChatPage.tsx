@@ -1,0 +1,174 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Book, ChatMessage, MessageSender } from '../types';
+import { apiService, ChatMessage as ApiChatMessage } from '../services/apiService';
+import ArrowLeftIcon from './icons/ArrowLeftIcon';
+import TrashIcon from './icons/TrashIcon';
+import ClipboardIcon from './icons/ClipboardIcon';
+
+interface ChatPageProps {
+  book: Book;
+  onBack: () => void;
+  onNavigateToBook: (book: Book) => void;
+}
+
+const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
+
+import ChatMessageList from './chat/ChatMessageList';
+import ChatInputArea from './chat/ChatInputArea';
+
+const ChatPage: React.FC<ChatPageProps> = ({ book, onBack, onNavigateToBook }) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [apiMessages, setApiMessages] = useState<ApiChatMessage[]>([]);
+
+  useEffect(() => {
+    setMessages([
+      { sender: MessageSender.AI, text: `Hello! I am an AI assistant trained on "${book.title}". How can I help you?` }
+    ]);
+    setApiMessages([]);
+  }, [book]);
+
+  const handleSendMessage = useCallback(async () => {
+    if (!input.trim() || isLoading) return;
+    
+    const userMessage: ChatMessage = { sender: MessageSender.USER, text: input.trim() };
+    setMessages(prev => [...prev, userMessage]);
+
+    const textToSend = input.trim();
+    setInput('');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+        const newApiMessages: ApiChatMessage[] = [
+            ...apiMessages,
+            { role: 'user', content: `Please provide a comprehensive answer in the ${selectedLanguage} language based on the book's content. Your entire response must be in ${selectedLanguage}. If you mention any book titles from the provided context, please state their full exact titles clearly.\n\nMy question is: "${textToSend}"` }
+        ];
+        
+        const response = await apiService.chat(book.id, newApiMessages);
+        const aiMessage: ChatMessage = { sender: MessageSender.AI, text: response.response };
+        setMessages(prev => [...prev, aiMessage]);
+        
+        setApiMessages([
+            ...newApiMessages,
+            { role: 'assistant', content: response.response }
+        ]);
+    } catch (e) {
+      console.error("API Error:", e);
+      const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
+      setError(`Sorry, I couldn't get a response. ${errorMessage}`);
+      setMessages(prev => prev.slice(0, prev.length -1));
+      setInput(textToSend);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [input, isLoading, selectedLanguage, apiMessages, book.id]);
+
+  const handleCopyChat = async () => {
+    const transcript = messages.map(msg => {
+        const content = `${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}: ${msg.text}`;
+        return content;
+    }).join('\n\n');
+    
+    // Robust copy implementation that works even without HTTPS/Secure Context
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(transcript);
+        alert('Chat copied to clipboard!');
+      } catch (error) {
+        console.error('Copying failed', error);
+        fallbackCopyTextToClipboard(transcript);
+      }
+    } else {
+      fallbackCopyTextToClipboard(transcript);
+    }
+  };
+
+  const fallbackCopyTextToClipboard = (text: string) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      alert('Chat copied to clipboard!');
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+      alert('Could not copy chat. Your browser may not support this feature.');
+    }
+    textArea.remove();
+  };
+
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const handleClearChat = () => {
+    if (!showClearConfirm) {
+        setShowClearConfirm(true);
+        setTimeout(() => setShowClearConfirm(false), 3000);
+        return;
+    }
+    setMessages([
+        { sender: MessageSender.AI, text: `Hello! I am an AI assistant trained on "${book.title}". How can I help you?` }
+    ]);
+    setApiMessages([]);
+    setError(null);
+    setShowClearConfirm(false);
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
+      
+      {/* Floating Action Buttons */}
+      <div className="fixed top-4 left-4 z-50">
+        <button onClick={onBack} className="cursor-pointer p-2.5 bg-white/80 dark:bg-brand-card-dark/80 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-full shadow-sm hover:bg-white dark:hover:bg-brand-card-dark text-gray-600 dark:text-gray-300 transition-colors" title="Back to library">
+          <ArrowLeftIcon className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <button onClick={handleCopyChat} className="cursor-pointer p-2.5 bg-white/80 dark:bg-brand-card-dark/80 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-full shadow-sm hover:bg-white dark:hover:bg-brand-card-dark text-gray-600 dark:text-gray-300 transition-colors" title="Copy Chat">
+          <ClipboardIcon className="w-5 h-5" />
+        </button>
+        <button 
+          onClick={handleClearChat} 
+          className={`cursor-pointer p-2.5 backdrop-blur-md border rounded-full shadow-sm transition-colors flex items-center justify-center gap-2
+            ${showClearConfirm 
+              ? 'bg-red-500 hover:bg-red-600 text-white border-red-600' 
+              : 'bg-white/80 dark:bg-brand-card-dark/80 border-gray-200/50 dark:border-white/10 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300'
+            }`} 
+          title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
+        >
+          <TrashIcon className="w-5 h-5" />
+          {showClearConfirm && <span className="text-sm pr-1 font-medium text-white">Confirm</span>}
+        </button>
+      </div>
+
+      <ChatMessageList 
+        messages={messages} 
+        isLoading={isLoading} 
+        selectedLanguage={selectedLanguage}
+        onNavigateToBook={onNavigateToBook}
+      />
+
+      <ChatInputArea 
+        input={input}
+        setInput={setInput}
+        isLoading={isLoading}
+        error={error}
+        selectedLanguage={selectedLanguage}
+        languages={LANGUAGES}
+        onSelectLanguage={setSelectedLanguage}
+        onSendMessage={handleSendMessage}
+      />
+    </div>
+  );
+};
+
+export default ChatPage;
