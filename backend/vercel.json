@@ -7,6 +7,10 @@
   ],
   "routes": [
     {
+      "src": "/health",
+      "dest": "main.py"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "main.py"
     }

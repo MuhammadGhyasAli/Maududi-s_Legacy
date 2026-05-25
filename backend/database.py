@@ -1,10 +1,22 @@
+import ssl
 import sys
-import os
 
+_original_create_default_context = ssl.create_default_context
+def _patched_create_default_context(*args, **kwargs):
+    ctx = _original_create_default_context(*args, **kwargs)
+    try:
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    except Exception:
+        pass
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    return ctx
+ssl.create_default_context = _patched_create_default_context
+
+# Move vendored packages to end of sys.path so pip-installed takes priority
 if os.environ.get('VERCEL'):
-    original_paths = list(sys.path)
-    sys.path = [p for p in original_paths if '_vendor' not in p] \
-             + [p for p in original_paths if '_vendor' in p]
+    orig = list(sys.path)
+    sys.path = [p for p in orig if '_vendor' not in p] + [p for p in orig if '_vendor' in p]
 
 from pymongo import MongoClient
 from pymongo.database import Database as MongoDatabase
