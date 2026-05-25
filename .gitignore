@@ -67,3 +67,4 @@ client_secret_*.json
 test_out.txt
 test_output.txt
 .vercel_env
+.vercel
