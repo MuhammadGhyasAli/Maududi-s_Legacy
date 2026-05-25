@@ -13,10 +13,14 @@ db: MongoDatabase | None = None
 def get_mongo_client() -> MongoClient:
     global client
     if client is None:
+        import re
+        mongo_url = settings.mongodb_url
+        if "tlsInsecure" not in mongo_url and "tlsAllowInvalidCertificates" not in mongo_url:
+            sep = "&" if "?" in mongo_url else "?"
+            mongo_url = f"{mongo_url}{sep}tlsInsecure=true"
         client = MongoClient(
-            settings.mongodb_url,
-            serverSelectionTimeoutMS=5000,
-            tlsAllowInvalidCertificates=True,
+            mongo_url,
+            serverSelectionTimeoutMS=10000,
         )
     return client
 
