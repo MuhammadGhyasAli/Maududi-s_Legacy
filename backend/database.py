@@ -1,12 +1,10 @@
 import sys
 import os
 
-_sys_path_modified = not os.environ.get('VERCEL')
-if not _sys_path_modified:
+if os.environ.get('VERCEL'):
     original_paths = list(sys.path)
     sys.path = [p for p in original_paths if '_vendor' not in p] \
              + [p for p in original_paths if '_vendor' in p]
-    _sys_path_modified = True
 
 from pymongo import MongoClient
 from pymongo.database import Database as MongoDatabase
