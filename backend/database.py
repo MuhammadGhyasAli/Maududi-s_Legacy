@@ -13,31 +13,9 @@ db: MongoDatabase | None = None
 def get_mongo_client() -> MongoClient:
     global client
     if client is None:
-        import re
-        mongo_url = settings.mongodb_url
-
-        # Resolve mongodb+srv:// to direct connection for Vercel compatibility
-        match = re.match(r"mongodb\+srv://(.+?):(.+?)@(.+?)(?:[:/?]|$)", mongo_url)
-        if match:
-            username, password, srv_host = match.group(1), match.group(2), match.group(3)
-            try:
-                import dns.resolver
-                srv_answers = dns.resolver.resolve(f"_mongodb._tcp.{srv_host}", "SRV")
-                txt_answers = dns.resolver.resolve(srv_host, "TXT")
-                txt_str = "".join(str(r).strip('"') for r in txt_answers)
-                shard_hosts = ",".join(f"{a.target}:{a.port}" for a in srv_answers)
-                direct_url = f"mongodb://{username}:{password}@{shard_hosts}/?{txt_str}&tlsAllowInvalidCertificates=true"
-                direct_url = direct_url.replace('"', "")
-                logger.info("Using direct MongoDB connection URL")
-                mongo_url = direct_url
-            except Exception as e:
-                logger.warning("SRV resolve failed, falling back: %s", e)
-                sep = "&" if "?" in mongo_url else "?"
-                mongo_url = f"{mongo_url}{sep}tlsAllowInvalidCertificates=true"
-
         client = MongoClient(
-            mongo_url,
-            serverSelectionTimeoutMS=15000,
+            settings.mongodb_url,
+            serverSelectionTimeoutMS=20000,
         )
     return client
 
