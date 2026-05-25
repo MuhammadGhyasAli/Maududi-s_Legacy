@@ -1,3 +1,21 @@
+import sys
+import subprocess
+import os
+import site
+
+_alt_path = '/tmp/alt-pymongo'
+if not os.path.exists(_alt_path):
+    try:
+        subprocess.check_call([
+            sys.executable, '-m', 'pip', 'install',
+            '--target', _alt_path, '--quiet',
+            'pymongo[srv]==4.10.1'
+        ])
+    except Exception:
+        pass
+if os.path.exists(os.path.join(_alt_path, 'pymongo')):
+    sys.path.insert(0, _alt_path)
+
 from pymongo import MongoClient
 from pymongo.database import Database as MongoDatabase
 from pymongo.errors import ConnectionFailure
