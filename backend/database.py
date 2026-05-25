@@ -16,6 +16,7 @@ def get_mongo_client() -> MongoClient:
         client = MongoClient(
             settings.mongodb_url,
             serverSelectionTimeoutMS=5000,
+            tlsAllowInvalidCertificates=True,
         )
     return client
 
