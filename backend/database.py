@@ -1,22 +1,3 @@
-import ssl
-# Patch SSLContext to lower security level for Atlas compatibility
-_orig_init = ssl.SSLContext.__init__
-def _patched_init(self, protocol=ssl.PROTOCOL_TLS_CLIENT, *args, **kwargs):
-    _orig_init(self, protocol, *args, **kwargs)
-    try:
-        self.set_ciphers("DEFAULT:@SECLEVEL=0")
-    except Exception:
-        pass
-    try:
-        self.check_hostname = False
-    except Exception:
-        pass
-    try:
-        self.verify_mode = ssl.CERT_NONE
-    except Exception:
-        pass
-ssl.SSLContext.__init__ = _patched_init
-
 from pymongo import MongoClient
 from pymongo.database import Database as MongoDatabase
 from pymongo.errors import ConnectionFailure
