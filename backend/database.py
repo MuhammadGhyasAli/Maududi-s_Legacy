@@ -1,20 +1,12 @@
 import sys
-import subprocess
 import os
-import site
 
-_alt_path = '/tmp/alt-pymongo'
-if not os.path.exists(_alt_path):
-    try:
-        subprocess.check_call([
-            sys.executable, '-m', 'pip', 'install',
-            '--target', _alt_path, '--quiet',
-            'pymongo[srv]==4.10.1'
-        ])
-    except Exception:
-        pass
-if os.path.exists(os.path.join(_alt_path, 'pymongo')):
-    sys.path.insert(0, _alt_path)
+_sys_path_modified = not os.environ.get('VERCEL')
+if not _sys_path_modified:
+    original_paths = list(sys.path)
+    sys.path = [p for p in original_paths if '_vendor' not in p] \
+             + [p for p in original_paths if '_vendor' in p]
+    _sys_path_modified = True
 
 from pymongo import MongoClient
 from pymongo.database import Database as MongoDatabase
