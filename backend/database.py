@@ -1,5 +1,6 @@
 import ssl
 import sys
+import os
 
 _original_create_default_context = ssl.create_default_context
 def _patched_create_default_context(*args, **kwargs):
