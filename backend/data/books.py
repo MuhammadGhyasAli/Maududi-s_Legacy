@@ -842,7 +842,7 @@ BOOKS_DATA = [
     "title": "Masala Qomiat",
     "author": "Sayyid Abul A'la Maududi",
     "description": "A critical analysis of Western nationalism from an Islamic perspective. Maududi argues against geographical and linguistic nationalism, emphasizing that Muslim identity is rooted in faith and ideological unity rather than territorial boundaries.",
-    "imageUrl": "https://drive.google.com/file/d/1gu0L5o1_s8YlYXMyt1HN9jiqg2bXHPoj/view?usp=drive_link",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvs_ToassDLVXOoi7DFEWaTnfWai68zg7B1w&s",
     "pdfUrl": "https://drive.google.com/file/d/1GOko0ouXCaPWjM8UQq-An0peQyWOHM54/view?usp=drive_link",
     "aiContext": "You are an AI trained on the contents of 'Masala Qomiat' by Sayyid Abul A'la Maududi. This book delves into the issue of nationalism, its origins, and its implications for the Muslim world. Maududi critiques the concept of nationalism from an Islamic perspective, discussing how it can lead to division and conflict among Muslims, and emphasizes the importance of Islamic unity and identity over nationalistic sentiments.",
     "publicationYear": 1941,
