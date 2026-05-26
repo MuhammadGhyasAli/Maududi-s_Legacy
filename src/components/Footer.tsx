@@ -96,7 +96,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://github.com/your-org/maududis-legacy"
+                  href="https://github.com/MuhammadGhyasAli/Maududi-s_Legacy"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={linkClass}
