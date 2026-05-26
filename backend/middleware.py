@@ -2,9 +2,18 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from structlog import get_logger
 from exceptions import AppException
+from config import settings
 import time
 
 logger = get_logger(__name__)
+
+
+def _add_cors_headers(response: JSONResponse, request: Request):
+    origin = request.headers.get("origin")
+    if origin and origin in settings.cors_origins:
+        response.headers["access-control-allow-origin"] = origin
+        response.headers["access-control-allow-credentials"] = "true"
+        response.headers["vary"] = "Origin"
 
 
 async def app_exception_handler(request: Request, exc: AppException):
@@ -16,7 +25,7 @@ async def app_exception_handler(request: Request, exc: AppException):
         path=request.url.path,
         method=request.method
     )
-    return JSONResponse(
+    response = JSONResponse(
         status_code=exc.status_code,
         content={
             "error": exc.message,
@@ -24,6 +33,8 @@ async def app_exception_handler(request: Request, exc: AppException):
             "status_code": exc.status_code
         }
     )
+    _add_cors_headers(response, request)
+    return response
 
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(
@@ -32,13 +43,15 @@ async def global_exception_handler(request: Request, exc: Exception):
         path=request.url.path,
         method=request.method
     )
-    return JSONResponse(
+    response = JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "Internal server error",
             "status_code": 500
         }
     )
+    _add_cors_headers(response, request)
+    return response
 
 async def logging_middleware(request: Request, call_next):
     """Request logging middleware"""

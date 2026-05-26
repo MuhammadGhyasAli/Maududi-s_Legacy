@@ -7,13 +7,11 @@ load_dotenv(os.path.abspath(_env_path))
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
 from logger import setup_logging, get_logger
@@ -33,12 +31,6 @@ limiter = Limiter(key_func=get_remote_address)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting Maududi's Legacy Backend...")
-    try:
-        init_db()
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error("Database initialization failed", error=str(e))
-        raise
     yield
     # Shutdown
     logger.info("Shutting down Maududi's Legacy Backend...")
@@ -68,13 +60,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-# Trusted host middleware (security)
-allowed_hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=allowed_hosts
 )
 
 # Request body size limit (10 MB)
@@ -111,6 +96,8 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 @limiter.limit(f"{settings.rate_limit_requests}/{settings.rate_limit_period} seconds")
 async def root(request: Request):
     return {"message": "Maududi's Legacy API is running", "version": "1.0.0"}
+
+
 
 @app.get("/health")
 @limiter.limit(f"{settings.rate_limit_requests}/{settings.rate_limit_period} seconds")

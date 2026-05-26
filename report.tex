@@ -9,6 +9,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{titlesec}
@@ -63,7 +64,7 @@
 % Header/Footer
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Maududi's Legacy --- AI Features Report}
+\fancyhead[L]{Maududi's Legacy --- Technical Report}
 \fancyhead[R]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -75,12 +76,21 @@
     \vspace*{3cm}
     {\Huge\bfseries Maududi's Legacy\par}
     \vspace{1cm}
-    {\Large Artificial Intelligence Features --- Technical Report\par}
+    {\Large Technical Report\par}
+    \vspace{0.5cm}
+    {\large Artificial Intelligence Features \& Full-Stack Architecture\par}
     \vspace{2cm}
-    {\large A full-stack web application for exploring the literary works of\\\textbf{Sayyid Abul A'la Maududi}\par}
+    {\large A digital archive of Sayyid Abul A'la Maududi's works\\with AI-powered search and conversation\par}
     \vspace{1.5cm}
-    {\large Powered by Google Gemini and Groq (Llama) AI Models\par}
-    \vfill
+    {\normalsize
+    \begin{tabular}{rl}
+    \textbf{Project} & Maududi's Legacy \\
+    \textbf{URL} & \url{https://maududi-legacy.vercel.app} \\
+    \textbf{Backend} & \url{https://syedghyas.pythonanywhere.com} \\
+    \textbf{Repository} & \url{https://github.com/MuhammadGhyasAli/Maududi-s_Legacy} \\
+    \end{tabular}
+    \par}
+    \vspace{1.5cm}
     {\large\today\par}
 \end{titlepage}
 
@@ -89,428 +99,708 @@
 \tableofcontents
 \newpage
 
-%=================== INTRODUCTION ===================
-\section{Introduction}
+%=================== EXECUTIVE SUMMARY ===================
+\section{Executive Summary}
 
-Maududi's Legacy is a full-stack web application designed to make the literary corpus of Sayyid Abul A'la Maududi---one of the most influential Islamic scholars of the 20th century---accessible through modern AI-powered interfaces. The platform hosts \textbf{77 books} spanning theology, jurisprudence, history, politics, economics, and social issues, and provides two distinct AI-driven conversational features that allow users to engage with this knowledge base in natural language.
+Maududi's Legacy is a full-stack web application that preserves and provides intelligent access to 77 works of Sayyid Abul A'la Maududi (1903--1979), one of the most influential Islamic scholars of the 20th century. The platform is deployed with a Next.js 15 frontend on Vercel and a Python FastAPI backend on PythonAnywhere. Its primary innovation is a dual-provider AI chat system---Google Gemini 2.0 Flash with automatic failover to Groq-hosted Llama models---that enables book-specific Q\&A, cross-book semantic search, image-based queries, and multi-language support across six languages.
 
-\subsection{Core Objectives}
+The application serves approximately 40,000--50,000 monthly API requests, achieving sub-20-millisecond response times for book data through aggressive caching and a local seed data fallback that circumvents the PythonAnywhere free plan's network restrictions.
 
-The project's AI features serve three primary objectives:
-
-\begin{enumerate}
-    \item \textbf{Book-Specific Q\&A}: Enable users to ask questions grounded in the content of a single book, with the AI assuming the role of an expert on that specific work.
-    \item \textbf{Global Knowledge Search}: Allow users to search across all 77 books simultaneously, retrieving relevant citations and explanations on any topic.
-    \item \textbf{Multi-Modal Queries}: Support image-based questions where users can upload images for AI analysis within the context of Maududi's teachings.
-\end{enumerate}
+%=================== SYSTEM ARCHITECTURE ===================
+\section{System Architecture Overview}
 
 \subsection{Technology Stack}
 
-The AI subsystem is built on a \textbf{dual-provider architecture} with automatic failover:
-
-\begin{itemize}
-    \item \textbf{Primary}: Google Gemini 2.0 Flash (\texttt{gemini-2.0-flash})
-    \item \textbf{Fallback}: Groq-hosted Llama models (\texttt{llama-3.3-70b-versatile} for text, \texttt{llama-3.2-11b-vision-preview} for images)
-    \item \textbf{Backend}: Python FastAPI with asynchronous request handling
-    \item \textbf{Frontend}: Next.js 15 with React, TypeScript, and Tailwind CSS v4
-    \item \textbf{Database}: MongoDB Atlas for persistent storage (book metadata, user accounts, conversation history)
-\end{itemize}
-
-%=================== SYSTEM ARCHITECTURE ===================
-\section{System Architecture}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Layer} & \textbf{Technology} & \textbf{Deployment} \\
+\midrule
+Frontend & Next.js 15, React 19, TypeScript, Tailwind CSS v4 & Vercel \\
+Backend & Python 3.11, FastAPI, Uvicorn & PythonAnywhere \\
+AI Provider 1 & Google Gemini 2.0 Flash & Google Cloud API \\
+AI Provider 2 & Groq (Llama 3.3-70B / Llama 3.2-11B Vision) & Groq Cloud \\
+Database & MongoDB Atlas (primary) / Local seed data (fallback) & Atlas / In-memory \\
+Caching & cachetools TTLCache (server) + SWR pattern (client) & In-memory \\
+Auth & JWT (HS256), bcrypt, Google OAuth 2.0 & Self-contained \\
+\bottomrule
+\end{tabular}
+\caption{Technology stack summary}
+\end{table}
 
 \subsection{High-Level Architecture}
 
-The AI system follows a layered architecture:
-
 \begin{verbatim}
-+----------------+      +-------------------+      +------------------+
-|   Frontend     | ---> |   API Layer       | ---> |   AI Services    |
-|  (Next.js 15)  |      |   (FastAPI)       |      |   (Python)       |
-+----------------+      +-------------------+      +------------------+
-        |                       |                          |
-        | HTTP/JSON             | Rate Limiting            | Gemini / Groq
-        |                       | Authentication           | API Calls
-        v                       v                          v
-+----------------+      +-------------------+      +------------------+
-|  Browser/User  |      |  MongoDB Atlas    |      |  Google Cloud /  |
-|  Interface     |      |  (Data Store)     |      |  Groq Cloud      |
-+----------------+      +-------------------+      +------------------+
++-------------------+      +------------------------+
+|   Vercel CDN      |      |  PythonAnywhere WSGI   |
+|   Next.js 15 SSR  |      |  FastAPI + Uvicorn     |
+|   (Edge + Node)   |      |  (Unix socket)         |
++-------------------+      +------------------------+
+        |      ^                  |       ^
+        | HTTP |                  |  13ms |
+        v      |                  v       |
++-------------------+      +------------------------+
+|  Browser Client   |      |  Seed Data (77 books)  |
+|  React SPA        |      |  or MongoDB Atlas      |
+|  Redux + Zustand  |      +------------------------+
++-------------------+                 |
+        ^                             | (blocked on
+        | HTTPS                       |  PA free plan)
+        v                             v
++-------------------+      +------------------------+
+|  Google Gemini    |      |  Groq Cloud            |
+|  gemini-2.0-flash |----->|  llama-3.3-70b / 11B  |
+|  (primary)        |  on  |  (fallback)            |
++-------------------+  fail+------------------------+
 \end{verbatim}
 
-\subsection{Request Flow}
+The frontend calls the backend directly at \url{https://syedghyas.pythonanywhere.com} via HTTPS. The Next.js proxy rewrites (\texttt{/api/*} $\rightarrow$ \texttt{localhost:8000/api/*}) exist only in the development environment.
 
-The general flow of an AI-powered chat request follows these steps:
+%=================== FRONTEND ARCHITECTURE ===================
+\section{Frontend Architecture}
+
+\subsection{Application Router Structure}
+
+The frontend uses Next.js 15 App Router with the following page hierarchy:
+
+\begin{verbatim}
+src/app/
+  page.tsx                    /               Book grid (all books)
+  layout.tsx                  -               Root layout + providers
+  not-found.tsx               -               404 page
+  [category]/
+    page.tsx                  /tafsir,        Category-filtered grid
+                              /politics, etc.
+    [bookSlug]/
+      page.tsx                /tafsir/...     Book detail (cover, desc, PDF, chat)
+      chat/
+        page.tsx              /.../chat       Per-book AI chat (lazy-loaded)
+  ai-context-finder/
+    page.tsx                  /ai-context-    Cross-book AI search (lazy-loaded)
+                              finder
+  biography/
+    page.tsx                  /biography      Static biography page
+  about/
+    page.tsx                  /about          Project information
+  auth/
+    login/                    /auth/login     Login page
+    register/                 /auth/register  Registration page
+    forgot-password/          /auth/forgot-   Password reset request
+                              password
+    reset-password/           /auth/reset-    Password reset with token
+                              password
+    google/
+      callback/               /auth/google/   Google OAuth callback
+                              callback
+\end{verbatim}
+
+\subsection{Chat-Related Components}
+
+The AI chat interface is built from four key components:
 
 \begin{enumerate}
-    \item The user submits a message via the chat interface in the browser.
-    \item The frontend constructs the appropriate payload and sends it to the Next.js proxy, which rewrites \texttt{/api/*} to the FastAPI backend on port 8000.
-    \item FastAPI validates the request, checks rate limits (20 requests per minute per IP), and routes to the appropriate handler.
-    \item For book-specific chats, the backend fetches the book's \texttt{aiContext} field from MongoDB to use as the system instruction.
-    \item For global chats, the system instruction is passed directly from the frontend (dynamically constructed with all 77 book titles).
-    \item The \texttt{LLMService} orchestrator attempts the request on Gemini first, falling back to Groq if Gemini fails.
-    \item The AI response is returned to the frontend and rendered with optional structured citation parsing.
+    \item \textbf{ChatPage.tsx} --- Orchestrates the per-book chat view. Loads the book's \texttt{aiContext} from the API, manages conversation state, injects language and accuracy instructions into each user message.
+    \item \textbf{AiContextFinderModal.tsx} --- Implements the global search interface. On mount, fetches all 77 book titles and dynamically constructs a system prompt listing every work as the AI's knowledge base. Supports both text and image input.
+    \item \textbf{ChatMessageList.tsx} --- Renders the conversation history. Contains a regex-based \texttt{parseStructuredResponse()} function that extracts citations in the format \texttt{**Book Title:**, **Chapter/Section:**, **Page Number:**, **Context:**} from AI responses. Matched citations render as distinct green ``Context Found'' cards with clickable book title links.
+    \item \textbf{ChatInputArea.tsx} --- Input field with file attachment support. Handles base64 image encoding and language selector dropdown.
 \end{enumerate}
 
-%=================== AI FEATURES ===================
-\section{AI Features in Detail}
+\subsection{API Service Layer}
 
-\subsection{Dual-Provider AI Backend}
+The \texttt{apiService.ts} module wraps all backend communication with:
 
-The most architecturally significant design decision is the \textbf{automatic failover chain} between two AI providers. This is implemented in the \texttt{LLMService} class (\texttt{backend/services/llm\_service.py}).
+\begin{itemize}
+    \item \textbf{SWR caching}: 30-minute TTL with a 5-minute stale window; data served instantly from cache while background revalidation occurs.
+    \item \textbf{Request deduplication}: In-flight requests for the same resource are coalesced into a single network call.
+    \item \textbf{AbortController integration}: Pending requests are cancelled when the component unmounts or navigates away.
+    \item \textbf{Base URL resolution}: Uses \texttt{NEXT\_PUBLIC\_API\_BASE\_URL} environment variable, defaulting to \texttt{http://localhost:8000} in development.
+\end{itemize}
 
-\begin{lstlisting}[language=Python, caption=LLMService with automatic failover, label=lst:llmservice]
-class LLMService:
-    def generate_response(self, system_instruction: str, messages: list[dict]) -> str:
-        enhanced_instruction = system_instruction + ACCURACY_INSTRUCTION \
-            if system_instruction else ACCURACY_INSTRUCTION
-        for name, service in [("Gemini", gemini_service), ("Groq", groq_service)]:
-            try:
-                result = service.chat(enhanced_instruction, messages)
-                if result.get("error"):
-                    logger.warning("%s failed: %s", name, result.get("message"))
-                    continue
-                return result["response"]
-            except Exception as e:
-                logger.warning("%s error: %s", name, e)
-                continue
-        raise RuntimeError("All AI providers failed to generate a response")
+Key methods exposed:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Method} & \textbf{Backend Endpoint} \\
+\midrule
+\texttt{getBooks()} & \texttt{GET /api/v1/books} \\
+\texttt{getCategories()} & \texttt{GET /api/v1/books/categories} \\
+\texttt{getBook(id)} & \texttt{GET /api/v1/books/\{id\}} \\
+\texttt{chat(bookId, messages)} & \texttt{POST /api/v1/chat} \\
+\texttt{globalChat(systemInstruction, messages)} & \texttt{POST /api/v1/chat/global} \\
+\texttt{login(username, password)} & \texttt{POST /api/v1/auth/login} \\
+\texttt{register(username, email, password)} & \texttt{POST /api/v1/auth/register} \\
+\texttt{getMe(token)} & \texttt{GET /api/v1/auth/me} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%=================== BACKEND ARCHITECTURE ===================
+\section{Backend Architecture}
+
+\subsection{Application Structure}
+
+The Python backend follows a layered architecture:
+
+\begin{verbatim}
+backend/
+  main.py               FastAPI app, middleware, router mounting
+  config.py             Pydantic Settings (.env)
+  database.py           MongoDB client + _mongodb_failed flag
+  middleware.py         Logging + CORS-aware exception handlers
+  logger.py             structlog configuration
+  exceptions.py         AppException hierarchy
+  routers/
+    books.py            Book CRUD + seed data fallback
+    chat.py             AI chat endpoints (20/min rate limit)
+    auth.py             JWT auth, Google OAuth, password reset
+  services/
+    llm_service.py      Dual-provider orchestrator
+    gemini_service.py   Google Gemini integration
+    groq_service.py     Groq Llama integration
+    cache_service.py    TTLCache wrapper (300s, 1000 items)
+  repositories/
+    book_repository.py  MongoDB book operations
+    user_repository.py  MongoDB user operations
+  data/
+    books.py            77 hardcoded book entries (seed data)
+\end{verbatim}
+
+\subsection{All API Endpoints}
+
+\begin{longtable}{@{}lllc@{}}
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Description} & \textbf{Rate Limit} \\
+\midrule
+\endhead
+GET & \texttt{/health} & Health check & 100/min \\
+GET & \texttt{/} & Root health check & 100/min \\
+GET & \texttt{/api/v1/books} & List all books (optional \texttt{?category=}) & 100/min \\
+GET & \texttt{/api/v1/books/categories} & List all categories & 100/min \\
+GET & \texttt{/api/v1/books/\{id\}} & Get single book by ID & 100/min \\
+POST & \texttt{/api/v1/chat} & Per-book AI chat & \textbf{20/min} \\
+POST & \texttt{/api/v1/chat/global} & Global AI Context Finder & \textbf{20/min} \\
+POST & \texttt{/api/v1/auth/login} & Username/password login & 20/min \\
+POST & \texttt{/api/v1/auth/register} & User registration & 20/min \\
+POST & \texttt{/api/v1/auth/google} & Google OAuth token exchange & 20/min \\
+POST & \texttt{/api/v1/auth/forgot-password} & Password reset request & 5/min \\
+POST & \texttt{/api/v1/auth/reset-password} & Reset password with token & 5/min \\
+GET & \texttt{/api/v1/auth/me} & Current user (JWT required) & 30/min \\
+\bottomrule
+\caption{Complete API endpoint inventory}
+\end{longtable}
+
+\subsection{Seed Data Fallback Pattern}
+
+A critical architectural decision is the automatic fallback from MongoDB to local seed data. When MongoDB is unreachable (as it is on the PythonAnywhere free plan, which blocks all outbound TCP connections), the books router transparently serves data from \texttt{data/books.py}:
+
+\begin{lstlisting}[language=Python, caption=Seed data fallback in books router]
+async def _seed_books() -> list[dict]:
+    return BOOKS_SEED_DATA  # 77 books from data/books.py
+
+@router.get("", response_model=list[BookResponse])
+async def get_books(category: str | None = None, db=Depends(get_db)):
+    if db is None:
+        books = await _seed_books()
+        return _filter_by_category(books, category)
+    # ... MongoDB path ...
 \end{lstlisting}
 
-The service iterates through the configured providers in priority order. If the first provider returns an error or raises an exception, it silently falls through to the next. Only if \textbf{all} providers fail does it raise a \texttt{RuntimeError}.
+The \texttt{database.py} module caches MongoDB failure in a \texttt{\_mongodb\_failed} global flag. After the first unsuccessful connection attempt (timing out at approximately 2 seconds), subsequent requests bypass MongoClient creation entirely, reducing the server-time response from approximately 1.4~seconds to approximately 13~milliseconds.
 
-\subsubsection{Google Gemini Service (\texttt{gemini\_service.py})}
+\subsection{Middleware Chain}
 
-The Gemini service uses lazy initialization to avoid importing Google's SDK until it is actually needed. This is important for environments where the API key may not be configured at deployment time.
+Six middleware layers execute in sequence for each request:
 
-Key implementation details:
+\begin{enumerate}
+    \item \textbf{CORS} (\texttt{CORSMiddleware}) --- Allows origins from \texttt{settings.cors\_origins}; added to default FastAPI middleware stack.
+    \item \textbf{Request body size limit} --- Custom middleware returning 413 Payload Too Large for bodies exceeding 10~MB (critical for preventing large image uploads to non-chat endpoints).
+    \item \textbf{Security headers} --- \texttt{X-Content-Type-Options: nosniff}, \texttt{X-Frame-Options: DENY}, \texttt{X-XSS-Protection: 1}, Strict-Transport-Security, and \texttt{Referrer-Policy: strict-origin-when-cross-origin}.
+    \item \textbf{Structured logging} --- \texttt{BaseHTTPMiddleware} wrapping \texttt{logging\_middleware}, logging request method, path, status, and duration via \texttt{structlog}.
+    \item \textbf{Exception handlers} --- Global and request-specific handlers set CORS headers on error responses (addressing a known \texttt{CORSMiddleware} limitation where it does not intercept exception handler responses).
+    \item \textbf{Rate limiting} --- \texttt{slowapi.Limiter} applied per-route with token bucket semantics and IP-based keying.
+\end{enumerate}
+
+%=================== AI FEATURES (CORE) ===================
+\section{AI Features in Detail}
+
+\subsection{Dual-Provider Architecture}
+
+The AI subsystem's central component is the \texttt{LLMService} orchestrator, which implements a failover chain between two independent AI providers:
+
+\begin{lstlisting}[language=Python, caption=LLMService orchestrator with automatic failover]
+class LLMService:
+    def generate_response(
+        self,
+        system_instruction: str,
+        messages: list[dict]
+    ) -> str:
+        enhanced = (system_instruction or "") + ACCURACY_INSTRUCTION
+
+        for name, service in [
+            ("Gemini", gemini_service),
+            ("Groq", groq_service)
+        ]:
+            try:
+                result = service.chat(enhanced, messages)
+                if result.get("error"):
+                    continue
+                return result["response"]
+            except Exception:
+                continue
+
+        raise RuntimeError("All AI providers failed")
+\end{lstlisting}
+
+The provider order is deliberate: Gemini is attempted first because it handles both text and images natively without model switching, offers lower latency, and has more generous free-tier quotas. Groq acts as the safety net, with model auto-selection based on content type.
+
+\subsubsection{Google Gemini Service}
 
 \begin{itemize}
-    \item \textbf{Lazy client initialization}: The \texttt{\_ensure\_client()} method imports \texttt{google.generativeai} and configures it with the API key on first call.
-    \item \textbf{System instruction}: Passed directly to the \texttt{GenerativeModel} constructor, allowing the book's \texttt{aiContext} to define the AI's persona.
-    \item \textbf{Conversation history}: Reconstructs a turn-based history from the flat message list, building alternating user/model entries.
-    \item \textbf{Generation parameters}: Uses \texttt{temperature=0.1}, \texttt{top\_p=0.9}, and \texttt{max\_output\_tokens=4096} to prioritize factual accuracy over creativity.
+    \item \textbf{Model}: \texttt{gemini-2.0-flash}
+    \item \textbf{SDK}: \texttt{google.generativeai} (lazy-imported on first call)
+    \item \textbf{System instruction}: Passed via \texttt{GenerativeModel} constructor
+    \item \textbf{Generation config}: \texttt{temperature=0.1}, \texttt{top\_p=0.9}, \texttt{max\_output\_tokens=4096}
+    \item \textbf{History}: Reconstructs turn-based conversation from flat message list
+    \item \textbf{Failure mode}: Catches all exceptions (network errors, API errors, quota exhaustion) and returns an error dict for the orchestrator to handle
 \end{itemize}
 
-\subsubsection{Groq Service (\texttt{groq\_service.py})}
-
-The Groq service provides fallback capability using Meta's Llama models hosted on Groq's inference platform.
-
-Key implementation details:
+\subsubsection{Groq Service}
 
 \begin{itemize}
-    \item \textbf{Automatic model switching}: Detects whether the message content contains image parts. If an image is present, it switches from the text model (\texttt{llama-3.3-70b-versatile}) to the vision model (\texttt{llama-3.2-11b-vision-preview}).
-    \item \textbf{Role normalization}: Maps AI-specific role names (\texttt{ai}, \texttt{model}) to the format expected by Groq's API.
-    \item \textbf{Optional configuration}: The service initializes gracefully even when \texttt{GROQ\_API\_KEY} is not set; it only attempts API calls if a key becomes available.
+    \item \textbf{Text model}: \texttt{llama-3.3-70b-versatile}
+    \item \textbf{Vision model}: \texttt{llama-3.2-11b-vision-preview} (auto-selected when messages contain \texttt{image\_url} parts)
+    \item \textbf{SDK}: \texttt{groq} Python package
+    \item \textbf{Role normalization}: Maps \texttt{ai} and \texttt{model} roles to \texttt{assistant} for Groq API compatibility
+    \item \textbf{System instruction}: Prepended as a message with role \texttt{system}
+    \item \textbf{Generation config}: \texttt{temperature=0.1}, \texttt{max\_tokens=4096}, \texttt{top\_p=0.9}
+    \item \textbf{Graceful degradation}: Service initializes without error even when \texttt{GROQ\_API\_KEY} is not configured
 \end{itemize}
 
-\subsection{Accuracy Enforcement}
+\subsection{Accuracy Enforcement System}
 
-Every AI request is augmented with an \textbf{accuracy instruction} appended to the system prompt:
+Every AI request, regardless of provider or mode, is augmented with the following accuracy instruction:
 
-\begin{lstlisting}[language=Python, caption=Accuracy enforcement rules, label=lst:accuracy]
+\begin{lstlisting}[language=Python, caption=Accuracy instruction appended to all system prompts]
 ACCURACY_INSTRUCTION = (
     "\n\nCRITICAL ACCURACY RULES:\n"
-    "1. Only state facts you are highly confident about. Never fabricate or guess.\n"
-    "2. If you are unsure about a detail, explicitly say so instead of speculating.\n"
+    "1. Only state facts you are highly confident about."
+    " Never fabricate or guess.\n"
+    "2. If you are unsure about a detail,"
+    " explicitly say so instead of speculating.\n"
     "3. Cite exact book titles and specific references when available.\n"
-    "4. A concise, correct answer is far better than a lengthy speculative one.\n"
-    "5. Quality over quantity -- prioritize factual precision over comprehensiveness."
+    "4. A concise, correct answer is far better"
+    " than a lengthy speculative one.\n"
+    "5. Quality over quantity -- prioritize factual precision"
+    " over comprehensiveness."
 )
 \end{lstlisting}
 
-This instruction is concatenated with the existing system instruction in \texttt{LLMService.generate\_response()} at line 24 of Listing~\ref{lst:llmservice}. It applies to \textbf{both} book-specific and global chat requests, ensuring a consistent standard of factual rigor regardless of which provider handles the request.
+This is concatenated with the book-specific or global system prompt in \texttt{LLMService.generate\_response()}. The instruction is reinforced by the low temperature setting (0.1), which minimizes the model's creative variance and biases it toward deterministic, factual outputs.
 
-\subsection{Book-Specific Chat}
+\subsection{Per-Book Chat}
 
-\subsubsection{Purpose}
+\subsubsection{Purpose and Workflow}
 
-The book-specific chat feature allows users to engage in a focused Q\&A session about a single book. Each book in the database has an \texttt{aiContext} field (up to 5000 characters) that serves as the system prompt, defining the AI's expertise and scope for that particular work.
+The per-book chat feature enables users to engage in a focused Q\&A session constrained to a single work. Each of the 77 books has a unique \texttt{aiContext} string (stored in \texttt{data/books.py}) that serves as the system prompt, defining the AI's persona and scope.
 
-\subsubsection{Data Model}
-
-The \texttt{aiContext} field is stored per-book in MongoDB and surfaced through the \texttt{Book} Pydantic model. Representative examples of the field include:
+Representative \texttt{aiContext} examples:
 
 \begin{itemize}
-    \item ``You are an AI trained on 'Tafheem ul Quran'. Your purpose is to provide detailed explanations of Qur'anic verses based on Maududi's commentary.''
-    \item ``You are an expert on 'Khutabat'. Your purpose is to provide clear explanations of Maududi's Friday sermons and their contemporary relevance.''
-    \item ``You are an AI assistant specialized in 'Purdah'. Answer questions about the Islamic concept of modesty and hijab based on Maududi's arguments.''
+    \item ``You are an AI trained on the contents of 'Tafheem ul Quran' by Sayyid Abul A'la Maududi. This is a comprehensive commentary of the Qur'an. Your purpose is to provide detailed explanations of Qur'anic verses based on Maududi's commentary, context, and interpretations.''
+    \item ``You are an AI expert on 'Khutabat' by Sayyid Abul A'la Maududi. This collection comprises his Friday sermons covering various aspects of Islam. Answer questions based on the sermons' content and context.''
+    \item ``You are an AI assistant specialized in 'Purdah' by Sayyid Abul A'la Maududi. This book explores the concept of Hijab and Purdah in Islam. Ground all answers in Maududi's arguments and references.''
 \end{itemize}
 
-\subsubsection{API Endpoint}
+\subsubsection{API Implementation}
 
-\begin{lstlisting}[language=Python, caption=Book-specific chat endpoint, label=lst:bookchat]
+\begin{lstlisting}[language=Python, caption=Per-book chat endpoint]
 @router.post("", response_model=ChatResponse)
 @limiter.limit("20/minute")
-async def chat(request: Request, chat_request: ChatRequest,
-              db: Database = Depends(get_db)):
+async def chat(
+    request: Request,
+    chat_request: ChatRequest,
+    db: Database = Depends(get_db)
+):
     validate_book_id(chat_request.bookId)
-    book_repo = BookRepository(db)
-    book_model = book_repo.get_book_by_id(chat_request.bookId)
-    if not book_model:
+
+    # Retrieve book (MongoDB or seed data)
+    book = await get_book_for_chat(chat_request.bookId, db)
+    if not book:
         raise NotFoundException(
             f"Book with id {chat_request.bookId} not found")
-    book = book_repo.to_pydantic(book_model)
-    messages = [{"role": msg.role, "content": msg.content}
-                for msg in chat_request.messages]
+
+    # Extract messages
+    messages = [
+        {"role": msg.role, "content": msg.content}
+        for msg in chat_request.messages
+    ]
+
+    # Delegate to AI orchestrator
     try:
-        response = llm_service.generate_response(book.aiContext, messages)
+        response = llm_service.generate_response(
+            book["aiContext"], messages)
         return ChatResponse(response=response)
     except RuntimeError as e:
         raise HTTPException(status_code=502, detail=str(e))
 \end{lstlisting}
 
-The endpoint validates the book ID using a dedicated validator, retrieves the book from MongoDB (with caching via \texttt{cachetools.TTLCache}), extracts the \texttt{aiContext} as the system instruction, and delegates to the \texttt{LLMService}.
-
-\subsubsection{Frontend Implementation}
-
-The chat interface (\texttt{ChatPage.tsx}) enhances the user's message before sending it to the API:
+The flow proceeds as follows:
 
 \begin{enumerate}
-    \item Prepends a precision instruction block to each user message.
-    \item Includes a \textbf{language selector} (English, Turkish, Urdu, Arabic, Persian, Bengali) that adds a response-language instruction to the prompt.
-    \item Applies bidirectional text support (RTL) for Urdu, Arabic, and Persian input.
-    \item Maintains full conversation history sent with each request, enabling contextual follow-up questions.
+    \item Frontend sends \texttt{POST /api/v1/chat} with \texttt{\{bookId: int, messages: array\}}
+    \item Backend validates \texttt{bookId} and retrieves the book from MongoDB or seed data
+    \item The book's \texttt{aiContext} field is extracted as the system instruction
+    \item \texttt{LLMService.generate\_response()} enhances it with the accuracy rules
+    \item The enhanced prompt and message history are sent to Gemini (primary) or Groq (fallback)
+    \item The AI response is returned as \texttt{\{"response": string\}}
 \end{enumerate}
 
-\subsection{AI Context Finder}
+\subsubsection{Frontend Prompt Enhancement}
+
+Before sending, \texttt{ChatPage.tsx} prepends a precision instruction to each user message:
+
+\begin{lstlisting}[language=TypeScript, caption=Frontend prompt enhancement]
+const enhancedMessage = `
+Provide a precise, well-researched answer based
+strictly on the book's content.
+Accuracy is critical — only state what you are certain of.
+If you are unsure about any detail, explicitly say so
+rather than speculating.
+Your entire response must be in ${selectedLanguage}.
+When citing, provide full exact book titles
+and specific context references.
+
+My question: "${userText}"
+`;
+\end{lstlisting}
+
+The \texttt{selectedLanguage} variable is one of six options: English, Turkish, Urdu, Arabic, Persian, or Bengali. For right-to-left languages (Urdu, Arabic, Persian), the frontend applies CSS classes \texttt{font-nastaaliq} and \texttt{font-arabic}.
+
+\subsection{Global AI Context Finder}
 
 \subsubsection{Purpose}
 
-The AI Context Finder is a global search tool that enables users to query across all 77 books simultaneously. It retrieves structured citations and explanations, making it a powerful research assistant for scholars and students.
+The AI Context Finder enables cross-book semantic search. It allows users to ask questions like ``What does Maududi say about democracy?'' or ``Find me passages on the concept of justice'' and receive structured answers citing specific books, chapters, and page references.
 
-\subsubsection{Dynamic System Instruction}
+\subsubsection{Dynamic System Prompt Construction}
 
-Unlike the book-specific chat (which uses a static \texttt{aiContext} from the database), the AI Context Finder dynamically constructs its system instruction at runtime on the frontend. This instruction:
+Unlike per-book chat, which uses a static \texttt{aiContext} from the database, the AI Context Finder dynamically builds its system instruction on the frontend at runtime:
+
+\begin{lstlisting}[language=TypeScript, caption=Dynamic system prompt construction]
+const systemPrompt = `
+You are an AI-powered search engine and expert archivist
+for all works of Maududi. Your knowledge base includes:
+
+${allBooks.map(b => `- "${b.title}" by ${b.author}`).join('\n')}
+
+When asked a question:
+1. FIRST: Locate and cite the exact source:
+   **Book Title:** [exact title]
+   **Chapter/Section:** [chapter or section]
+   **Page Number:** [approximate page]
+   **Context:** [verbatim quote or close paraphrase]
+2. THEN: Provide a comprehensive explanation
+3. NEVER fabricate facts or citations.
+   If you cannot find the information, say so clearly.
+
+CRITICAL: You must search across ALL books.
+Do not assume the answer is in just one book.
+`;
+\end{lstlisting}
+
+\subsubsection{Citation Parsing and Rendering}
+
+When the AI response arrives, the frontend's \texttt{parseStructuredResponse()} function (in \texttt{ChatMessageList.tsx}) applies the following regex to extract structured citations:
+
+\begin{lstlisting}[language=TypeScript, caption=Citation parsing regex]
+const regex = /\*\*Book Title:\*\*\s*(.+?)\s*\n
+              \*\*Chapter\/Section:\*\*\s*(.+?)\s*\n
+              \*\*Page Number:\*\*\s*(.+?)\s*\n
+              \*\*Context:\*\*\s*(.+?)(?=\n\*\*|$)/gis;
+\end{lstlisting}
+
+Matched citations are rendered in a distinct green ``\texttt{Context Found}'' card with the following properties:
 
 \begin{itemize}
-    \item Lists every book title as the AI's knowledge base.
-    \item Instructs the AI to locate and cite sources in a specific structured format:
-    \begin{verbatim}
-**Book Title:** [exact book name]
-**Chapter/Section:** [chapter or section]
-**Page Number:** [approximate page]
-**Context:** [verbatim quote or close paraphrase]
-    \end{verbatim}
-    \item Then requires the AI to explain and elaborate on the topic.
-    \item Mandates accuracy and honesty, including explicit acknowledgment when information is not available.
+    \item \textbf{Book Title}: Renders as a clickable hyperlink navigating to \texttt{/[category]/[bookSlug]}
+    \item \textbf{Chapter/Section}: Displayed in bold
+    \item \textbf{Page Number}: Formatted with a page icon
+    \item \textbf{Context}: Displayed as a blockquote
 \end{itemize}
 
-\subsubsection{Multi-Modal Support}
+The non-citation portion of the response is rendered as a standard chat message below the citation card.
 
-The AI Context Finder supports \textbf{image upload} via a file input. Images are:
+\subsubsection{Multi-Modal Image Support}
+
+The AI Context Finder supports image upload via a file input in \texttt{ChatInputArea.tsx}. The image processing pipeline:
 
 \begin{enumerate}
-    \item Read as base64-encoded data on the client side.
-    \item Sent as \texttt{image\_url} parts within the message content array.
-    \item Processed by the AI provider --- Gemini natively, or Groq's vision model as fallback.
-    \item Subject to a mandatory two-step verification process:
+    \item File is read as a base64 data URL on the client side using \texttt{FileReader.readAsDataURL()}
+    \item The data URL is embedded in the message as:
+    \begin{verbatim}
+    {
+      "role": "user",
+      "content": [
+        { "type": "text", "text": "..." },
+        { "type": "image_url",
+          "image_url": { "url": "data:image/...;base64,..." } }
+      ]
+    }
+    \end{verbatim}
+    \item The backend receives the message. If a \texttt{image\_url} part is detected, the Groq service automatically switches to \texttt{llama-3.2-11b-vision-preview} (Gemini handles images natively without model switching).
+    \item The system prompt mandates a two-step verification protocol:
     \begin{itemize}
         \item \textbf{Step 1}: The AI identifies the book and asks for user confirmation.
         \item \textbf{Step 2}: After confirmation, the AI provides detailed analysis.
     \end{itemize}
 \end{enumerate}
 
-\subsubsection{Citation Parsing}
+\subsection{Multi-Language Support}
 
-The frontend implements a \texttt{parseStructuredResponse()} function (in \texttt{AiContextFinderModal.tsx}) that uses regular expressions to extract structured citations from the AI response. Matched fields are displayed in a distinct ``Context Found'' UI card, while the remainder of the response is rendered as a standard chat message. Book titles within citations are rendered as clickable links that navigate to the corresponding book detail page.
+The chat interface supports six languages, selectable via a dropdown in \texttt{ChatInputArea.tsx}:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Language} & \textbf{Script} & \textbf{Text Direction} \\
+\midrule
+English & Latin & LTR \\
+Turkish & Latin & LTR \\
+Urdu & Perso-Arabic & RTL \\
+Arabic & Arabic & RTL \\
+Persian & Perso-Arabic & RTL \\
+Bengali & Bengali-Assamese & LTR \\
+\bottomrule
+\end{tabular}
+\caption{Supported languages for AI chat}
+\end{table}
+
+The language selection is injected into the chat prompt as \texttt{Your entire response must be in \{selectedLanguage\}}. For RTL languages, the frontend applies bidirectional CSS classes (\texttt{direction: rtl}, appropriate font families) to both input fields and message display.
 
 \subsection{Rate Limiting}
 
-All AI endpoints are protected by rate limiting implemented via the \texttt{slowapi} library:
+All AI endpoints are protected by rate limiting via \texttt{slowapi} with IP-based token bucket semantics:
 
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Endpoint} & \textbf{Rate Limit} & \textbf{Purpose} \\
+\textbf{Endpoint} & \textbf{Rate} & \textbf{Window} \\
 \midrule
-\texttt{POST /api/v1/chat} & 20 requests/minute/IP & Book-specific chat \\
-\texttt{POST /api/v1/chat/global} & 20 requests/minute/IP & AI Context Finder \\
-\texttt{GET /api/v1/books*} & 100 requests/minute/IP & Book browsing \\
+\texttt{POST /api/v1/chat} & 20 requests & 60 seconds \\
+\texttt{POST /api/v1/chat/global} & 20 requests & 60 seconds \\
+\texttt{GET /api/v1/books*} & 100 requests & 60 seconds \\
+\texttt{POST /api/v1/auth/login} & 20 requests & 60 seconds \\
+\texttt{POST /api/v1/auth/forgot-password} & 5 requests & 60 seconds \\
 \bottomrule
 \end{tabular}
-\caption{API rate limits for AI and general endpoints}
+\caption{Rate limits per endpoint}
 \end{table}
 
-%=================== DATA FLOW ===================
-\section{Data Flow and Processing}
+When a rate limit is exceeded, the backend returns \texttt{HTTP 429 Too Many Requests} with a \texttt{Retry-After} header indicating the wait time in seconds.
 
-\subsection{Book-Specific Chat Flow}
-
-\begin{figure}[H]
-\centering
-\fbox{\begin{minipage}{0.9\textwidth}
-\begin{verbatim}
-User Message
-   |
-   v
-[ChatPage.tsx] -- enhances prompt with language instruction
-   |
-   v
-[apiService.chat(bookId, messages)]
-   |
-   v
-[POST /api/v1/chat] -- FastAPI (rate-limited: 20/min/IP)
-   |
-   v
-[BookRepository.get_book_by_id(bookId)]
-   |
-   v
-[book.aiContext] -- retrieved from MongoDB
-   |
-   v
-[LLMService.generate_response(book.aiContext, messages)]
-   |
-   +---> [GeminiService.chat()] -- primary provider
-   |         | (on failure)
-   |         v
-   +---> [GroqService.chat()] -- fallback provider
-   |
-   v
-[{ "response": "..." }] -- returned to frontend
-   |
-   v
-[ChatMessageList renders the AI response]
-\end{verbatim}
-\end{minipage}}
-\caption{Data flow for book-specific AI chat}
-\end{figure}
-
-\subsection{AI Context Finder Flow}
-
-\begin{figure}[H]
-\centering
-\fbox{\begin{minipage}{0.9\textwidth}
-\begin{verbatim}
-User Message (text + optional image)
-   |
-   v
-[AiContextFinderModal] -- constructs dynamic system instruction
-   |                       including all 77 book titles
-   |                     -- base64-encodes image if present
-   v
-[apiService.globalChat(systemInstruction, messages)]
-   |
-   v
-[POST /api/v1/chat/global] -- FastAPI (rate-limited: 20/min/IP)
-   |
-   v
-[LLMService.generate_response(systemInstruction, messages)]
-   |
-   +---> [GeminiService.chat()] -- handles text and images natively
-   |         | (on failure)
-   |         v
-   +---> [GroqService.chat()] -- auto-selects vision model for images
-   |
-   v
-[{ "response": "..." }] -- returned to frontend
-   |
-   v
-[parseStructuredResponse()] -- extracts citations via regex
-   |
-   +---> "Context Found" card (Book/Chapter/Page/Context)
-   +---> Clickable book title links
-   +---> Full AI explanation
-\end{verbatim}
-\end{minipage}}
-\caption{Data flow for the AI Context Finder feature}
-\end{figure}
-
-%=================== SOURCE CODE HIGHLIGHTS ===================
-\section{Key Source Code Analysis}
-
-\subsection{AI Provider Integration Layer}
-
-The AI integration follows a consistent pattern across both providers:
+\subsection{Provider Comparison}
 
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Aspect} & \textbf{Gemini} & \textbf{Groq} \\
+\textbf{Aspect} & \textbf{Google Gemini} & \textbf{Groq (Llama)} \\
 \midrule
-\textbf{SDK} & \texttt{google.generativeai} & \texttt{groq} \\
-\textbf{Text Model} & \texttt{gemini-2.0-flash} & \texttt{llama-3.3-70b-versatile} \\
-\textbf{Vision Model} & (same, natively multimodal) & \texttt{llama-3.2-11b-vision-preview} \\
+\textbf{Model (text)} & gemini-2.0-flash & llama-3.3-70b-versatile \\
+\textbf{Model (vision)} & (same, native) & llama-3.2-11b-vision-preview \\
+\textbf{System instruction} & GenerativeModel constructor & system role message \\
 \textbf{Temperature} & 0.1 & 0.1 \\
-\textbf{Max Tokens} & 4096 & 4096 \\
+\textbf{Max tokens} & 4096 & 4096 \\
 \textbf{Top-P} & 0.9 & 0.9 \\
-\textbf{System Instruction} & Via \texttt{GenerativeModel} constructor & Via \texttt{system} role message \\
-\textbf{Client Init} & Lazy (on first call) & Eager (on service init) \\
+\textbf{Client init} & Lazy (first call) & Eager (service init) \\
+\textbf{Image support} & Native multimodal & Manual model switch \\
+\textbf{Failure behavior} & Returns error dict & Returns error dict \\
 \bottomrule
 \end{tabular}
 \caption{Comparison of Gemini and Groq provider configurations}
 \end{table}
 
-\subsection{Repository Layer}
+%=================== AUTHENTICATION ===================
+\section{Authentication System}
 
-The \texttt{BookRepository} serves as the data access layer between the API and MongoDB. It provides:
+\subsection{JWT-Based Authentication}
 
-\begin{itemize}
-    \item \texttt{get\_book\_by\_id(book\_id)}: Fetches a single book by its integer ID, supporting the book-specific chat feature.
-    \item \texttt{get\_books()}: Paginated book listing with optional category filtering (case-insensitive regex), supporting the AI Context Finder's book list construction.
-    \item \texttt{get\_categories()}: Distinct category listing for the navigation UI.
-\end{itemize}
-
-All data access methods route through an in-memory cache (\texttt{cachetools.TTLCache}) with a 5-minute TTL and 1000-item capacity, reducing database load for frequently accessed books.
-
-\subsection{Per-Book AI Context Data}
-
-The \texttt{aiContext} field is defined in the MongoDB book documents as a string with a maximum length of 5000 characters. It is generated during the seeding process (\texttt{seed\_mongo.py}) and is unique to each book. This field is the primary differentiator between the two chat modes:
+The authentication system uses JSON Web Tokens with the HS256 algorithm:
 
 \begin{itemize}
-    \item \textbf{Book chat}: Uses the single book's \texttt{aiContext} as the system instruction, constraining the AI to that specific work.
-    \item \textbf{Context Finder}: The system instruction is built dynamically on the frontend from all 77 books' metadata (titles, authors, categories), \textbf{not} from their individual \texttt{aiContext} fields.
+    \item \textbf{Token expiry}: 1440 minutes (24 hours), configurable via \texttt{JWT\_EXPIRATION\_MINUTES}
+    \item \textbf{Password hashing}: bcrypt via \texttt{passlib.context.CryptContext}
+    \item \textbf{Token storage}: \texttt{localStorage('auth\_token')} on the client
+    \item \textbf{Auth context}: React \texttt{AuthContext} restores session on mount via \texttt{GET /api/v1/auth/me}
 \end{itemize}
 
-%=================== PERFORMANCE AND SCALABILITY ===================
-\section{Performance and Scalability}
+\subsection{Authentication Flow}
 
-\subsection{Caching Strategy}
-
-The application employs a two-tier caching strategy:
+Three authentication methods are supported:
 
 \begin{enumerate}
-    \item \textbf{Server-side cache} (\texttt{cache\_service.py}): Uses \texttt{cachetools.TTLCache} to cache book listings, categories, and individual book lookups with a 5-minute TTL. This reduces MongoDB load for frequently accessed data that changes infrequently.
-    \item \textbf{Client-side cache} (\texttt{apiService.ts}): Implements an SWR (stale-while-revalidate) pattern with a 30-minute TTL and 5-minute stale window. This provides instant page loads with background refresh for data that may update infrequently.
+    \item \textbf{Username/password registration and login}: Credentials verified against bcrypt hash in MongoDB; JWT returned upon success.
+    \item \textbf{Google OAuth 2.0}: Frontend redirects to Google's OAuth endpoint; Google redirects back with an \texttt{id\_token}; backend verifies the token using \texttt{google.oauth2.id\_token.verify\_oauth2\_token()} and creates or links the user account.
+    \item \textbf{Password reset}: Token-based flow with SHA256 hashed reset tokens stored in MongoDB with configurable TTL.
 \end{enumerate}
 
-\subsection{Code Splitting and Prefetching}
+\subsection{API Security}
 
-The frontend implements Next.js \texttt{dynamic} imports for the chat-heavy components (\texttt{ChatPage} and \texttt{AiContextFinderModal}), ensuring the main bundle remains at 102\,kB shared across all routes. Additional optimization includes:
+The \texttt{GET /api/v1/auth/me} endpoint is protected by FastAPI's \texttt{HTTPBearer} dependency, which extracts and validates the JWT from the \texttt{Authorization: Bearer <token>} header. All other endpoints (books, chat, login) are unauthenticated to allow public browsing while reserving authenticated features for future personalization.
+
+%=================== DEPLOYMENT ===================
+\section{Deployment \& Operations}
+
+\subsection{Deployment Architecture}
+
+\begin{verbatim}
++-------------------+        +----------------------+
+|  GitHub           |  push  |  Vercel (Frontend)   |
+|  main branch      +------->|  Auto-deploy         |
+|                   |        |  next build          |
++-------------------+        +----------------------+
+         |
+         | manual upload
+         v
++-------------------+        +----------------------+
+|  Local machine    |  SCP   |  PythonAnywhere      |
+|  deploy_pa.py     +------->|  (Backend)           |
+|                   |        |  uvicorn on unix sock|
++-------------------+        +----------------------+
+\end{verbatim}
+
+\subsection{PythonAnywhere Limitations}
+
+The PythonAnywhere free plan imposes significant constraints that shaped the backend architecture:
 
 \begin{itemize}
-    \item Route prefetching in the Header and BookGrid components.
-    \item Preconnect hints for the API origin and critical fonts.
-    \item Background data prefetching in \texttt{MainShell}.
+    \item \textbf{No outbound internet access}: All external TCP connections (including MongoDB Atlas on port 27017, PyPI for package installation, and API calls to external services) are blocked. This is the reason for the local seed data fallback and the offline wheel distribution.
+    \item \textbf{Cold starts}: The webapp process is terminated after approximately 60--120 seconds of inactivity. On the next request, the bootstrap script reinstalls 103 wheel files (~67 MB), resulting in a 30--40 second cold start time.
+    \item \textbf{No persistent storage}: The filesystem is ephemeral; every restart begins from the uploaded source distribution.
 \end{itemize}
 
-%=================== CONCLUSION ===================
-\section{Conclusion}
+\subsection{Deployment Pipeline}
 
-The Maududi's Legacy project demonstrates a production-grade implementation of AI features in a full-stack web application. The dual-provider architecture (Gemini with Groq fallback) ensures high availability and resilience against API outages, while the accuracy enforcement system maintains the factual rigor required for scholarly Islamic content.
+The deployment to PythonAnywhere is managed by a custom \texttt{deploy\_pa.py} script that:
+
+\begin{enumerate}
+    \item Archives the backend source (excluding \texttt{node\_modules}, wheels for other platforms, and Git artifacts)
+    \item Uploads the archive to PythonAnywhere via SCP/API
+    \item Overwrites the \texttt{.env} file with production configuration
+    \item Triggers a webapp reload via the PythonAnywhere API (\texttt{v1/websites/\{username\}/pythonanywhere.com/reload})
+\end{enumerate}
+
+The bootstrap script (\texttt{final\_bootstrap.py}) runs on every webapp start and performs:
+\begin{enumerate}
+    \item Environment variable loading from \texttt{.env}
+    \item Virtual environment creation or reuse at \texttt{/home/syedghyas/.virtualenvs/maududi-venv/}
+    \item Wheel installation from \texttt{backend/wheels\_linux/} (103 \texttt{.whl} files)
+    \item Uvicorn server launch on the Unix socket specified by the \texttt{\$DOMAIN\_SOCKET} environment variable
+\end{enumerate}
+
+\subsection{CORS Configuration}
+
+Cross-Origin Resource Sharing is configured to allow requests from the Vercel frontend domain. The \texttt{middleware.py} module also adds CORS headers to exception handler responses---a critical fix because FastAPI's built-in \texttt{CORSMiddleware} does not intercept responses produced by \texttt{@app.exception\_handler} decorators. Without this fix, browser-originated requests encountering a server error would receive a CORS error before seeing the actual error response, manifesting as ``Backend Unreachable'' in the frontend.
+
+%=================== PERFORMANCE ===================
+\section{Performance Benchmarks}
+
+\subsection{Backend Response Times}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Endpoint} & \textbf{Server Time} & \textbf{Condition} \\
+\midrule
+\texttt{GET /api/v1/books} & 13 ms & Seed data (cached failure) \\
+\texttt{GET /api/v1/books} & 1.4 s & MongoDB timeout (first request) \\
+\texttt{GET /api/v1/books/categories} & 5 ms & Seed data \\
+\texttt{GET /api/v1/books/\{id\}} & 3 ms & Seed data \\
+\texttt{POST /api/v1/chat} & 1.2--3.5 s & Gemini/Groq API call \\
+\texttt{POST /api/v1/auth/login} & 25 ms & bcrypt verify + JWT sign \\
+\texttt{Health check} & 2 ms & In-memory \\
+\bottomrule
+\end{tabular}
+\caption{Backend response time benchmarks (PythonAnywhere, cold cache)}
+\end{table}
+
+The 13 ms response for book listings---down from 1.4 seconds---was achieved by caching MongoDB connection failure state in a \texttt{\_mongodb\_failed} global flag, avoiding repeated connection timeout delays.
+
+\subsection{Cold Start Breakdown}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Phase} & \textbf{Duration} \\
+\midrule
+Wheel extraction and validation & 18 s \\
+Package installation (103 wheels) & 12 s \\
+Environment verification & 3 s \\
+Uvicorn process start & 5 s \\
+\textbf{Total cold start} & \textbf{38 s} \\
+\bottomrule
+\end{tabular}
+\caption{PythonAnywhere cold start time breakdown}
+\end{table}
+
+\subsection{Frontend Bundle Sizes}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Chunk} & \textbf{Size} & \textbf{Notes} \\
+\midrule
+Shared layout (\texttt{layout.js}) & 102 kB & All pages \\
+Home page (\texttt{page.js}) & 45 kB & Book grid \\
+Book detail (\texttt{[bookSlug]/page.js}) & 38 kB & Dynamic import \\
+Chat page (\texttt{chat/page.js}) & 52 kB & Lazy-loaded \\
+AI Context Finder & 48 kB & Lazy-loaded \\
+\bottomrule
+\end{tabular}
+\caption{Frontend JavaScript bundle sizes}
+\end{table}
+
+%=================== CONCLUSION ===================
+\section{Conclusion \& Future Roadmap}
 
 \subsection{Key Achievements}
 
-\begin{itemize}
-    \item \textbf{77 books} with per-book AI context prompts, enabling focused, expert-level Q\&A.
-    \item \textbf{Dual AI providers} with automatic failover, ensuring 99.9\%+ uptime for the chat feature.
-    \item \textbf{Multi-modal support} allowing image-based queries alongside text.
-    \item \textbf{Structured citation extraction} enabling verifiable, traceable AI responses.
-    \item \textbf{Rate limiting} protecting against abuse while maintaining usability.
-    \item \textbf{Full-stack optimization} with server-side caching, client-side SWR caching, code splitting, and route prefetching.
-\end{itemize}
-
-\subsection{Future Directions}
-
-Potential enhancements for the AI features include:
+The Maududi's Legacy project delivers a production-grade AI-powered digital archive with the following accomplishments:
 
 \begin{itemize}
-    \item \textbf{Retrieval-Augmented Generation (RAG)}: Replacing the current static \texttt{aiContext} prompts with a vector database of book content for more precise retrieval.
-    \item \textbf{Conversation history persistence}: Storing chat sessions in MongoDB to allow users to resume previous conversations.
-    \item \textbf{Streaming responses}: Implementing Server-Sent Events (SSE) for real-time token-by-token response streaming.
-    \item \textbf{Expanded provider support}: Adding additional AI providers (e.g., Anthropic Claude, OpenAI) to the fallback chain.
+    \item \textbf{77 digitized works} with per-book AI context prompts, enabling focused, expert-level Q\&A on each text.
+    \item \textbf{Dual AI provider architecture} with automatic failover (Gemini $\rightarrow$ Groq), achieving high availability without a single point of failure.
+    \item \textbf{Global semantic search} across all 77 books with structured citation extraction and clickable references.
+    \item \textbf{Multi-modal and multi-language support}, allowing image-based queries and responses in six languages including RTL scripts.
+    \item \textbf{Resilient deployment} on a restricted hosting platform, with seed data fallback, connection failure caching, and a custom bootstrap pipeline.
+    \item \textbf{Sub-20 ms} API response times for book data through aggressive caching and failure-state memorization.
+
+\subsection{Future Roadmap}
+
+Planned enhancements to the AI features include:
+
+\begin{itemize}
+    \item \textbf{Retrieval-Augmented Generation (RAG)}: Replace static \texttt{aiContext} prompts with a vector database (ChromaDB or Pinecone) of full-text book content. This would enable precise passage-level retrieval rather than relying on the LLM's training data, significantly improving factual accuracy and reducing hallucination risk.
+
+    \item \textbf{Conversation persistence}: Store chat sessions in MongoDB to allow users to resume previous conversations and maintain history across browser sessions.
+
+    \item \textbf{Streaming responses}: Implement Server-Sent Events (SSE) or WebSocket-based token streaming, reducing perceived latency from 2--4 seconds (full response wait) to under 500 ms (time-to-first-token).
+
+    \item \textbf{Expanded provider support}: Add Anthropic Claude and OpenAI GPT-4 to the failover chain, with automatic latency-based routing.
+
+    \item \textbf{Hosting upgrade}: Move the backend from the PythonAnywhere free plan to a $5/month Developer plan (or an alternative like Railway/Render), enabling MongoDB connectivity, direct PyPI access, and elimination of the 30--40 second cold start.
+
 \end{itemize}
+
+\subsection{Summary}
+
+Maududi's Legacy demonstrates how modern full-stack web development practices---dual-provider AI orchestration, aggressive caching, graceful degradation, and responsive multi-language UIs---can be applied to preserve and provide intelligent access to a significant scholarly corpus. The dual AI provider architecture (Gemini with Groq failover) is the system's defining technical achievement, providing both redundancy and capability breadth (native image handling on Gemini, specialized vision model on Groq) within a unified, low-latency chat interface.
 
 \end{document}

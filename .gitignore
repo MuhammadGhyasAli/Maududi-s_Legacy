@@ -68,3 +68,27 @@ test_out.txt
 test_output.txt
 .vercel_env
 .vercel
+
+# PythonAnywhere deploy scripts
+deploy_pa.py
+final_bootstrap.py
+fixed_bootstrap.py
+bootstrap_*.py
+check_pa_*.py
+pa_*.py
+run_upload.py
+update_*.py
+robust_bootstrap.py
+setup_pa*.py
+fix_pa_*.py
+
+# Wheels (pre-built platform-specific)
+backend/wheels/
+backend/wheels_linux/
+backend/wheels.zip
+
+# Env value files
+env_value.txt
+
+# Vercel hidden project config
+.vercel_hidden/

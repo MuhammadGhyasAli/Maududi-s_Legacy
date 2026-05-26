@@ -29,23 +29,42 @@ logger = get_logger(__name__)
 
 client: MongoClient | None = None
 db: MongoDatabase | None = None
+_mongodb_failed: bool = False
+
+
+def _test_connection(c: MongoClient) -> bool:
+    try:
+        c.admin.command("ping", serverSelectionTimeoutMS=2000)
+        return True
+    except Exception:
+        return False
 
 
 def get_mongo_client() -> MongoClient:
-    global client
-    if client is None:
-        client = MongoClient(
-            settings.mongodb_url,
-            serverSelectionTimeoutMS=20000,
-        )
-    return client
+    global client, _mongodb_failed
+    if client is not None or _mongodb_failed:
+        return client
+    try:
+        c = MongoClient(settings.mongodb_url, serverSelectionTimeoutMS=2000)
+        if _test_connection(c):
+            client = c
+        else:
+            c.close()
+            _mongodb_failed = True
+            logger.warning("MongoDB unreachable, caching failure")
+        return client
+    except Exception:
+        _mongodb_failed = True
+        logger.warning("MongoDB unreachable, caching failure")
+        return None
 
 
 def get_database() -> MongoDatabase:
     global db
-    if db is None:
-        mongo_client = get_mongo_client()
-        db = mongo_client[settings.mongodb_db_name]
+    if db is None and not _mongodb_failed:
+        c = get_mongo_client()
+        if c:
+            db = c[settings.mongodb_db_name]
     return db
 
 
@@ -71,7 +90,16 @@ def get_next_id(collection_name: str) -> int:
 
 
 def init_db():
-    """Initialize database collections and indexes"""
+    """Initialize database collections and indexes (with short timeout)"""
+    # Quick connectivity test first
+    quick_client = MongoClient(settings.mongodb_url, serverSelectionTimeoutMS=3000)
+    try:
+        quick_client.admin.command("ping")
+    except Exception:
+        logger.warning("Database not reachable during startup, skipping init")
+        quick_client.close()
+        return
+    quick_client.close()
     database = get_database()
     collections = database.list_collection_names()
 
