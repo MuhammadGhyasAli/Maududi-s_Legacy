@@ -55,22 +55,27 @@ export default function LoginPage() {
            />
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
-            </label>
-           <input
-             id="password"
-             type="password"
-             value={password}
-             onChange={e => setPassword(e.target.value)}
-             required
-             className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all duration-200"
-             placeholder="Enter your password"
-           />
-          </div>
+           <div>
+             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+               Password
+             </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all duration-200"
+              placeholder="Enter your password"
+            />
+            <div className="flex justify-end mt-1">
+              <Link href="/auth/forgot-password" className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+           </div>
 
-         <button
+          <button
              type="submit"
              disabled={loading}
              className="w-full py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium disabled:opacity-50 transition-colors cursor-pointer"
