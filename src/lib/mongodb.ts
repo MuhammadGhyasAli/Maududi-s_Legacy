@@ -1,6 +1,6 @@
 import { MongoClient, type Db } from 'mongodb';
 
-const MONGODB_URL = process.env.MONGODB_URL;
+const MONGODB_URL = process.env.MONGODB_URL || '';
 const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME || 'maududi_legacy';
 
 let client: MongoClient | null = null;
