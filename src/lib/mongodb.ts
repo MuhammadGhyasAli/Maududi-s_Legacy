@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 
 const MONGODB_URL = process.env.MONGODB_URL || 'mongodb+srv://syedali:yxUXgGk5LVUb36Cb@cluster0.ne39ibs.mongodb.net/?appName=Cluster0';
 const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME || 'maududi_legacy';
@@ -18,7 +18,7 @@ export async function getDb() {
   }
 }
 
-export async function getNextId(db: Db, collectionName: string): Promise<number> {
+export async function getNextId(db: NonNullable<Awaited<ReturnType<typeof getDb>>>, collectionName: string): Promise<number> {
   const counter = await db.collection('counters').findOneAndUpdate(
     { _id: collectionName },
     { $inc: { seq: 1 } },
