@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import booksData from '@/data/books.json';
 
 const { books, categories } = booksData;
+const slugMap = Object.fromEntries(
+  categories.map((c: string) => [c.toLowerCase().replace(/\s+/g, '-'), c]),
+);
 
 export async function GET(request: NextRequest) {
-  const category = request.nextUrl.searchParams.get('category');
-  if (category && !categories.includes(category as any)) {
+  const slug = request.nextUrl.searchParams.get('category');
+  const category = slug ? slugMap[slug] : null;
+  if (slug && !category) {
     return NextResponse.json({ detail: 'Invalid category' }, { status: 400 });
   }
   if (category && category !== 'All') {
