@@ -105,6 +105,12 @@ export default function Footer() {
                 </a>
               </li>
               <li>
+                <Link href="/privacy" className={linkClass}>Privacy Policy</Link>
+              </li>
+              <li>
+                <Link href="/terms" className={linkClass}>Terms of Service</Link>
+              </li>
+              <li>
                 <span className="text-sm text-gray-400 dark:text-gray-500">
                   Open Source &middot; MIT
                 </span>
