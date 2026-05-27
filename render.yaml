@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: maududi-legacy-api
+    region: oregon
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: MONGODB_URL
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://maududi-legacy.vercel.app,http://localhost:3000,http://localhost:5173
+      - key: LOG_LEVEL
+        value: INFO
