@@ -5,8 +5,6 @@ export interface ChatMessage {
   content: string | any[];
 }
 
-const isServer = typeof window === 'undefined';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || (isServer ? 'http://localhost:8000' : '');
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for persistence
 const STALE_DURATION = 5 * 60 * 1000;  // 5 minutes: serve stale while revalidating
 const LS_PREFIX = 'maududi_cache_';
@@ -134,8 +132,8 @@ export const apiService = {
     if (existing) return existing;
 
     const url = category 
-      ? `${API_BASE_URL}/api/v1/books?category=${encodeURIComponent(category)}`
-      : `${API_BASE_URL}/api/v1/books`;
+      ? `/api/v1/books?category=${encodeURIComponent(category)}`
+      : '/api/v1/books';
     
     const promise = (async () => {
       try {
@@ -146,7 +144,7 @@ export const apiService = {
         return data;
       } catch (error) {
         if (error instanceof TypeError) {
-          throw new Error(`Cannot connect to API at ${API_BASE_URL}. Make sure the backend server is running.`);
+          throw new Error('Cannot connect to the server. Please try again.');
         }
         throw error;
       } finally {
@@ -166,7 +164,7 @@ export const apiService = {
     if (cached && cached.isStale && cached.data.length > 0) {
       const refresh = async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/v1/books/categories`, { signal: getAbortSignal(signal) });
+          const response = await fetch('/api/v1/books/categories', { signal: getAbortSignal(signal) });
           if (!response.ok) throw new Error('Failed to fetch categories');
           const data = await response.json();
           swrSet(cacheKey, data);
@@ -176,7 +174,7 @@ export const apiService = {
       return cached.data;
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/books/categories`, { signal: getAbortSignal(signal) });
+    const response = await fetch('/api/v1/books/categories', { signal: getAbortSignal(signal) });
     if (!response.ok) throw new Error('Failed to fetch categories');
     const data = await response.json();
     swrSet(cacheKey, data);
@@ -191,7 +189,7 @@ export const apiService = {
     if (cached && cached.isStale) {
       const refresh = async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
+          const response = await fetch(`/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
           if (!response.ok) throw new Error('Failed to fetch book');
           const data = await response.json();
           swrSet(cacheKey, data);
@@ -201,7 +199,7 @@ export const apiService = {
       return cached.data;
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
+    const response = await fetch(`/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
     if (!response.ok) throw new Error('Failed to fetch book');
     const data = await response.json();
     swrSet(cacheKey, data);
