@@ -1,12 +1,10 @@
 import logging
 
-from services.gemini_service import GeminiService
 from services.groq_service import GroqService
 
 logger = logging.getLogger(__name__)
 
 groq_service = GroqService()
-gemini_service = GeminiService()
 
 
 ACCURACY_INSTRUCTION = (
@@ -22,17 +20,10 @@ ACCURACY_INSTRUCTION = (
 class LLMService:
     def generate_response(self, system_instruction: str, messages: list[dict]) -> str:
         enhanced_instruction = system_instruction + ACCURACY_INSTRUCTION if system_instruction else ACCURACY_INSTRUCTION
-        for name, service in [("Gemini", gemini_service), ("Groq", groq_service)]:
-            try:
-                result = service.chat(enhanced_instruction, messages)
-                if result.get("error"):
-                    logger.warning("%s failed: %s", name, result.get("message"))
-                    continue
-                return result["response"]
-            except Exception as e:
-                logger.warning("%s error: %s", name, e)
-                continue
-        raise RuntimeError("All AI providers failed to generate a response")
+        result = groq_service.chat(enhanced_instruction, messages)
+        if result.get("error"):
+            raise RuntimeError(f"Groq failed: {result.get('message')}")
+        return result["response"]
 
 
 llm_service = LLMService()

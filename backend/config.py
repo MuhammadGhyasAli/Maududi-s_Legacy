@@ -20,7 +20,6 @@ class Settings(BaseSettings):
     )
 
     # API Configuration
-    google_api_key: str
     groq_api_key: str = ""
     port: int = 8000
 
@@ -56,7 +55,7 @@ class Settings(BaseSettings):
     cache_ttl_seconds: int = 300
     cache_maxsize: int = 1000
 
-    # Google OAuth (separate from Gemini API key)
+    # Google OAuth
     google_oauth_client_id: str = ""
 
     # Password Reset
@@ -64,18 +63,8 @@ class Settings(BaseSettings):
     dev_return_password_reset_token: bool = False
 
     # AI Model Configuration
-    gemini_model: str = "gemini-2.0-flash"
     groq_model_text: str = "llama-3.3-70b-versatile"
     groq_model_vision: str = "llama-3.2-11b-vision-preview"
-    
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._validate_settings()
-    
-    def _validate_settings(self):
-        """Validate required settings"""
-        if not self.google_api_key:
-            raise ValueError("GOOGLE_API_KEY is required")
 
 
 

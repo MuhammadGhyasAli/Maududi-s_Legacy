@@ -119,7 +119,7 @@ export default function AboutPage() {
       {/* Tech note — one line */}
       <section className="border-t border-gray-200 dark:border-gray-700 pt-8 text-center">
         <p className="text-sm text-gray-500 dark:text-gray-500">
-          Built with Next.js, FastAPI, Google Gemini, and Groq AI.
+          Built with Next.js, FastAPI, and Groq AI.
         </p>
       </section>
     </main>

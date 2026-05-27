@@ -1,110 +1,181 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[11pt,a4paper]{article}
 
-% Packages
+%% ── Encoding & Fonts ──
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{geometry}
-\usepackage{hyperref}
-\usepackage{listings}
-\usepackage{xcolor}
+\usepackage{tgtermes}
+\usepackage{newtxmath}
 \usepackage{graphicx}
+\renewcommand{\ttdefault}{pcr}
+
+%% ── Page Layout ──
+\usepackage[margin=1in,headsep=0.4cm]{geometry}
+\usepackage{microtype}
+\raggedbottom
+
+%% ── Colour ──
+\usepackage{xcolor}
+\definecolor{navy}{HTML}{1B3A5C}
+\definecolor{darknavy}{HTML}{0F2440}
+\definecolor{gold}{HTML}{B8860B}
+\definecolor{lgray}{HTML}{F5F5F5}
+\definecolor{mgray}{HTML}{D0D0D0}
+\definecolor{slate}{HTML}{475569}
+
+%% ── Tables ──
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{longtable}
 \usepackage{caption}
-\usepackage{subcaption}
-\usepackage{titlesec}
-\usepackage{fancyhdr}
-\usepackage{float}
+\captionsetup[table]{labelfont={color=navy,bf},textfont=normalfont,skip=4pt}
+
+%% ── Lists ──
 \usepackage{enumitem}
-\usepackage{verbatimbox}
 
-% Page geometry
-\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+%% ── Code Listings ──
+\usepackage{listings}
 
-% Hyperlink setup
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    urlcolor=blue,
-    citecolor=blue
+\lstdefinelanguage{json}{
+    sensitive=true,
+    keywords={},
+    morecomment=[l]{//},
+    morestring=[b]",
 }
 
-% Code listing style
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinelanguage{typescript}{
+    keywords={typeof, new, true, false, catch, function, return, null, switch, var, if, in, while, do, else, case, break, const, let},
+    keywordstyle=\color{blue}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
+    morestring=[b]',
+    morestring=[b]`
+}
 
-\lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
+\lstset{
     basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,
+    backgroundcolor=\color{lgray},
+    frame=single,
+    rulecolor=\color{mgray},
     breaklines=true,
-    captionpos=b,
-    keepspaces=true,
     numbers=left,
-    numbersep=5pt,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
+    numberstyle=\tiny\color{slate},
+    numbersep=8pt,
     tabsize=4,
-    frame=single
+    captionpos=b,
+    aboveskip=1.2em,
+    belowskip=1.2em,
+    xleftmargin=3pt,
+    framexleftmargin=3pt,
 }
-\lstset{style=mystyle}
 
-% Section formatting
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}{\small\bfseries}{\thesubsubsection}{1em}{}
+%% ── Section Formatting ──
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\color{navy}}{\thesection}{1em}{}[\vspace{-0.15em}\rule{\textwidth}{0.4pt}]
+\titleformat{\subsection}{\large\bfseries\color{navy!85}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{navy!70}}{\thesubsubsection}{1em}{}
 
-% Header/Footer
+%% ── Headers & Footers ──
+\usepackage{fancyhdr}
+\setlength{\headheight}{22pt}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Maududi's Legacy --- Technical Report}
-\fancyhead[R]{\thepage}
+\fancyhead[L]{\small\color{slate}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{slate}\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{navy!35}\leaders\hrule height 0.4pt\hfill}}
+\fancypagestyle{plain}{%
+    \fancyhf{}
+    \fancyhead[L]{\small\color{slate}\nouppercase{\leftmark}}
+    \fancyhead[R]{\small\color{slate}\thepage}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\headrule}{\hbox to\headwidth{\color{navy!35}\leaders\hrule height 0.4pt\hfill}}
+}
+
+%% ── Hyperlinks ──
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=navy,
+    urlcolor=navy,
+    citecolor=navy,
+    pdftitle={Maududi's Legacy --- AI-Powered Digital Archive},
+    pdfauthor={Muhammad Ghyas Ali},
+    pdfsubject={Technical Report --- Full-Stack AI Application}
+}
+
+%% ── Misc ──
+\usepackage{parskip}
+\usepackage{float}
+
+%% ── Counters ──
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
 
 \begin{document}
 
-% Title Page
-\begin{titlepage}
-    \centering
-    \vspace*{3cm}
-    {\Huge\bfseries Maududi's Legacy\par}
-    \vspace{1cm}
-    {\Large Technical Report\par}
-    \vspace{0.5cm}
-    {\large Artificial Intelligence Features \& Full-Stack Architecture\par}
-    \vspace{2cm}
-    {\large A digital archive of Sayyid Abul A'la Maududi's works\\with AI-powered search and conversation\par}
-    \vspace{1.5cm}
-    {\normalsize
-    \begin{tabular}{rl}
-    \textbf{Project} & Maududi's Legacy \\
-    \textbf{URL} & \url{https://maududi-legacy.vercel.app} \\
-    \textbf{Backend} & \url{https://syedghyas.pythonanywhere.com} \\
-    \textbf{Repository} & \url{https://github.com/MuhammadGhyasAli/Maududi-s_Legacy} \\
-    \end{tabular}
-    \par}
-    \vspace{1.5cm}
-    {\large\today\par}
-\end{titlepage}
+%% ==========================  COVER PAGE  ============================
+\thispagestyle{empty}
+\newgeometry{margin=1in}
+\begin{center}
+\vspace*{3.5cm}
+
+{\color{navy}\rule{0.7\textwidth}{0.8pt}}\\[0.25cm]
+{\color{gold}\rule{0.7\textwidth}{1.2pt}}\\[2cm]
+
+{\fontsize{30}{36}\selectfont\bfseries\color{darknavy}
+Maududi's Legacy}
+
+{\color{gold}\rule{0.45\textwidth}{0.5pt}}\\[1.2em]
+
+{\Large\color{darknavy!70} AI-Powered Full-Stack Web Application\\[0.15em]
+for Islamic Literature Discovery and Research}\\[2.2cm]
+
+{\color{navy}\rule{0.7\textwidth}{1.2pt}}\\[0.25cm]
+{\color{gold}\rule{0.7\textwidth}{0.8pt}}
+
+\vfill
+
+\begin{minipage}{0.6\textwidth}
+\centering
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{rl}
+\textbf{Author}          & Muhammad Ghyas Ali \\[0.3em]
+\textbf{Role}            & Senior Developer / AI Developer \\[0.3em]
+\textbf{Date}            & \today \\[0.3em]
+\textbf{Source Code}     & \href{https://github.com/MuhammadGhyasAli/Maududi-s_Legacy}{\texttt{github.com/MuhammadGhyasAli/Maududi-s\_Legacy}} \\[0.3em]
+\textbf{Live Demo}       & \href{https://maududi-legacy.vercel.app}{\texttt{maududi-legacy.vercel.app}} \\
+\end{tabular}
+\end{minipage}
+
+\vspace{2.5cm}
+\end{center}
+\restoregeometry
+\clearpage
 
 % Table of Contents
-\newpage
 \tableofcontents
-\newpage
+\clearpage
 
-%=================== EXECUTIVE SUMMARY ===================
+%% ================== EXECUTIVE SUMMARY ===================
 \section{Executive Summary}
 
-Maududi's Legacy is a full-stack web application that preserves and provides intelligent access to 77 works of Sayyid Abul A'la Maududi (1903--1979), one of the most influential Islamic scholars of the 20th century. The platform is deployed with a Next.js 15 frontend on Vercel and a Python FastAPI backend on PythonAnywhere. Its primary innovation is a dual-provider AI chat system---Google Gemini 2.0 Flash with automatic failover to Groq-hosted Llama models---that enables book-specific Q\&A, cross-book semantic search, image-based queries, and multi-language support across six languages.
+Maududi's Legacy is a full-stack web application that preserves and provides intelligent access to 77 works of Sayyid Abul A'la Maududi (1903--1979), one of the most influential Islamic scholars of the 20th century. As both the senior developer and AI developer on this project, I designed the system around a core architectural principle: \textbf{AI-powered interaction must be central to the user experience while maintaining scholarly accuracy}. This drove the development of a dual-provider AI chat system---Google Gemini 2.0 Flash as primary with automatic failover to Groq-hosted Llama models---that enables book-specific Q\&A (chat with PDFs), cross-book semantic search (AI Context Finder), image-based queries, and multi-language support across six languages including RTL scripts.
 
-The application serves approximately 40,000--50,000 monthly API requests, achieving sub-20-millisecond response times for book data through aggressive caching and a local seed data fallback that circumvents the PythonAnywhere free plan's network restrictions.
+The platform is deployed with a Next.js 15 frontend (React 19, TypeScript, Tailwind CSS v4, Redux Toolkit) on Vercel and a Python FastAPI backend on PythonAnywhere. The application serves approximately 40,000--50,000 monthly API requests, achieving sub-20-millisecond response times for book data through aggressive caching (TTLCache + SWR pattern) and a local seed data fallback that circumvents the PythonAnywhere free plan's network restrictions.
+
+\textbf{Key AI Contributions:}
+\begin{itemize}[leftmargin=*,nosep]
+    \item Designed the dual-provider LLM orchestrator with automatic failover (Gemini $\rightarrow$ Groq)
+    \item Built the AI Context Finder --- a cross-book semantic search engine with structured citation extraction
+    \item Implemented book-specific "chat with PDFs" functionality enabling focused Q\&A on individual works
+    \item Developed an accuracy enforcement system with temperature-controlled generation and prompt-level constraints
+    \item Created per-book AI personas via unique \texttt{aiContext} prompts for all 77 works
+\end{itemize}
+\clearpage
 
 %=================== SYSTEM ARCHITECTURE ===================
 \section{System Architecture Overview}
@@ -113,87 +184,73 @@ The application serves approximately 40,000--50,000 monthly API requests, achiev
 
 \begin{table}[H]
 \centering
-\begin{tabular}{@{}lll@{}}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
 \toprule
 \textbf{Layer} & \textbf{Technology} & \textbf{Deployment} \\
 \midrule
 Frontend & Next.js 15, React 19, TypeScript, Tailwind CSS v4 & Vercel \\
-Backend & Python 3.11, FastAPI, Uvicorn & PythonAnywhere \\
+State Management & Redux Toolkit (RTK), React Context & --- \\
+Backend & Python 3.10 (PA) / 3.13 (local), FastAPI, Uvicorn & PythonAnywhere \\
 AI Provider 1 & Google Gemini 2.0 Flash & Google Cloud API \\
 AI Provider 2 & Groq (Llama 3.3-70B / Llama 3.2-11B Vision) & Groq Cloud \\
 Database & MongoDB Atlas (primary) / Local seed data (fallback) & Atlas / In-memory \\
-Caching & cachetools TTLCache (server) + SWR pattern (client) & In-memory \\
+Caching & cachetools TTLCache (server) + SWR + localStorage (client) & In-memory \\
 Auth & JWT (HS256), bcrypt, Google OAuth 2.0 & Self-contained \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \caption{Technology stack summary}
 \end{table}
 
-\subsection{High-Level Architecture}
-
-\begin{verbatim}
-+-------------------+      +------------------------+
-|   Vercel CDN      |      |  PythonAnywhere WSGI   |
-|   Next.js 15 SSR  |      |  FastAPI + Uvicorn     |
-|   (Edge + Node)   |      |  (Unix socket)         |
-+-------------------+      +------------------------+
-        |      ^                  |       ^
-        | HTTP |                  |  13ms |
-        v      |                  v       |
-+-------------------+      +------------------------+
-|  Browser Client   |      |  Seed Data (77 books)  |
-|  React SPA        |      |  or MongoDB Atlas      |
-|  Redux + Zustand  |      +------------------------+
-+-------------------+                 |
-        ^                             | (blocked on
-        | HTTPS                       |  PA free plan)
-        v                             v
-+-------------------+      +------------------------+
-|  Google Gemini    |      |  Groq Cloud            |
-|  gemini-2.0-flash |----->|  llama-3.3-70b / 11B  |
-|  (primary)        |  on  |  (fallback)            |
-+-------------------+  fail+------------------------+
-\end{verbatim}
-
 The frontend calls the backend directly at \url{https://syedghyas.pythonanywhere.com} via HTTPS. The Next.js proxy rewrites (\texttt{/api/*} $\rightarrow$ \texttt{localhost:8000/api/*}) exist only in the development environment.
+\clearpage
+
+\subsection{High-Level Architecture}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{image.png}
+    \caption{High-level architecture of Maududi's Legacy}
+\end{figure}
+\clearpage
 
 %=================== FRONTEND ARCHITECTURE ===================
 \section{Frontend Architecture}
 
 \subsection{Application Router Structure}
 
-The frontend uses Next.js 15 App Router with the following page hierarchy:
+The frontend uses Next.js 15 App Router (file-system based routing) with the following page hierarchy --- no client-side router library is needed:
 
 \begin{verbatim}
 src/app/
-  page.tsx                    /               Book grid (all books)
-  layout.tsx                  -               Root layout + providers
-  not-found.tsx               -               404 page
+  page.tsx            /             Book grid (all books)
+  layout.tsx          -             Root layout + providers
+  not-found.tsx       -             404 page
   [category]/
-    page.tsx                  /tafsir,        Category-filtered grid
-                              /politics, etc.
+    page.tsx            /tafsir,      Category-filtered grid
+                        /politics...
     [bookSlug]/
-      page.tsx                /tafsir/...     Book detail (cover, desc, PDF, chat)
+      page.tsx          /tafsir/...   Book detail (PDF, chat)
       chat/
-        page.tsx              /.../chat       Per-book AI chat (lazy-loaded)
+        page.tsx        /.../chat     Per-book AI chat
   ai-context-finder/
-    page.tsx                  /ai-context-    Cross-book AI search (lazy-loaded)
-                              finder
+    page.tsx            /ai-context-  Cross-book AI search
+                        finder
   biography/
-    page.tsx                  /biography      Static biography page
+    page.tsx            /biography    Static biography page
   about/
-    page.tsx                  /about          Project information
+    page.tsx            /about        Project information
   auth/
-    login/                    /auth/login     Login page
-    register/                 /auth/register  Registration page
-    forgot-password/          /auth/forgot-   Password reset request
-                              password
-    reset-password/           /auth/reset-    Password reset with token
-                              password
+    login/              /auth/login   Login page
+    register/           /auth/reg     Registration page
+    forgot-password/    /auth/forgot  Password reset request
+    reset-password/     /auth/reset   Password reset with token
     google/
-      callback/               /auth/google/   Google OAuth callback
-                              callback
+      callback/         /auth/goog    Google OAuth callback
+                        callback
 \end{verbatim}
+
+\subsection{State Management}
+
+The frontend uses \textbf{Redux Toolkit} (via \texttt{@reduxjs/toolkit} and \texttt{react-redux}) with a single \texttt{booksSlice} managing book data, categories, loading states, and search/filter parameters. This is supplemented by React Context for authentication state (\texttt{AuthContext}). No other state management libraries are used.
 
 \subsection{Chat-Related Components}
 
@@ -214,7 +271,7 @@ The \texttt{apiService.ts} module wraps all backend communication with:
     \item \textbf{SWR caching}: 30-minute TTL with a 5-minute stale window; data served instantly from cache while background revalidation occurs.
     \item \textbf{Request deduplication}: In-flight requests for the same resource are coalesced into a single network call.
     \item \textbf{AbortController integration}: Pending requests are cancelled when the component unmounts or navigates away.
-    \item \textbf{Base URL resolution}: Uses \texttt{NEXT\_PUBLIC\_API\_BASE\_URL} environment variable, defaulting to \texttt{http://localhost:8000} in development.
+    \item \textbf{Base URL resolution}: Uses \texttt{NEXT\_PUBLIC\_API\_BASE\_URL} environment variable, defaulting to \texttt{http://localhost:8000} in development server and empty string (same-origin proxy) in production.
 \end{itemize}
 
 Key methods exposed:
@@ -235,6 +292,7 @@ Key methods exposed:
 \bottomrule
 \end{tabular}
 \end{center}
+\clearpage
 
 %=================== BACKEND ARCHITECTURE ===================
 \section{Backend Architecture}
@@ -245,26 +303,26 @@ The Python backend follows a layered architecture:
 
 \begin{verbatim}
 backend/
-  main.py               FastAPI app, middleware, router mounting
-  config.py             Pydantic Settings (.env)
-  database.py           MongoDB client + _mongodb_failed flag
-  middleware.py         Logging + CORS-aware exception handlers
-  logger.py             structlog configuration
-  exceptions.py         AppException hierarchy
+  main.py             FastAPI app, middleware, routers
+  config.py           Pydantic Settings (.env)
+  database.py         MongoDB client + fallback flag
+  middleware.py       Logging + CORS exception handlers
+  logger.py           structlog configuration
+  exceptions.py       AppException hierarchy
   routers/
-    books.py            Book CRUD + seed data fallback
-    chat.py             AI chat endpoints (20/min rate limit)
-    auth.py             JWT auth, Google OAuth, password reset
+    books.py          Book CRUD + seed data fallback
+    chat.py           AI chat endpoints (20/min limit)
+    auth.py           JWT, Google OAuth, password reset
   services/
-    llm_service.py      Dual-provider orchestrator
-    gemini_service.py   Google Gemini integration
-    groq_service.py     Groq Llama integration
-    cache_service.py    TTLCache wrapper (300s, 1000 items)
+    llm_service.py    Dual-provider LLM orchestrator
+    gemini_service.py Google Gemini integration
+    groq_service.py   Groq Llama (text + vision)
+    cache_service.py  TTLCache wrapper (300s TTL)
   repositories/
     book_repository.py  MongoDB book operations
     user_repository.py  MongoDB user operations
   data/
-    books.py            77 hardcoded book entries (seed data)
+    books.py          77 hardcoded books (seed data)
 \end{verbatim}
 
 \subsection{All API Endpoints}
@@ -307,7 +365,7 @@ async def get_books(category: str | None = None, db=Depends(get_db)):
     # ... MongoDB path ...
 \end{lstlisting}
 
-The \texttt{database.py} module caches MongoDB failure in a \texttt{\_mongodb\_failed} global flag. After the first unsuccessful connection attempt (timing out at approximately 2 seconds), subsequent requests bypass MongoClient creation entirely, reducing the server-time response from approximately 1.4~seconds to approximately 13~milliseconds.
+The \texttt{database.py} module caches MongoDB failure in a \texttt{\_mongodb\_failed} global flag. After the first unsuccessful connection attempt (2-second timeout), subsequent requests bypass \texttt{MongoClient} creation entirely, reducing response time from approximately 1.4~seconds to approximately 13~milliseconds. This was one of the critical optimizations I implemented to ensure the app remained responsive on the PythonAnywhere free plan, which blocks all outbound TCP connections.
 
 \subsection{Middleware Chain}
 
@@ -321,13 +379,17 @@ Six middleware layers execute in sequence for each request:
     \item \textbf{Exception handlers} --- Global and request-specific handlers set CORS headers on error responses (addressing a known \texttt{CORSMiddleware} limitation where it does not intercept exception handler responses).
     \item \textbf{Rate limiting} --- \texttt{slowapi.Limiter} applied per-route with token bucket semantics and IP-based keying.
 \end{enumerate}
+\clearpage
 
 %=================== AI FEATURES (CORE) ===================
 \section{AI Features in Detail}
+\label{sec:ai-features}
+
+As the AI developer on this project, my primary architectural decision was to treat the AI layer as a critical infrastructure component that must never have a single point of failure. This led to the dual-provider design with automatic failover, accuracy enforcement at every layer, and per-book AI personas that constrain the model's knowledge scope. The following subsections detail each AI subsystem.
 
 \subsection{Dual-Provider Architecture}
 
-The AI subsystem's central component is the \texttt{LLMService} orchestrator, which implements a failover chain between two independent AI providers:
+The AI subsystem's central component is the \texttt{LLMService} orchestrator, which implements a failover chain between two independent AI providers. I designed this as a simple loop over a provider list rather than a complex routing system — simplicity was essential for reliability on the constrained PythonAnywhere platform:
 
 \begin{lstlisting}[language=Python, caption=LLMService orchestrator with automatic failover]
 class LLMService:
@@ -398,6 +460,7 @@ ACCURACY_INSTRUCTION = (
 \end{lstlisting}
 
 This is concatenated with the book-specific or global system prompt in \texttt{LLMService.generate\_response()}. The instruction is reinforced by the low temperature setting (0.1), which minimizes the model's creative variance and biases it toward deterministic, factual outputs.
+\clearpage
 
 \subsection{Per-Book Chat}
 
@@ -415,7 +478,7 @@ Representative \texttt{aiContext} examples:
 
 \subsubsection{API Implementation}
 
-\begin{lstlisting}[language=Python, caption=Per-book chat endpoint]
+\begin{lstlisting}[language=Python, caption=Per-book chat endpoint (actual implementation)]
 @router.post("", response_model=ChatResponse)
 @limiter.limit("20/minute")
 async def chat(
@@ -425,11 +488,13 @@ async def chat(
 ):
     validate_book_id(chat_request.bookId)
 
-    # Retrieve book (MongoDB or seed data)
-    book = await get_book_for_chat(chat_request.bookId, db)
-    if not book:
+    # Retrieve book via repository (MongoDB or fallback)
+    book_repo = BookRepository(db)
+    book_model = book_repo.get_book_by_id(chat_request.bookId)
+    if not book_model:
         raise NotFoundException(
             f"Book with id {chat_request.bookId} not found")
+    book = book_repo.to_pydantic(book_model)
 
     # Extract messages
     messages = [
@@ -437,10 +502,10 @@ async def chat(
         for msg in chat_request.messages
     ]
 
-    # Delegate to AI orchestrator
+    # Delegate to AI orchestrator with book's aiContext
     try:
         response = llm_service.generate_response(
-            book["aiContext"], messages)
+            book.aiContext, messages)
         return ChatResponse(response=response)
     except RuntimeError as e:
         raise HTTPException(status_code=502, detail=str(e))
@@ -461,22 +526,23 @@ The flow proceeds as follows:
 
 Before sending, \texttt{ChatPage.tsx} prepends a precision instruction to each user message:
 
-\begin{lstlisting}[language=TypeScript, caption=Frontend prompt enhancement]
+\begin{lstlisting}[language=typescript, caption=Frontend prompt enhancement]
 const enhancedMessage = `
 Provide a precise, well-researched answer based
 strictly on the book's content.
-Accuracy is critical — only state what you are certain of.
+Accuracy is critical - only state what you are certain of.
 If you are unsure about any detail, explicitly say so
 rather than speculating.
-Your entire response must be in ${selectedLanguage}.
+Your entire response must be in \${selectedLanguage}.
 When citing, provide full exact book titles
 and specific context references.
 
-My question: "${userText}"
+My question: "\${userText}"
 `;
 \end{lstlisting}
 
 The \texttt{selectedLanguage} variable is one of six options: English, Turkish, Urdu, Arabic, Persian, or Bengali. For right-to-left languages (Urdu, Arabic, Persian), the frontend applies CSS classes \texttt{font-nastaaliq} and \texttt{font-arabic}.
+\clearpage
 
 \subsection{Global AI Context Finder}
 
@@ -488,12 +554,12 @@ The AI Context Finder enables cross-book semantic search. It allows users to ask
 
 Unlike per-book chat, which uses a static \texttt{aiContext} from the database, the AI Context Finder dynamically builds its system instruction on the frontend at runtime:
 
-\begin{lstlisting}[language=TypeScript, caption=Dynamic system prompt construction]
+\begin{lstlisting}[language=typescript, caption=Dynamic system prompt construction]
 const systemPrompt = `
 You are an AI-powered search engine and expert archivist
 for all works of Maududi. Your knowledge base includes:
 
-${allBooks.map(b => `- "${b.title}" by ${b.author}`).join('\n')}
+\${allBooks.map(b => '- "' + b.title + '" by ' + b.author).join('\\n')}
 
 When asked a question:
 1. FIRST: Locate and cite the exact source:
@@ -514,11 +580,11 @@ Do not assume the answer is in just one book.
 
 When the AI response arrives, the frontend's \texttt{parseStructuredResponse()} function (in \texttt{ChatMessageList.tsx}) applies the following regex to extract structured citations:
 
-\begin{lstlisting}[language=TypeScript, caption=Citation parsing regex]
-const regex = /\*\*Book Title:\*\*\s*(.+?)\s*\n
-              \*\*Chapter\/Section:\*\*\s*(.+?)\s*\n
-              \*\*Page Number:\*\*\s*(.+?)\s*\n
-              \*\*Context:\*\*\s*(.+?)(?=\n\*\*|$)/gis;
+\begin{lstlisting}[language=typescript, caption=Citation parsing regex]
+const regex = /\\*\\*Book Title:\\*\\*\\s*(.+?)\\s*\\n
+              \\*\\*Chapter\\/Section:\\*\\*\\s*(.+?)\\s*\\n
+              \\*\\*Page Number:\\*\\*\\s*(.+?)\\s*\\n
+              \\*\\*Context:\\*\\*\\s*(.+?)(?=\\n\\*\\*|$)/gis;
 \end{lstlisting}
 
 Matched citations are rendered in a distinct green ``\texttt{Context Found}'' card with the following properties:
@@ -556,6 +622,7 @@ The AI Context Finder supports image upload via a file input in \texttt{ChatInpu
         \item \textbf{Step 2}: After confirmation, the AI provides detailed analysis.
     \end{itemize}
 \end{enumerate}
+\clearpage
 
 \subsection{Multi-Language Support}
 
@@ -623,6 +690,7 @@ When a rate limit is exceeded, the backend returns \texttt{HTTP 429 Too Many Req
 \end{tabular}
 \caption{Comparison of Gemini and Groq provider configurations}
 \end{table}
+\clearpage
 
 %=================== AUTHENTICATION ===================
 \section{Authentication System}
@@ -650,28 +718,19 @@ Three authentication methods are supported:
 
 \subsection{API Security}
 
-The \texttt{GET /api/v1/auth/me} endpoint is protected by FastAPI's \texttt{HTTPBearer} dependency, which extracts and validates the JWT from the \texttt{Authorization: Bearer <token>} header. All other endpoints (books, chat, login) are unauthenticated to allow public browsing while reserving authenticated features for future personalization.
+\text{The \texttt{GET /api/v1/auth/me} endpoint is protected by FastAPI's \texttt{HTTPBearer} dependency, which extracts and validates the JWT from the \texttt{Authorization: Bearer <token>} header. All other endpoints (books, chat, login) are unauthenticated to allow public browsing while reserving authenticated features for future personalization.}
+\clearpage
 
 %=================== DEPLOYMENT ===================
 \section{Deployment \& Operations}
 
 \subsection{Deployment Architecture}
 
-\begin{verbatim}
-+-------------------+        +----------------------+
-|  GitHub           |  push  |  Vercel (Frontend)   |
-|  main branch      +------->|  Auto-deploy         |
-|                   |        |  next build          |
-+-------------------+        +----------------------+
-         |
-         | manual upload
-         v
-+-------------------+        +----------------------+
-|  Local machine    |  SCP   |  PythonAnywhere      |
-|  deploy_pa.py     +------->|  (Backend)           |
-|                   |        |  uvicorn on unix sock|
-+-------------------+        +----------------------+
-\end{verbatim}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth, height=0.4\textheight, keepaspectratio]{7.1.png}
+    \caption{Deployment and delivery pipeline of Maududi's Legacy}
+\end{figure}
 
 \subsection{PythonAnywhere Limitations}
 
@@ -679,7 +738,7 @@ The PythonAnywhere free plan imposes significant constraints that shaped the bac
 
 \begin{itemize}
     \item \textbf{No outbound internet access}: All external TCP connections (including MongoDB Atlas on port 27017, PyPI for package installation, and API calls to external services) are blocked. This is the reason for the local seed data fallback and the offline wheel distribution.
-    \item \textbf{Cold starts}: The webapp process is terminated after approximately 60--120 seconds of inactivity. On the next request, the bootstrap script reinstalls 103 wheel files (~67 MB), resulting in a 30--40 second cold start time.
+    \item \textbf{Cold starts}: The webapp process is terminated after approximately 60--120 seconds of inactivity. On the next request, the bootstrap script reinstalls 103 wheel files (~67 MB), resulting in a 30--40 second cold start time. The server runs Python 3.10 (as specified in \texttt{final\_bootstrap.py}) while local development uses Python 3.13.
     \item \textbf{No persistent storage}: The filesystem is ephemeral; every restart begins from the uploaded source distribution.
 \end{itemize}
 
@@ -705,6 +764,7 @@ The bootstrap script (\texttt{final\_bootstrap.py}) runs on every webapp start a
 \subsection{CORS Configuration}
 
 Cross-Origin Resource Sharing is configured to allow requests from the Vercel frontend domain. The \texttt{middleware.py} module also adds CORS headers to exception handler responses---a critical fix because FastAPI's built-in \texttt{CORSMiddleware} does not intercept responses produced by \texttt{@app.exception\_handler} decorators. Without this fix, browser-originated requests encountering a server error would receive a CORS error before seeing the actual error response, manifesting as ``Backend Unreachable'' in the frontend.
+\clearpage
 
 %=================== PERFORMANCE ===================
 \section{Performance Benchmarks}
@@ -766,41 +826,46 @@ AI Context Finder & 48 kB & Lazy-loaded \\
 \end{tabular}
 \caption{Frontend JavaScript bundle sizes}
 \end{table}
+\clearpage
 
 %=================== CONCLUSION ===================
 \section{Conclusion \& Future Roadmap}
 
 \subsection{Key Achievements}
-
+ 
 The Maududi's Legacy project delivers a production-grade AI-powered digital archive with the following accomplishments:
-
+ 
 \begin{itemize}
-    \item \textbf{77 digitized works} with per-book AI context prompts, enabling focused, expert-level Q\&A on each text.
-    \item \textbf{Dual AI provider architecture} with automatic failover (Gemini $\rightarrow$ Groq), achieving high availability without a single point of failure.
-    \item \textbf{Global semantic search} across all 77 books with structured citation extraction and clickable references.
+    \item \textbf{77 digitized works} with per-book AI context prompts, enabling focused, expert-level Q\&A on each text (chat with PDFs functionality).
+    \item \textbf{Dual AI provider architecture} with automatic failover (Gemini $\rightarrow$ Groq), achieving high availability without a single point of failure for AI interactions.
+    \item \textbf{Global semantic search} across all 77 books with structured citation extraction and clickable references (AI Context Finder functionality).
     \item \textbf{Multi-modal and multi-language support}, allowing image-based queries and responses in six languages including RTL scripts.
     \item \textbf{Resilient deployment} on a restricted hosting platform, with seed data fallback, connection failure caching, and a custom bootstrap pipeline.
     \item \textbf{Sub-20 ms} API response times for book data through aggressive caching and failure-state memorization.
-
+\end{itemize}
+ 
 \subsection{Future Roadmap}
-
+ 
 Planned enhancements to the AI features include:
-
+ 
 \begin{itemize}
     \item \textbf{Retrieval-Augmented Generation (RAG)}: Replace static \texttt{aiContext} prompts with a vector database (ChromaDB or Pinecone) of full-text book content. This would enable precise passage-level retrieval rather than relying on the LLM's training data, significantly improving factual accuracy and reducing hallucination risk.
-
+ 
     \item \textbf{Conversation persistence}: Store chat sessions in MongoDB to allow users to resume previous conversations and maintain history across browser sessions.
-
+ 
     \item \textbf{Streaming responses}: Implement Server-Sent Events (SSE) or WebSocket-based token streaming, reducing perceived latency from 2--4 seconds (full response wait) to under 500 ms (time-to-first-token).
-
+ 
     \item \textbf{Expanded provider support}: Add Anthropic Claude and OpenAI GPT-4 to the failover chain, with automatic latency-based routing.
-
-    \item \textbf{Hosting upgrade}: Move the backend from the PythonAnywhere free plan to a $5/month Developer plan (or an alternative like Railway/Render), enabling MongoDB connectivity, direct PyPI access, and elimination of the 30--40 second cold start.
-
+ 
+    \item \textbf{Hosting upgrade}: Move the backend from the PythonAnywhere free plan to a \$5/month Developer plan (or an alternative like Railway/Render), enabling MongoDB connectivity, direct PyPI access, and elimination of the 30--40 second cold start.
 \end{itemize}
-
+ 
 \subsection{Summary}
-
-Maududi's Legacy demonstrates how modern full-stack web development practices---dual-provider AI orchestration, aggressive caching, graceful degradation, and responsive multi-language UIs---can be applied to preserve and provide intelligent access to a significant scholarly corpus. The dual AI provider architecture (Gemini with Groq failover) is the system's defining technical achievement, providing both redundancy and capability breadth (native image handling on Gemini, specialized vision model on Groq) within a unified, low-latency chat interface.
-
+ 
+Maududi's Legacy demonstrates how modern full-stack web development practices---dual-provider AI orchestration, aggressive caching, graceful degradation, and responsive multi-language UIs---can be applied to preserve and provide intelligent access to a significant scholarly corpus. 
+ 
+From a senior developer's perspective, the project's defining achievement is the \textbf{AI reliability architecture}: the dual-provider failover (Gemini $\rightarrow$ Groq), accuracy enforcement via temperature control and prompt engineering, per-book AI personas with unique system prompts, structured citation extraction for verifiable answers, and the SWR + TTLCache caching strategy that keeps the user experience fast even on a restricted hosting platform. These patterns are directly applicable to any AI-powered content platform and represent production-grade AI integration done on a constrained budget.
+ 
+The dual AI provider architecture (Gemini with Groq failover) provides both redundancy and capability breadth (native image handling on Gemini, specialized vision model on Groq) within a unified, low-latency chat interface --- and it cost nothing in API fees during development thanks to both providers' generous free tiers.
+ 
 \end{document}

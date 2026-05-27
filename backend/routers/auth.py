@@ -187,7 +187,7 @@ async def google_auth(request: GoogleAuthRequest, db: Database = Depends(get_db)
     from google.auth.transport import requests as google_requests
     import traceback
 
-    client_id = settings.google_oauth_client_id or settings.google_api_key
+    client_id = settings.google_oauth_client_id
     if not client_id:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Google OAuth is not configured")
     try:
