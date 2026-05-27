@@ -19,11 +19,11 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const backendUrl = process.env.API_BACKEND_URL || "http://localhost:8000";
+    if (process.env.VERCEL) return [];
     return [
       {
         source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
+        destination: `${process.env.API_BACKEND_URL || "http://localhost:8000"}/api/:path*`,
       },
     ];
   },
