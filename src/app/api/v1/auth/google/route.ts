@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { getDb, getNextId } from '@/lib/mongodb';
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY || 'your_jwt_secret_key_here_change_in_production';
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
         }
 
         const passwordHash = await bcrypt.hash(
-          require('crypto').randomBytes(32).toString('hex'),
+          crypto.randomBytes(32).toString('hex'),
           12,
         );
         const id = await getNextId(db, 'users');

@@ -9,7 +9,6 @@ export default function GoogleCallbackPage() {
 
   useEffect(() => {
     const hash = window.location.hash.substring(1);
-    console.log('Callback hash received, length:', hash.length);
     const params = new URLSearchParams(hash);
     const idToken = params.get('id_token');
     const nonce = params.get('nonce');
@@ -26,11 +25,11 @@ export default function GoogleCallbackPage() {
     }
 
     if (!idToken) {
-      console.error('No id_token in hash, all params:', Array.from(params.keys()));
+      console.warn('No id_token in hash, all params:', Array.from(params.keys()));
       setError('No Google ID token received. Please try again.');
       return;
     }
-    console.log('id_token received, length:', idToken.length);
+
 
     const exchangeGoogleToken = async () => {
       try {
