@@ -213,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         </div>
 
         {/* Nav links */}
-        <nav ref={navRef} role="navigation" aria-label="Main navigation" className="flex-1 overflow-y-auto px-2 pb-4 space-y-0.5">
+        <nav ref={navRef} role="navigation" aria-label="Main navigation" className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4 space-y-0.5">
           <NavLink
             href="/"
             icon="📚"
