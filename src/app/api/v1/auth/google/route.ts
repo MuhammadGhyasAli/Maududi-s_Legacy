@@ -51,14 +51,13 @@ export async function POST(request: Request) {
 
     if (!user) {
       if (email) {
-        user = await db.collection('users').findOne({ email });
-        if (user) {
+        const existingUser = await db.collection('users').findOne({ email });
+        if (existingUser) {
           await db.collection('users').updateOne(
-            { id: user.id },
+            { id: existingUser.id },
             { $set: { google_id: googleId, display_name: name } },
           );
-          user.google_id = googleId;
-          user.display_name = name;
+          user = { ...existingUser, google_id: googleId, display_name: name };
         }
       }
 
@@ -77,7 +76,7 @@ export async function POST(request: Request) {
         );
         const id = await getNextId(db, 'users');
 
-        user = {
+        const newUser = {
           id,
           username,
           email,
@@ -88,7 +87,8 @@ export async function POST(request: Request) {
           is_verified: true,
         };
 
-        await db.collection('users').insertOne(user);
+        await db.collection('users').insertOne(newUser);
+        user = newUser;
       }
     }
 
