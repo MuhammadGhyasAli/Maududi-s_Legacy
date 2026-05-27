@@ -31,11 +31,6 @@ function setToStorage(key: string, data: any, timestamp: number): void {
   } catch { /* quota exceeded */ }
 }
 
-function removeFromStorage(key: string): void {
-  if (typeof window === 'undefined') return;
-  try { localStorage.removeItem(LS_PREFIX + key); } catch { /* empty */ }
-}
-
 // SWR: return cached data immediately if available (even if stale), refresh in background
 function swrGet(key: string): { data: any; isStale: boolean } | null {
   // 1. Check memory (fastest)
@@ -59,7 +54,7 @@ function swrGet(key: string): { data: any; isStale: boolean } | null {
       memoryCache.set(key, { data: stored.data, timestamp: stored.timestamp, stale: true });
       return { data: stored.data, isStale: true };
     }
-    removeFromStorage(key);
+    try { localStorage.removeItem(LS_PREFIX + key); } catch { /* empty */ }
   }
 
   return null;
@@ -211,7 +206,7 @@ export const apiService = {
 
   // Chat with AI about a book
   chat: async (bookId: number, aiContext: string, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
-    const response = await fetch('/api/chat', {
+    const response = await fetch('/api/v1/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -236,7 +231,7 @@ export const apiService = {
 
   // Global Chat (e.g., AiContextFinder)
   globalChat: async (systemInstruction: string, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
-    const response = await fetch('/api/chat/global', {
+    const response = await fetch('/api/v1/chat/global', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -263,10 +258,10 @@ export const apiService = {
 
   // Login
   login: async (email: string, password: string): Promise<{ access_token: string; expires_in: number }> => {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username: email, password }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: 'Login failed' }));
@@ -277,7 +272,7 @@ export const apiService = {
 
   // Register
   register: async (username: string, email: string, password: string, display_name?: string): Promise<{ id: number; username: string; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch('/api/v1/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password, display_name: display_name || '' }),
@@ -291,7 +286,7 @@ export const apiService = {
 
   // Get current user
   getMe: async (token: string): Promise<{ id: number; username: string; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch('/api/auth/me', {
+    const response = await fetch('/api/v1/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error('Failed to get user info');

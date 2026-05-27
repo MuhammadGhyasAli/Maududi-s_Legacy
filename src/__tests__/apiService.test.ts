@@ -71,14 +71,15 @@ describe('apiService', () => {
       });
 
       const messages = [{ role: 'user', content: 'Test message' }];
-      const response = await apiService.chat(1, messages);
+      const aiContext = 'Test AI context';
+      const response = await apiService.chat(1, aiContext, messages);
       expect(response).toEqual(mockResponse);
       expect(global.fetch).toHaveBeenCalledWith(
         '/api/v1/chat',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookId: 1, messages }),
+          body: JSON.stringify({ bookId: 1, aiContext, messages }),
         })
       );
     });

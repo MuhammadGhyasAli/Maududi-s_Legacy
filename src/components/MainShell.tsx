@@ -20,7 +20,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   });
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(true);
 
   // Prefetch book data in background as soon as shell mounts
   useEffect(() => {

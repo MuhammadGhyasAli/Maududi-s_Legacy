@@ -4,7 +4,7 @@ _env_path = os.path.join(os.path.dirname(__file__), ".env")
 if not os.path.isfile(_env_path):
     _env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
 load_dotenv(os.path.abspath(_env_path))
-import os
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -16,7 +16,7 @@ from slowapi.errors import RateLimitExceeded
 from config import settings
 from logger import setup_logging, get_logger
 from middleware import logging_middleware, app_exception_handler, global_exception_handler
-from routers import books, auth
+from routers import books, auth, chat
 from exceptions import AppException
 from database import init_db
 
@@ -31,6 +31,8 @@ limiter = Limiter(key_func=get_remote_address)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting Maududi's Legacy Backend...")
+    if not os.environ.get('VERCEL'):
+        init_db()
     yield
     # Shutdown
     logger.info("Shutting down Maududi's Legacy Backend...")
@@ -38,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Maududi's Legacy API",
     description="Backend API for Maududi's Legacy application",
-    version="1.0.0",
+    version="1.0.1",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -90,11 +92,12 @@ async def security_headers_middleware(request, call_next):
 # Include routers with API versioning
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(books.router, prefix="/api/v1/books", tags=["books"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 
 @app.get("/")
 @limiter.limit(f"{settings.rate_limit_requests}/{settings.rate_limit_period} seconds")
 async def root(request: Request):
-    return {"message": "Maududi's Legacy API is running", "version": "1.0.0"}
+    return {"message": "Maududi's Legacy API is running", "version": "1.0.1"}
 
 
 
@@ -103,7 +106,7 @@ async def root(request: Request):
 async def health_check(request: Request):
     return {
         "status": "healthy",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "service": "maududi-legacy-api"
     }
 

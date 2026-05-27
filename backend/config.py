@@ -40,7 +40,16 @@ class Settings(BaseSettings):
     
     
     # JWT Configuration
-    jwt_secret_key: str = "change-me-in-production"
+    jwt_secret_key: str = ""
+
+    @field_validator('jwt_secret_key', mode='after')
+    @classmethod
+    def jwt_secret_not_default(cls, v: str) -> str:
+        if v == "change-me-in-production" or not v:
+            import warnings
+            warnings.warn("JWT secret key is still set to default or empty! Set JWT_SECRET_KEY in .env for production.")
+        return v
+
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 1440
 

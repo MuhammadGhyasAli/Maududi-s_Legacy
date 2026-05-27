@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Book, ChatMessage, MessageSender } from '../types';
 import { apiService, ChatMessage as ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
@@ -24,13 +24,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
-  const [apiMessages, setApiMessages] = useState<ApiChatMessage[]>([]);
+  const apiMessagesRef = useRef<ApiChatMessage[]>([]);
 
   useEffect(() => {
     setMessages([
       { sender: MessageSender.AI, text: `Hello! I am an AI assistant trained on "${book.title}". How can I help you?` }
     ]);
-    setApiMessages([]);
+    apiMessagesRef.current = [];
   }, [book]);
 
   const handleSendMessage = useCallback(async () => {
@@ -45,8 +45,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setError(null);
 
     try {
+        const currentApiMessages = apiMessagesRef.current;
         const newApiMessages: ApiChatMessage[] = [
-            ...apiMessages,
+            ...currentApiMessages,
             { role: 'user', content: `Provide a precise, well-researched answer based strictly on the book's content. Accuracy is critical — only state what you are certain of. If you are unsure about any detail, explicitly say so rather than speculating. Your entire response must be in ${selectedLanguage}. When citing, provide full exact book titles and specific context references.\n\nMy question: "${textToSend}"` }
         ];
         
@@ -54,10 +55,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         const aiMessage: ChatMessage = { sender: MessageSender.AI, text: response.response };
         setMessages(prev => [...prev, aiMessage]);
         
-        setApiMessages([
+        apiMessagesRef.current = [
             ...newApiMessages,
             { role: 'assistant', content: response.response }
-        ]);
+        ];
     } catch (e) {
       console.error("API Error:", e);
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
@@ -67,7 +68,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, selectedLanguage, apiMessages, book.id, book.aiContext]);
+  }, [input, isLoading, selectedLanguage, book.id, book.aiContext]);
 
   const handleCopyChat = async () => {
     const transcript = messages.map(msg => {
@@ -119,7 +120,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setMessages([
         { sender: MessageSender.AI, text: `Hello! I am an AI assistant trained on "${book.title}". How can I help you?` }
     ]);
-    setApiMessages([]);
+    apiMessagesRef.current = [];
     setError(null);
     setShowClearConfirm(false);
   };

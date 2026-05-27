@@ -1,10 +1,8 @@
 import logging
 
-from services.groq_service import GroqService
+from services.groq_service import groq_service as _groq_service
 
 logger = logging.getLogger(__name__)
-
-groq_service = GroqService()
 
 
 ACCURACY_INSTRUCTION = (
@@ -20,7 +18,7 @@ ACCURACY_INSTRUCTION = (
 class LLMService:
     def generate_response(self, system_instruction: str, messages: list[dict]) -> str:
         enhanced_instruction = system_instruction + ACCURACY_INSTRUCTION if system_instruction else ACCURACY_INSTRUCTION
-        result = groq_service.chat(enhanced_instruction, messages)
+        result = _groq_service.chat(enhanced_instruction, messages)
         if result.get("error"):
             raise RuntimeError(f"Groq failed: {result.get('message')}")
         return result["response"]

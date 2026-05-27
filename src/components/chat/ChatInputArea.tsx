@@ -5,6 +5,7 @@ import Spinner from '../icons/Spinner';
 import LanguageSelector from '../LanguageSelector';
 import PaperclipIcon from '../icons/PaperclipIcon';
 import CloseIcon from '../icons/CloseIcon';
+import { getLangProps } from '../../utils/language';
 
 interface ChatInputAreaProps {
   input: string;
@@ -24,18 +25,6 @@ interface ChatInputAreaProps {
   placeholder?: string;
   footerText?: string;
 }
-
-const getLangProps = (text: string, selectedLang: string): { dir: 'auto', className: string } => {
-  const rtlLangs = ['Urdu', 'Arabic', 'Persian'];
-  if (rtlLangs.includes(selectedLang)) {
-      let className = 'font-arabic';
-      if (selectedLang === 'Urdu') className = 'font-nastaaliq';
-      return { dir: 'auto', className };
-  }
-  const hasRtlChars = /[\u0600-\u06FF\u0750-\u077F\u0590-\u05FF]/.test(text);
-  if (hasRtlChars) return { dir: 'auto', className: 'font-nastaaliq' };
-  return { dir: 'auto', className: '' };
-};
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   input,

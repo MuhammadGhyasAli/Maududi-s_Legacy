@@ -1,2 +1,11 @@
 {
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" }
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "python3.10",
+      "maxDuration": 30
+    }
+  }
 }
