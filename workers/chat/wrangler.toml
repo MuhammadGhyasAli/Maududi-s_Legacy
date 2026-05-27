@@ -1,6 +1,9 @@
 name = "maududi-legacy-chat"
 main = "worker.py"
 compatibility_date = "2026-05-01"
+compatibility_flags = ["python_workers"]
+
+account_id = "610e1e809dac1ef1e02cd5985585b090"
 
 [vars]
 LOG_LEVEL = "INFO"

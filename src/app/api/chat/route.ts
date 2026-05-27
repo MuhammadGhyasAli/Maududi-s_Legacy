@@ -3,14 +3,9 @@ import { NextResponse } from 'next/server';
 const GROQ_API_BASE = 'https://api.groq.com/openai/v1';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
-interface ChatMessage {
-  role: string;
-  content: string;
-}
-
 export async function POST(request: Request) {
   try {
-    const { bookId, aiContext, messages } = await request.json();
+    const { aiContext, messages } = await request.json();
 
     if (!GROQ_API_KEY) {
       return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 500 });

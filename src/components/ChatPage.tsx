@@ -67,7 +67,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, selectedLanguage, apiMessages, book.id]);
+  }, [input, isLoading, selectedLanguage, apiMessages, book.id, book.aiContext]);
 
   const handleCopyChat = async () => {
     const transcript = messages.map(msg => {
