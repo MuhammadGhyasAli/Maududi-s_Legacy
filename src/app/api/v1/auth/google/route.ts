@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: 'Service unavailable' }, { status: 503 });
     }
 
-    let user = await db.collection('users').findOne({ google_id: googleId });
+    let user: any = await db.collection('users').findOne({ google_id: googleId });
 
     if (!user) {
       if (email) {
