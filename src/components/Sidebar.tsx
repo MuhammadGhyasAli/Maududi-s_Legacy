@@ -100,6 +100,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
     return icons[cat] || '📚';
   };
 
+  // On mobile sidebar opens as overlay — always show expanded (icons + labels).
+  // Only respect isCollapsed on desktop.
+  const showCollapsed = isOpen ? false : isCollapsed;
+
   const handleMobileClose = useCallback(() => {
     if (window.innerWidth < 1024) onClose();
   }, [onClose]);
@@ -170,7 +174,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
           transition-all duration-300 ease-in-out motion-reduce:transition-none
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
-          ${isCollapsed ? 'w-16' : 'w-64'}
+          ${isOpen ? 'w-[75vw] sm:w-[70vw] md:w-[60vw]' : ''}
+          ${isCollapsed ? 'lg:w-16' : 'lg:w-64'}
         `}
       >
         {/* Top accent line */}
@@ -192,8 +197,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         </div>
 
         {/* Desktop header */}
-        <div className={`hidden lg:flex items-center justify-between px-4 py-4 flex-shrink-0 ${isCollapsed ? 'justify-center' : ''}`}>
-          {!isCollapsed && (
+        <div className={`hidden lg:flex items-center justify-between px-4 py-4 flex-shrink-0 ${showCollapsed ? 'justify-center' : ''}`}>
+          {!showCollapsed && (
             <h2 className="text-sm font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500">
               Navigation
             </h2>
@@ -203,11 +208,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
             className="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50
                        text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark
                        border border-gray-200 dark:border-white/10 transition-all duration-200 motion-reduce:transition-none"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={showCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d={isCollapsed ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
+                    d={showCollapsed ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
             </svg>
           </button>
         </div>
@@ -219,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
             icon="📚"
             label="All Books"
             isActive={isHome}
-            isCollapsed={isCollapsed}
+            isCollapsed={showCollapsed}
             onNavigate={handleMobileClose}
           />
 
@@ -228,7 +233,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
             icon="📝"
             label="Biography"
             isActive={isBiography}
-            isCollapsed={isCollapsed}
+            isCollapsed={showCollapsed}
             onNavigate={handleMobileClose}
           />
 
@@ -237,12 +242,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
             icon="ℹ️"
             label="About"
             isActive={pathname === '/about'}
-            isCollapsed={isCollapsed}
+            isCollapsed={showCollapsed}
             onNavigate={handleMobileClose}
           />
 
           {/* Separator */}
-          {!isCollapsed && (
+          {!showCollapsed && (
             <div className="px-3 py-2" aria-hidden="true">
               <div className="h-px bg-gray-200 dark:bg-white/10" />
             </div>
@@ -258,7 +263,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
                 icon={getCategoryIcon(cat)}
                 label={cat}
                 isActive={category === slug}
-                isCollapsed={isCollapsed}
+                isCollapsed={showCollapsed}
                 onNavigate={handleMobileClose}
               />
             );
@@ -266,7 +271,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         </nav>
 
         {/* Footer branding */}
-        {!isCollapsed && (
+        {!showCollapsed && (
           <div className="flex-shrink-0 px-4 py-3 border-t border-gray-100 dark:border-white/[0.06]">
             <p className="text-[10px] font-medium tracking-wider uppercase text-gray-400 dark:text-gray-600 text-center">
               Maududi&apos;s Legacy
