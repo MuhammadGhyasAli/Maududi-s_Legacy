@@ -28,29 +28,19 @@ function ForgotPasswordContent() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/v1/auth/forgot-password`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        },
-      );
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Failed to process request');
+        throw new Error(data.error || data.detail || 'Failed to process request');
       }
 
-      // In dev mode, if token is returned, we could auto-navigate to reset page
-      if (data.reset_token) {
-        // Dev mode: show token and allow manual reset, or auto-navigate
-        setSuccess(`Reset token: ${data.reset_token}`);
-        // Optionally auto-navigate: router.push(`/auth/reset-password?token=${data.reset_token}`);
-      } else {
-        setSuccess('If that email is registered, a reset link has been sent.');
-      }
+      setSuccess(data.message || 'If that email is registered, a reset link has been sent.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to process request');
     } finally {

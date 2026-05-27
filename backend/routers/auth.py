@@ -247,7 +247,7 @@ async def google_auth(request: GoogleAuthRequest, db: Database = Depends(get_db)
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
-async def forgot_password(request: ForgotPasswordRequest, db: Database = Depends(get_db)):
+async def forgot_password(request: ForgotPasswordRequest, return_token: bool = False, db: Database = Depends(get_db)):
     import hashlib
     import secrets
     from database import get_next_id
@@ -271,9 +271,9 @@ async def forgot_password(request: ForgotPasswordRequest, db: Database = Depends
 
     logger.info("Password reset token created", user_id=user.id)
 
-    if settings.dev_return_password_reset_token:
+    if settings.dev_return_password_reset_token or return_token:
         return MessageResponse(
-            message="Password reset token generated (dev mode).",
+            message="Password reset token generated.",
             reset_token=token,
         )
 
