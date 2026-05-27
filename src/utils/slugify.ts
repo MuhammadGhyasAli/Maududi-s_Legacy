@@ -26,7 +26,7 @@ export const deslugifyCategory = (slug: string): string => {
 };
 
 // Utility to find book by slug
-export const findBookBySlug = (books: any[], slug: string): any => {
+export const findBookBySlug = <T extends { title: string }>(books: T[], slug: string): T | undefined => {
   return books.find(book => {
     const bookSlug = slugify(book.title);
     return bookSlug === slug;

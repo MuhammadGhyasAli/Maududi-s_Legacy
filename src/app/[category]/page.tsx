@@ -48,21 +48,28 @@ export default function CategoryPage() {
   }
 
   if (error) {
+    const isInvalidCategory = error.includes('Invalid category');
     return (
       <main className="flex-1 container mx-auto px-4 py-16 flex items-center justify-center">
         <div className="max-w-md w-full bg-white dark:bg-brand-card-dark rounded-2xl p-8 text-center
                         border border-amber-200 dark:border-amber-800/40
                         shadow-card dark:shadow-black/30">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-5">
-            <span className="text-3xl">⚠️</span>
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 ${isInvalidCategory ? 'bg-blue-50 dark:bg-blue-900/30' : 'bg-amber-50 dark:bg-amber-900/30'}`}>
+            <span className="text-3xl">{isInvalidCategory ? '🔍' : '⚠️'}</span>
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Backend Unreachable
+            {isInvalidCategory ? 'Category Not Found' : 'Server Unreachable'}
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 leading-relaxed">{error}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 leading-relaxed">
+            {isInvalidCategory
+              ? `The category "${category}" does not exist.`
+              : error}
+          </p>
           <p className="text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-900/20
                         rounded-lg px-3 py-2 border border-amber-200/60 dark:border-amber-700/40">
-            Make sure the backend server is running on port 8000
+            {isInvalidCategory
+              ? 'Try selecting a different category from the menu.'
+              : 'Books are loaded directly from the server — no external backend needed'}
           </p>
         </div>
       </main>

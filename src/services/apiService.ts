@@ -138,7 +138,10 @@ export const apiService = {
     const promise = (async () => {
       try {
         const response = await fetch(url, { signal: getAbortSignal(signal) });
-        if (!response.ok) throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          throw new Error((body as any).detail || `Failed to fetch books: ${response.status} ${response.statusText}`);
+        }
         const data = await response.json();
         swrSet(cacheKey, data);
         return data;

@@ -56,8 +56,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="http://localhost:8000" />
-        <link rel="dns-prefetch" href="http://localhost:8000" />
+        {process.env.NODE_ENV === 'development' && (
+          <>
+            <link rel="preconnect" href="http://localhost:8000" />
+            <link rel="dns-prefetch" href="http://localhost:8000" />
+          </>
+        )}
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoNastaliq.variable} ${amiri.variable}`} suppressHydrationWarning>
         <StoreProvider>

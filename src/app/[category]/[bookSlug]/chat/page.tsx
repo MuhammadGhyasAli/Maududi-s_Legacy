@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import type { Book } from "../../../../types";
 import { apiService } from "../../../../services/apiService";
-import { findBookBySlug } from "../../../../utils/slugify";
+import { findBookBySlug, slugify } from "../../../../utils/slugify";
 
 const ChatPage = dynamic(() => import("../../../../components/ChatPage"), {
   loading: () => (
@@ -28,7 +28,7 @@ export default function BookChatPage() {
     (async () => {
       try {
         const fetched = await apiService.getBooks();
-        setBooks(fetched as any);
+        setBooks(fetched);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load books");
       } finally {
@@ -39,7 +39,7 @@ export default function BookChatPage() {
 
   const book = useMemo(() => {
     if (!bookSlug) return null;
-    return findBookBySlug(books, bookSlug) as Book | null;
+    return findBookBySlug(books, bookSlug);
   }, [books, bookSlug]);
 
   if (loading) {
@@ -79,7 +79,7 @@ export default function BookChatPage() {
       book={book}
       books={books}
       onBack={() => router.back()}
-      onNavigateToBook={(b) => router.push(`/all/${(b.title || "").toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-")}`)}
+      onNavigateToBook={(b) => { const cat = (b.category || "").toLowerCase().replace(/\s+/g, "-"); router.push(`/${cat}/${slugify(b.title || "")}`); }}
     />
   );
 }

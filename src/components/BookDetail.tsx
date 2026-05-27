@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Book } from '../types';
 import BookOpenIcon from './icons/BookOpenIcon';
@@ -13,6 +13,8 @@ interface BookDetailProps {
 }
 
 const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onReadPdf, onStartChat }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div className="min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark transition-colors duration-300">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -35,14 +37,24 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onReadPdf, onStar
           {/* Book cover */}
           <div className="md:col-span-1">
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-card-lg dark:shadow-black/50 ring-1 ring-gray-200/60 dark:ring-white/10">
-              <Image
-                src={book.imageUrl}
-                alt={book.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover"
-                loading="lazy"
-              />
+              {imageError ? (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-2
+                                bg-gradient-to-br from-emerald-50 to-cyan-50
+                                dark:from-emerald-950/30 dark:to-cyan-950/30">
+                  <span className="text-5xl">📖</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">No cover available</span>
+                </div>
+              ) : (
+                <Image
+                  src={book.imageUrl}
+                  alt={book.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                  loading="lazy"
+                  onError={() => setImageError(true)}
+                />
+              )}
               {/* Subtle shimmer overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </div>
