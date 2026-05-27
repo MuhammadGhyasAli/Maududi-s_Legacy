@@ -53,19 +53,16 @@ function ResetPasswordContent() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/api/v1/auth/reset-password`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, new_password: password }),
-        },
-      );
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, new_password: password }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Failed to reset password');
+        throw new Error(data.error || data.detail || 'Failed to reset password');
       }
 
       setSuccess('Password has been reset successfully!');

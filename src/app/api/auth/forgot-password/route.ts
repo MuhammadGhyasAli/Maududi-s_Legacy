@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import { getDb, getNextId } from '@/lib/mongodb';
 
-const PA_API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://syedghyas.pythonanywhere.com';
 const GMAIL_USER = process.env.GMAIL_USER || 'ghyasnaqvi05@gmail.com';
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || '';
 const RESET_PASSWORD_URL = process.env.RESET_PASSWORD_URL || 'https://maududi-legacy.vercel.app/auth/reset-password';
@@ -18,32 +19,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email service not configured' }, { status: 500 });
     }
 
-    // Call PA backend to create reset token
-    const paRes = await fetch(`${PA_API_BASE}/api/v1/auth/forgot-password?return_token=true`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.trim() }),
-    });
-
-    const paData = await paRes.json();
-
-    if (!paRes.ok) {
-      return NextResponse.json({ error: paData.detail || 'Failed to create reset token' }, { status: 502 });
+    const db = await getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
     }
 
-    if (!paData.reset_token) {
+    const user = await db.collection('users').findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
       return NextResponse.json({ message: 'If that email is registered, a reset link has been sent.' });
     }
 
-    // Send email
-    const resetLink = `${RESET_PASSWORD_URL}?token=${paData.reset_token}`;
+    const token = crypto.randomBytes(32).toString('base64url');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    const id = await getNextId(db, 'password_reset_tokens');
+
+    await db.collection('password_reset_tokens').insertOne({
+      id,
+      user_id: user.id,
+      token_hash: tokenHash,
+      expires_at: expiresAt,
+      used_at: null,
+    });
+
+    const resetLink = `${RESET_PASSWORD_URL}?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: {
-        user: GMAIL_USER,
-        pass: GMAIL_APP_PASSWORD,
-      },
+      auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
     });
 
     await transporter.sendMail({
