@@ -262,7 +262,7 @@ export const apiService = {
 
   // Login
   login: async (username: string, password: string): Promise<{ access_token: string; expires_in: number }> => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+    const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -276,7 +276,7 @@ export const apiService = {
 
   // Register
   register: async (username: string, email: string, password: string, display_name?: string): Promise<{ id: number; username: string; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password, display_name: display_name || '' }),
@@ -290,7 +290,7 @@ export const apiService = {
 
   // Get current user
   getMe: async (token: string): Promise<{ id: number; username: string; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+    const response = await fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error('Failed to get user info');

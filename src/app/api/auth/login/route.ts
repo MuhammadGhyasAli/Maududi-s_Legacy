@@ -1,35 +1,42 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { getDb } from '@/lib/mongodb';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const JWT_SECRET = process.env.JWT_SECRET_KEY || 'your_jwt_secret_key_here_change_in_production';
+const JWT_EXPIRATION_MINUTES = parseInt(process.env.JWT_EXPIRATION_MINUTES || '1440', 10);
 
 export async function POST(request: Request) {
   try {
-    const body = await request.text();
-    // We expect urlencoded form data from the client apiService
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body,
-    });
-    
-    if (!response.ok) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: response.status });
+    const { username, password } = await request.json();
+    if (!username?.trim() || !password) {
+      return NextResponse.json({ detail: 'Username and password are required' }, { status: 400 });
     }
-    
-    const data = await response.json();
-    
-    const cookieStore = await cookies();
-    cookieStore.set('access_token', data.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: data.expires_in || 86400,
-      path: '/',
-    });
-    
-    return NextResponse.json(data);
-  } catch (_error) {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+
+    const db = await getDb();
+    if (!db) {
+      return NextResponse.json({ detail: 'Service unavailable' }, { status: 503 });
+    }
+
+    const user = await db.collection('users').findOne({ username: username.trim() });
+    if (!user) {
+      return NextResponse.json({ detail: 'Invalid username or password' }, { status: 401 });
+    }
+
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) {
+      return NextResponse.json({ detail: 'Invalid username or password' }, { status: 401 });
+    }
+
+    const expiresIn = JWT_EXPIRATION_MINUTES * 60;
+    const accessToken = jwt.sign(
+      { sub: String(user.id), username: user.username },
+      JWT_SECRET,
+      { expiresIn },
+    );
+
+    return NextResponse.json({ access_token: accessToken, token_type: 'bearer', expires_in: expiresIn });
+  } catch {
+    return NextResponse.json({ detail: 'Server error' }, { status: 500 });
   }
 }
