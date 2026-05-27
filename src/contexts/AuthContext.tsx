@@ -15,7 +15,7 @@ interface AuthContextValue {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<User>;
   register: (username: string, email: string, password: string, display_name?: string) => Promise<User>;
   logout: () => void;
 }
@@ -43,8 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const result = await apiService.login(username, password);
+  const login = useCallback(async (email: string, password: string) => {
+    const result = await apiService.login(email, password);
     localStorage.setItem('auth_token', result.access_token);
     const u = await apiService.getMe(result.access_token);
     setUser(u);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (username: string, email: string, password: string, display_name?: string) => {
     await apiService.register(username, email, password, display_name);
-    return login(username, password);
+    return login(email, password);
   }, [login]);
 
   const logout = useCallback(() => {

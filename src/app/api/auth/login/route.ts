@@ -8,9 +8,9 @@ const JWT_EXPIRATION_MINUTES = parseInt(process.env.JWT_EXPIRATION_MINUTES || '1
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
-    if (!username?.trim() || !password) {
-      return NextResponse.json({ detail: 'Username and password are required' }, { status: 400 });
+    const { email, password } = await request.json();
+    if (!email?.trim() || !password) {
+      return NextResponse.json({ detail: 'Email and password are required' }, { status: 400 });
     }
 
     const db = await getDb();
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: 'Service unavailable' }, { status: 503 });
     }
 
-    const user = await db.collection('users').findOne({ username: username.trim() });
+    const user = await db.collection('users').findOne({ email: email.trim().toLowerCase() });
     if (!user) {
       return NextResponse.json({ detail: 'Invalid username or password' }, { status: 401 });
     }

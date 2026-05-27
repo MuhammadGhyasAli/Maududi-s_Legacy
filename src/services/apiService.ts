@@ -259,11 +259,11 @@ export const apiService = {
 
 
   // Login
-  login: async (username: string, password: string): Promise<{ access_token: string; expires_in: number }> => {
+  login: async (email: string, password: string): Promise<{ access_token: string; expires_in: number }> => {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: 'Login failed' }));
