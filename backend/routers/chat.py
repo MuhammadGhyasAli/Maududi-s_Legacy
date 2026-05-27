@@ -4,12 +4,13 @@ from slowapi.util import get_remote_address
 from structlog import get_logger
 from pymongo.database import Database
 
-from models.book import ChatRequest, GlobalChatRequest, ChatResponse
+from models.book import Book, ChatRequest, GlobalChatRequest, ChatResponse
 from database import get_db
 from repositories.book_repository import BookRepository
 from services.llm_service import llm_service
 from exceptions import NotFoundException
 from validators import validate_book_id
+from data.books import BOOKS_DATA
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -23,14 +24,24 @@ async def chat(request: Request, chat_request: ChatRequest, db: Database = Depen
 
     validate_book_id(chat_request.bookId)
 
-    book_repo = BookRepository(db)
-    book_model = book_repo.get_book_by_id(chat_request.bookId)
+    if db is None:
+        logger.warning("Database unavailable, using local seed data for chat", book_id=chat_request.bookId)
+        book = None
+        for b in BOOKS_DATA:
+            if b["id"] == chat_request.bookId:
+                book = Book(**b)
+                break
+    else:
+        book_repo = BookRepository(db)
+        book_model = book_repo.get_book_by_id(chat_request.bookId)
+        if book_model:
+            book = book_repo.to_pydantic(book_model)
+        else:
+            book = None
 
-    if not book_model:
+    if not book:
         logger.warning("Book not found for chat", book_id=chat_request.bookId)
         raise NotFoundException(f"Book with id {chat_request.bookId} not found")
-
-    book = book_repo.to_pydantic(book_model)
 
     messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
 

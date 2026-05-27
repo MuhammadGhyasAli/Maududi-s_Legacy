@@ -1,26 +1,40 @@
 import os
-from groq import Groq
-from typing import List
+import httpx
+from typing import List, Optional
 
 from config import settings
+
+GROQ_API_BASE = "https://api.groq.com/openai/v1"
 
 class GroqService:
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY") or ""
-        if not self.api_key:
-            # We don't raise error on init to allow the app to start
-            # but it will fail when chat is called if still not set
-            self.client = None
-        else:
-            self.client = Groq(api_key=self.api_key)
-            
+        self._client: Optional[httpx.Client] = None
+
+    def _get_client(self):
+        if self._client is not None:
+            return self._client
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            self.api_key = ""
+            return None
+        self.api_key = api_key
+        proxy = os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY") or None
+        client_kwargs = {
+            "base_url": GROQ_API_BASE,
+            "headers": {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            "timeout": 30.0,
+        }
+        if proxy:
+            client_kwargs["proxy"] = proxy
+        self._client = httpx.Client(**client_kwargs)
+        return self._client
+
     def chat(self, system_instruction: str, messages: List[dict]) -> dict:
-        """Send chat request to Groq"""
-        if not self.client:
-            api_key = os.getenv("GROQ_API_KEY")
-            if not api_key:
-                return {"error": True, "message": "GROQ_API_KEY not set"}
-            self.client = Groq(api_key=api_key)
+        """Send chat request to Groq via direct HTTP call"""
+        client = self._get_client()
+        if not client:
+            return {"error": True, "message": "GROQ_API_KEY not set"}
 
         try:
             formatted_messages = [
@@ -50,15 +64,19 @@ class GroqService:
 
             model = settings.groq_model_vision if has_image else settings.groq_model_text
 
-            completion = self.client.chat.completions.create(
-                model=model,
-                messages=formatted_messages,
-                temperature=0.1,
-                max_tokens=4096,
-                top_p=0.9,
+            response = client.post(
+                "/chat/completions",
+                json={
+                    "model": model,
+                    "messages": formatted_messages,
+                    "temperature": 0.1,
+                    "max_tokens": 4096,
+                    "top_p": 0.9,
+                },
             )
-
-            return {"response": completion.choices[0].message.content}
+            response.raise_for_status()
+            data = response.json()
+            return {"response": data["choices"][0]["message"]["content"]}
         except Exception as e:
             return {"error": True, "message": f"Groq Error: {str(e)}"}
 
