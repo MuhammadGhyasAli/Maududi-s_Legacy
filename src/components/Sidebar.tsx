@@ -163,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         aria-label="Navigation sidebar"
         className={`
           fixed lg:fixed lg:top-20 left-0 h-screen lg:h-[calc(100vh-5rem)]
-          z-40 flex flex-col
+          z-40 flex flex-col overflow-x-hidden
           bg-white dark:bg-brand-sidebar-dark
           border-r border-gray-100 dark:border-white/[0.06]
           shadow-xl dark:shadow-black/40
