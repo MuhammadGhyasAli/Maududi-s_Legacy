@@ -209,13 +209,13 @@ export const apiService = {
   },
 
   // Chat with AI about a book
-  chat: async (bookId: number, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/chat`, {
+  chat: async (bookId: number, aiContext: string, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ bookId, messages }),
+      body: JSON.stringify({ bookId, aiContext, messages }),
       signal: getAbortSignal(signal),
     });
     if (!response.ok) {
@@ -235,7 +235,7 @@ export const apiService = {
 
   // Global Chat (e.g., AiContextFinder)
   globalChat: async (systemInstruction: string, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/chat/global`, {
+    const response = await fetch('/api/chat/global', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

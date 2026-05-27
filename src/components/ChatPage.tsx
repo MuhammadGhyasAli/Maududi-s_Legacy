@@ -50,7 +50,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
             { role: 'user', content: `Provide a precise, well-researched answer based strictly on the book's content. Accuracy is critical — only state what you are certain of. If you are unsure about any detail, explicitly say so rather than speculating. Your entire response must be in ${selectedLanguage}. When citing, provide full exact book titles and specific context references.\n\nMy question: "${textToSend}"` }
         ];
         
-        const response = await apiService.chat(book.id, newApiMessages);
+        const response = await apiService.chat(book.id, book.aiContext, newApiMessages);
         const aiMessage: ChatMessage = { sender: MessageSender.AI, text: response.response };
         setMessages(prev => [...prev, aiMessage]);
         
