@@ -25,7 +25,7 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
           <span className="font-semibold text-gray-900 dark:text-gray-100">{totalBooks}</span> books found
         </div>
 
-        <div className="flex-shrink-0 md:w-48 mr-10">
+        <div className="flex-shrink-0 md:w-48 md:mr-10">
           <label htmlFor="view-mode" className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 block">
             View as
           </label>

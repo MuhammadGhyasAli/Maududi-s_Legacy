@@ -31,7 +31,7 @@ export default function Footer() {
       {/* Top accent */}
       <div className="h-0.5 bg-gradient-brand" />
 
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* Brand — 4 cols */}
           <div className="sm:col-span-2 lg:col-span-4 space-y-4">

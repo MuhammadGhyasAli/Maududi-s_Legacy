@@ -91,7 +91,7 @@ const Header = React.memo(function Header({
               alt="Maududi's Legacy"
               width={180}
               height={48}
-              className="h-12 w-auto object-contain"
+              className="h-8 sm:h-12 w-auto object-contain"
               priority
             />
           </button>
