@@ -3,10 +3,12 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 
 export default function RegisterPage() {
   const { register } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,7 +32,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, email, password, displayName || undefined);
-      // Successful registration handled by auth context
+      router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {

@@ -22,7 +22,7 @@ describe('apiService', () => {
 
       const books = await apiService.getBooks();
       expect(books).toEqual(mockBooks);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books', { signal: undefined });
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books', { signal: expect.any(AbortSignal) });
     });
 
     it('fetches books by category', async () => {
@@ -36,15 +36,18 @@ describe('apiService', () => {
 
       const books = await apiService.getBooks('Tafsir');
       expect(books).toEqual(mockBooks);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books?category=Tafsir', { signal: undefined });
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books?category=Tafsir', { signal: expect.any(AbortSignal) });
     });
 
     it('throws error when fetch fails', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        json: async () => { throw new Error('parse error'); },
       });
 
-      await expect(apiService.getBooks()).rejects.toThrow('Failed to fetch books');
+      await expect(apiService.getBooks()).rejects.toThrow('Failed to fetch books: 500 Internal Server Error');
     });
   });
 
@@ -58,7 +61,7 @@ describe('apiService', () => {
 
       const book = await apiService.getBook(1);
       expect(book).toEqual(mockBook);
-      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books/1', { signal: undefined });
+      expect(global.fetch).toHaveBeenCalledWith('/api/v1/books/1', { signal: expect.any(AbortSignal) });
     });
   });
 
@@ -75,7 +78,7 @@ describe('apiService', () => {
       const response = await apiService.chat(1, aiContext, messages);
       expect(response).toEqual(mockResponse);
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/v1/chat',
+        '/api/chat',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

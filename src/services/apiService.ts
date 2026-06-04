@@ -261,7 +261,7 @@ export const apiService = {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: email, password }),
+      body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: 'Login failed' }));
