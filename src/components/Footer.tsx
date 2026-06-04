@@ -3,17 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiService } from '../services/apiService';
+import { CATEGORIES } from '../constants';
 
-const CATEGORIES = [
-  { name: 'Tafsir', href: '/tafsir', icon: '📖' },
-  { name: 'Theology', href: '/theology', icon: '☝️' },
-  { name: 'Politics', href: '/politics', icon: '🏛️' },
-  { name: 'Economics', href: '/economics', icon: '💰' },
-  { name: 'Jurisprudence', href: '/jurisprudence', icon: '⚖️' },
-  { name: 'History', href: '/history', icon: '📜' },
-  { name: 'Social Issues', href: '/social-issues', icon: '🤝' },
-  { name: 'Guidance', href: '/guidance', icon: '💡' },
-];
+const categoryLinks = CATEGORIES.filter(c => c !== 'All').map(name => ({
+  name,
+  href: `/${name.toLowerCase().replace(/\s+/g, '-')}`,
+}));
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -48,7 +43,7 @@ export default function Footer() {
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40">
                 <span aria-hidden="true">📂</span>
-                <span>{CATEGORIES.length} categories</span>
+                <span>{CATEGORIES.length - 1} categories</span>
               </span>
             </div>
           </div>
@@ -80,7 +75,7 @@ export default function Footer() {
               Categories
             </h4>
             <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-              {CATEGORIES.map((cat) => (
+              {categoryLinks.map((cat) => (
                 <Link key={cat.name} href={cat.href} className={linkClass}>
                   {cat.name}
                 </Link>

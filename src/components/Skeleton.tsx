@@ -13,7 +13,7 @@ const Skeleton: React.FC<SkeletonProps> = ({
   width,
   height 
 }) => {
-  const baseClasses = 'animate-pulse bg-gray-300 dark:bg-gray-700';
+  const baseClasses = 'skeleton-shimmer';
   
   const variantClasses = {
     text: 'rounded h-4',

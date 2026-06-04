@@ -109,7 +109,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   useEffect(scrollToBottom, [messages, isLoading]);
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto" role="log" aria-live="polite" aria-label="Chat messages">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-8 mt-12">
         {messages.map((msg, index) => {
           const { dir, className } = getLangProps(msg.text, selectedLanguage);

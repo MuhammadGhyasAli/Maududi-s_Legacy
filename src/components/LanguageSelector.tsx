@@ -32,7 +32,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ languages, selected
   return (
     <div ref={wrapperRef} className="fixed bottom-24 right-4 md:right-8 z-20">
       {isOpen && (
-        <div className="absolute bottom-full right-0 mb-3 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fade-in-up">
+        <div id="language-dropdown" className="absolute bottom-full right-0 mb-3 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fade-in-up">
           <ul>
             {languages.map(lang => (
               <li key={lang}>
@@ -52,6 +52,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ languages, selected
         className="cursor-pointer w-14 h-14 bg-brand-green text-white rounded-full shadow-lg flex items-center justify-center hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-brand-green/50 dark:focus:ring-brand-green/50 transition-all transform hover:scale-110"
         aria-label="Select language"
         aria-expanded={isOpen}
+        aria-controls="language-dropdown"
       >
         <LanguageIcon className="w-7 h-7" />
       </button>

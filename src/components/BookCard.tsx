@@ -40,8 +40,12 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
   const badgeClass = categoryColors[book.category] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 
   return (
-    <button
+    <div
       onClick={() => onClick(book)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(book); } }}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${book.title}`}
       className="
         group relative flex flex-col cursor-pointer
         bg-white dark:bg-brand-card-dark
@@ -111,22 +115,14 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
           </p>
           <div className="flex-grow" />
           {needsExpansion && (
-            <span
+            <button
               onClick={toggleExpand}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  toggleExpand(e as any);
-                }
-              }}
               aria-expanded={isExpanded}
               className="mt-2 text-[11px] font-semibold text-brand-green dark:text-brand-green-dark
                          hover:underline cursor-pointer self-start"
             >
               {isExpanded ? 'Read less ↑' : 'Read more ↓'}
-            </span>
+            </button>
           )}
         </div>
       </div>
@@ -135,7 +131,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
       <div className="absolute bottom-0 left-0 right-0 h-0.5
                       bg-gradient-brand opacity-0 group-hover:opacity-100
                       transition-opacity duration-300" />
-    </button>
+    </div>
   );
 };
 

@@ -1,5 +1,3 @@
-import { Book } from "./types";
-
 export const CATEGORIES: string[] = [
   "All",
   "Tafsir",
@@ -11,5 +9,3 @@ export const CATEGORIES: string[] = [
   "History",
   "Guidance",
 ];
-
-export const BOOKS: Book[] = [];

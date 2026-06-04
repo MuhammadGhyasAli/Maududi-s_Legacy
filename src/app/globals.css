@@ -29,8 +29,8 @@
   --color-navy:          #0f172a;
   --color-navy-mid:      #1e293b;
   --color-navy-card:     #1a2942;
-  --bg-light:            #f0f4f8;
-  --bg-dark:             #0b1220;
+  --bg-light:            #ffffff;
+  --bg-dark:             #0a0a0a;
   --gradient-brand:      linear-gradient(135deg, #059669 0%, #0891b2 100%);
   --gradient-gold:       linear-gradient(90deg, #d97706, #f59e0b, #d97706);
   --shadow-emerald:      0 4px 20px rgba(5,150,105,0.25);
