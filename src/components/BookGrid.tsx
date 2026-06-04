@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { Book } from '../types';
@@ -10,6 +10,8 @@ import SortFilterControls from './SortFilterControls';
 import SearchBar from './SearchBar';
 import { deslugifyCategory } from '../utils/slugify';
 import { useDebounce } from '../hooks/useDebounce';
+import { useAuth } from '../contexts/AuthContext';
+import { apiService } from '../services/apiService';
 import Breadcrumbs from './Breadcrumbs';
 
 interface BookGridProps {
@@ -30,8 +32,26 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  const { user } = useAuth();
   const [sortBy, setSortBy] = useState('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [readingPrefCategories, setReadingPrefCategories] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    if (sortBy === 'reading-preference' && user) {
+      apiService.getReadingHistory()
+        .then(history => {
+          const counts: Record<string, number> = {};
+          history.forEach((h: { category?: string }) => {
+            if (h.category) counts[h.category] = (counts[h.category] || 0) + 1;
+          });
+          setReadingPrefCategories(Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]));
+        })
+        .catch(() => setReadingPrefCategories(null));
+    } else if (sortBy !== 'reading-preference') {
+      setReadingPrefCategories(null);
+    }
+  }, [sortBy, user]);
 
   const processedBooks = useMemo(() => {
     let filteredBooks = books;
@@ -64,6 +84,19 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
       case 'year-asc':
         sortedBooks.sort((a, b) => a.publicationYear - b.publicationYear);
         break;
+      case 'reading-preference': {
+        if (readingPrefCategories && readingPrefCategories.length > 0) {
+          sortedBooks.sort((a, b) => {
+            const aIdx = readingPrefCategories.indexOf(a.category);
+            const bIdx = readingPrefCategories.indexOf(b.category);
+            const aRank = aIdx >= 0 ? aIdx : readingPrefCategories.length;
+            const bRank = bIdx >= 0 ? bIdx : readingPrefCategories.length;
+            if (aRank !== bRank) return aRank - bRank;
+            return a.title.localeCompare(b.title);
+          });
+        }
+        break;
+      }
       case 'default':
       default: {
         const tafheemBooks = sortedBooks.filter(book => book.title.startsWith("Tafheem ul Quran"));
@@ -79,7 +112,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
     }
 
     return sortedBooks;
-  }, [books, categoryName, debouncedSearch, sortBy]);
+  }, [books, categoryName, debouncedSearch, sortBy, readingPrefCategories]);
 
   const totalPages = Math.ceil(processedBooks.length / BOOKS_PER_PAGE);
   const paginatedBooks = useMemo(() => {

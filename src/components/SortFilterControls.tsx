@@ -66,6 +66,7 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
             className="select-base text-xs sm:text-sm"
           >
             <option value="default">Default Order</option>
+            <option value="reading-preference">Reading Preference</option>
             <option value="title-asc">Title A–Z</option>
             <option value="title-desc">Title Z–A</option>
             <option value="year-desc">Newest First</option>
