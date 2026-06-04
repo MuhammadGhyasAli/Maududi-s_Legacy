@@ -5,7 +5,7 @@ interface SearchBarProps {
   setSearchTerm: (term: string) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => {
+function SearchBarInner({ searchTerm, setSearchTerm }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => {
   return (
     <div role="search" className="relative group">
       <label htmlFor="book-search" className="sr-only">Search books — press / to focus</label>
-      {/* Search icon */}
       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-gray-500 group-focus-within:text-brand-green transition-colors duration-200">
         <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
@@ -68,6 +67,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => {
       </div>
     </div>
   );
-};
+}
 
+const SearchBar = React.memo(SearchBarInner);
 export default SearchBar;

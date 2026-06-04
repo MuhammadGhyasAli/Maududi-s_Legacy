@@ -6,7 +6,10 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+const btnBase = 'inline-flex items-center justify-center px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer';
+const btnSecondary = 'bg-white dark:bg-brand-card-dark text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-brand-card-dark disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700';
+
+function PaginationInner({ currentPage, totalPages, onPageChange }: PaginationProps) {
   const pageNumbers = useMemo(() => {
     const pages: (number | string)[] = [];
     if (totalPages <= 7) {
@@ -22,9 +25,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     }
     return pages;
   }, [currentPage, totalPages]);
-
-  const btnBase = 'inline-flex items-center justify-center px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer';
-  const btnSecondary = 'bg-white dark:bg-brand-card-dark text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-brand-card-dark disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700';
 
   return (
     <nav className="mt-12 flex justify-center" aria-label="Pagination">
@@ -80,6 +80,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       </ul>
     </nav>
   );
-};
+}
 
+const Pagination = React.memo(PaginationInner);
 export default Pagination;

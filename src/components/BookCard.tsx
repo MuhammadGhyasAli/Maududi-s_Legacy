@@ -5,9 +5,21 @@ import { Book } from '../types';
 interface BookCardProps {
   book: Book;
   onClick: (book: Book) => void;
+  priority?: boolean;
 }
 
-const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
+const categoryColors: Record<string, string> = {
+  'Tafsir':        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  'Politics':      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  'Theology':      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  'Economics':     'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+  'Jurisprudence': 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+  'Social Issues': 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+  'History':       'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
+  'Guidance':      'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
+};
+
+function BookCardInner({ book, onClick, priority }: BookCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -25,18 +37,6 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
   };
 
   const needsExpansion = book.description.length > 150;
-
-  // Category badge color mapping
-  const categoryColors: Record<string, string> = {
-    'Tafsir':        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    'Politics':      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-    'Theology':      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-    'Economics':     'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-    'Jurisprudence': 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-    'Social Issues': 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
-    'History':       'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-    'Guidance':      'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
-  };
   const badgeClass = categoryColors[book.category] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 
   return (
@@ -56,7 +56,6 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
         transition-all duration-300 ease-out
       "
     >
-      {/* Image */}
       <div className="relative aspect-[3/4] max-h-48 overflow-hidden bg-gray-100 dark:bg-brand-navy-mid flex-shrink-0">
         {imageError ? (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2
@@ -78,27 +77,25 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
               alt={book.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw"
+              priority={priority}
               className={`object-cover group-hover:scale-105 transition-all duration-500 relative z-10
                           ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              loading="lazy"
+              loading={priority ? undefined : 'lazy'}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
             />
           </>
         )}
 
-        {/* Overlay gradient on image */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent
                         group-hover:from-black/20 transition-all duration-300" />
 
-        {/* Category badge on image */}
         <span className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-semibold
                           backdrop-blur-md shadow-sm ${badgeClass}`}>
           {book.category}
         </span>
       </div>
 
-      {/* Content */}
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="text-sm font-bold leading-snug mb-0.5
                        text-gray-900 dark:text-gray-100
@@ -128,12 +125,12 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
         </div>
       </div>
 
-      {/* Bottom accent bar */}
       <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full
                       bg-gradient-brand opacity-0 group-hover:opacity-100
                       transition-all duration-300 scale-x-0 group-hover:scale-x-100" />
     </div>
   );
-};
+}
 
+const BookCard = React.memo(BookCardInner);
 export default BookCard;

@@ -8,13 +8,13 @@ interface SortFilterControlsProps {
   onViewModeChange: (view: 'grid' | 'list') => void;
 }
 
-const SortFilterControls: React.FC<SortFilterControlsProps> = ({
+function SortFilterControls({
   totalBooks,
   viewMode,
   onViewModeChange,
   sortBy,
   onSortByChange,
-}) => {
+}: SortFilterControlsProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div className="flex items-center gap-4">
@@ -81,6 +81,6 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
       </div>
     </div>
   );
-};
+}
 
-export default SortFilterControls;
+export default React.memo(SortFilterControls);

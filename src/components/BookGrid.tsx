@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Book } from '../types';
 import BookCard from './BookCard';
 import Pagination from './Pagination';
@@ -23,19 +23,20 @@ const BOOKS_PER_PAGE = 15;
 const BookGrid: React.FC<BookGridProps> = ({ books }) => {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const category = (params?.category as string | undefined) || undefined;
   const categoryName = category ? deslugifyCategory(category) : 'All';
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 300);
-  const [currentPage, setCurrentPage] = useState(1);
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  const { user } = useAuth();
   const [sortBy, setSortBy] = useState('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { user } = useAuth();
   const [readingPrefCategories, setReadingPrefCategories] = useState<string[] | null>(null);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    return isNaN(page) || page < 1 ? 1 : page;
+  });
+  const isExternalNav = useRef(false);
 
   useEffect(() => {
     if (sortBy === 'reading-preference' && user) {
@@ -52,6 +53,14 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
       setReadingPrefCategories(null);
     }
   }, [sortBy, user]);
+
+  useEffect(() => {
+    if (isExternalNav.current) {
+      const page = parseInt(searchParams.get('page') || '1', 10);
+      setCurrentPage(isNaN(page) || page < 1 ? 1 : page);
+      isExternalNav.current = false;
+    }
+  }, [searchParams]);
 
   const processedBooks = useMemo(() => {
     let filteredBooks = books;
@@ -115,12 +124,32 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
   }, [books, categoryName, debouncedSearch, sortBy, readingPrefCategories]);
 
   const totalPages = Math.ceil(processedBooks.length / BOOKS_PER_PAGE);
-  const paginatedBooks = useMemo(() => {
-    const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
-    return processedBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
-  }, [currentPage, processedBooks]);
 
-  const handleSelectBook = (book: Book) => {
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  const paginatedBooks = useMemo(() => {
+    const safePage = Math.min(currentPage, Math.max(1, totalPages));
+    const startIndex = (safePage - 1) * BOOKS_PER_PAGE;
+    return processedBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
+  }, [currentPage, processedBooks, totalPages]);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    const params = new URLSearchParams(searchParams.toString());
+    if (page === 1) {
+      params.delete('page');
+    } else {
+      params.set('page', String(page));
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [router, searchParams]);
+
+  const handleSelectBook = useCallback((book: Book) => {
     const bookSlug = book.title
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
@@ -128,14 +157,30 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
       .replace(/\s+/g, '-');
     const categorySlug = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
     router.push(`/${categorySlug}/${bookSlug}`);
-  };
+  }, [category, router]);
 
-  React.useEffect(() => {
+  const handleSearchChange = useCallback((term: string) => {
+    setSearchTerm(term);
     setCurrentPage(1);
-  }, [searchTerm, category, sortBy]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('page');
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
+  const handleSortChange = useCallback((sort: string) => {
+    setSortBy(sort);
+    setCurrentPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('page');
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
+  const handleViewModeChange = useCallback((view: 'grid' | 'list') => {
+    setViewMode(view);
+  }, []);
 
   // Prefetch book detail pages for instant navigation
-  React.useEffect(() => {
+  useEffect(() => {
     const cat = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
     paginatedBooks.slice(0, 6).forEach(book => {
       const slug = book.title
@@ -146,6 +191,13 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
       router.prefetch(`/${cat}/${slug}`);
     });
   }, [paginatedBooks, category, router]);
+
+  // Listen for browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => { isExternalNav.current = true; };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <>
@@ -181,17 +233,17 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
 
         {/* Search */}
         <div className="max-w-xl mx-auto mb-6">
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <SearchBar searchTerm={searchTerm} setSearchTerm={handleSearchChange} />
         </div>
 
         {/* Sort & filter */}
         <div className="max-w-5xl mx-auto mb-8 px-0.5">
           <SortFilterControls
             sortBy={sortBy}
-            onSortByChange={setSortBy}
+            onSortByChange={handleSortChange}
             totalBooks={processedBooks.length}
             viewMode={viewMode}
-            onViewModeChange={setViewMode}
+            onViewModeChange={handleViewModeChange}
           />
         </div>
 
@@ -200,11 +252,12 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
           <>
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-                {paginatedBooks.map(book => (
+                {paginatedBooks.map((book, idx) => (
                   <BookCard
                     key={book.id}
                     book={book}
                     onClick={handleSelectBook}
+                    priority={idx === 0}
                   />
                 ))}
               </div>
