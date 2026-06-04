@@ -121,17 +121,64 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-10">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">7. Local Storage</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">7. Local Storage & Cookies</h2>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-          We use browser localStorage to store:
+          We use browser <strong>localStorage</strong> (not HTTP cookies) for essential functionality:
         </p>
         <ul className="list-disc pl-6 text-gray-600 dark:text-gray-400 leading-relaxed space-y-1 mb-3">
-          <li><strong>auth_token</strong> — JWT token for maintaining your login session</li>
+          <li><strong>auth_token</strong> — JWT token for maintaining your login session (expires in 7 days)</li>
           <li><strong>theme</strong> — Your preferred color theme (light/dark/system)</li>
           <li><strong>maududi_cache_*</strong> — Cached API responses for improved performance (30-minute TTL)</li>
+          <li><strong>cookie_consent</strong> — Your cookie consent preference ("accepted" or "declined")</li>
         </ul>
-        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-          We do not use cookies for tracking or advertising purposes. All locally stored data stays on your device and is not sent to third parties except as necessary to authenticate your session.
+        <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+          We do <strong>not</strong> use cookies for tracking, advertising, or analytics purposes. All locally stored data stays on your device and is not sent to third parties except the <code>auth_token</code> which is sent to our API to authenticate your session.
+        </p>
+
+        <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mt-4 mb-2">7.1 Cookie Policy Summary</h3>
+        <table className="w-full text-sm border-collapse mb-3">
+          <thead>
+            <tr className="bg-gray-50 dark:bg-gray-800/50">
+              <th className="p-2 text-left border border-gray-200 dark:border-gray-700 font-semibold">Key</th>
+              <th className="p-2 text-left border border-gray-200 dark:border-gray-700 font-semibold">Type</th>
+              <th className="p-2 text-left border border-gray-200 dark:border-gray-700 font-semibold">Purpose</th>
+              <th className="p-2 text-left border border-gray-200 dark:border-gray-700 font-semibold">Expiry</th>
+              <th className="p-2 text-left border border-gray-200 dark:border-gray-700 font-semibold">Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="p-2 border border-gray-200 dark:border-gray-700 font-mono">auth_token</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">localStorage</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">User authentication session</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">7 days</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400">Essential</td>
+            </tr>
+            <tr className="bg-gray-50 dark:bg-gray-800/50">
+              <td className="p-2 border border-gray-200 dark:border-gray-700 font-mono">theme</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">localStorage</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">UI theme preference</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">Persistent</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400">Essential</td>
+            </tr>
+            <tr>
+              <td className="p-2 border border-gray-200 dark:border-gray-700 font-mono">maududi_cache_*</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">localStorage</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">API response caching</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">30 minutes</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400">Performance</td>
+            </tr>
+            <tr className="bg-gray-50 dark:bg-gray-800/50">
+              <td className="p-2 border border-gray-200 dark:border-gray-700 font-mono">cookie_consent</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">localStorage</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">Consent preference</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">1 year</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400">Essential</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          <strong>No third-party cookies</strong> — We do not use Google Analytics, Meta Pixel, or any advertising/tracking cookies.
         </p>
       </section>
 

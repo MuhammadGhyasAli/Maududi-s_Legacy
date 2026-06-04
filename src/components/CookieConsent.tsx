@@ -4,13 +4,22 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import CloseIcon from "./icons/CloseIcon";
 import CheckIcon from "./icons/CheckIcon";
+import ChevronDownIcon from "./icons/ChevronDownIcon";
 
 const CONSENT_KEY = "cookie_consent";
 
 type ConsentStatus = "accepted" | "declined" | null;
 
+const storageItems = [
+  { key: "auth_token", desc: "JWT token for login session", expires: "7 days", category: "Essential" },
+  { key: "theme", desc: "UI theme preference (light/dark/system)", expires: "Persistent", category: "Essential" },
+  { key: "maududi_cache_*", desc: "Cached API responses for performance", expires: "30 minutes", category: "Performance" },
+  { key: "cookie_consent", desc: "Your consent preference", expires: "1 year", category: "Essential" },
+];
+
 export default function CookieConsent() {
   const [show, setShow] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(CONSENT_KEY) as ConsentStatus;
@@ -33,7 +42,7 @@ export default function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-4 right-4 left-4 md:right-4 md:left-auto md:w-[400px] z-50 animate-slide-up"
+      className="fixed bottom-4 right-4 left-4 md:right-4 md:left-auto md:w-[420px] z-50 animate-slide-up"
       role="dialog"
       aria-label="Cookie consent"
       aria-describedby="cookie-consent-desc"
@@ -45,9 +54,38 @@ export default function CookieConsent() {
           </div>
           <div className="flex-1 min-w-0">
             <p id="cookie-consent-desc" className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-              We use essential localStorage to store your authentication token, theme preference, and cached data for performance.
-              No tracking or advertising cookies are used.
+              We use <strong>localStorage</strong> (not cookies) for essential site functionality. No tracking, advertising, or analytics cookies are used.
             </p>
+
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 hover:underline mb-3"
+              aria-expanded={expanded}
+            >
+              <span>Show details</span>
+              <ChevronDownIcon className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+            </button>
+
+            {expanded && (
+              <div className="mb-3 text-xs space-y-1.5 border-t border-gray-200 dark:border-gray-700 pt-3">
+                {storageItems.map((item) => (
+                  <div key={item.key} className="flex gap-2 items-center">
+                    <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded min-w-[110px] text-[10px]">
+                      {item.key}
+                    </code>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1">{item.desc}</span>
+                    <span className="text-gray-400 dark:text-gray-500 whitespace-nowrap">{item.expires}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                      {item.category}
+                    </span>
+                  </div>
+                ))}
+                <p className="text-gray-500 dark:text-gray-400 pt-2">
+                  No third-party cookies — no Google Analytics, Meta Pixel, or advertising trackers.
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <button
                 onClick={handleAccept}
