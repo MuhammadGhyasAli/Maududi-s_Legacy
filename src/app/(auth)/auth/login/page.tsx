@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
+import GoogleSignInButton from '../../../../components/GoogleSignInButton';
 
 export default function LoginPage() {
+  useEffect(() => { document.title = "Login | Maududi's Legacy"; }, []);
   const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -36,6 +38,15 @@ export default function LoginPage() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
           Welcome back to Maududi&apos;s Legacy
         </p>
+      </div>
+
+      <div className="mb-6">
+        <GoogleSignInButton mode="signin" />
+        <div className="flex items-center gap-3 mt-5 mb-1">
+          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+          <span className="text-xs font-medium text-gray-400 dark:text-gray-500">or continue with email</span>
+          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

@@ -101,7 +101,7 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
                       onKeyDown={e => { if (e.key === 'Enter') handlePageJump(); }}
                       onBlur={handlePageJump}
                       className="w-8 sm:w-10 bg-transparent text-center text-xs sm:text-sm text-white/70 tabular-nums outline-none border-b border-white/20 focus:border-white/60 transition-colors"
-                      placeholder={`${pageNumber}`}
+                      placeholder="Go to page"
                     />
                     <span className="text-xs text-white/40 tabular-nums">/ {numPages}</span>
                   </div>

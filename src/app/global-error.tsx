@@ -1,5 +1,14 @@
 'use client';
 
+import { Playfair_Display } from 'next/font/google';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+  preload: true,
+});
+
 export default function GlobalError({
   _error,
   reset,
@@ -8,7 +17,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html>
+    <html className={playfair.variable}>
       <body>
         <div className="min-h-screen flex items-center justify-center px-4 bg-brand-bg-light dark:bg-brand-bg-dark">
           <div className="text-center max-w-md">

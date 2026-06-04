@@ -6,6 +6,7 @@ interface SortFilterControlsProps {
   totalBooks: number;
   viewMode: 'grid' | 'list';
   onViewModeChange: (view: 'grid' | 'list') => void;
+  isAuthenticated?: boolean;
 }
 
 function SortFilterControls({
@@ -14,6 +15,7 @@ function SortFilterControls({
   onViewModeChange,
   sortBy,
   onSortByChange,
+  isAuthenticated = false,
 }: SortFilterControlsProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -66,7 +68,7 @@ function SortFilterControls({
             className="select-base text-xs sm:text-sm"
           >
             <option value="default">Default Order</option>
-            <option value="reading-preference">Reading Preference</option>
+            {isAuthenticated && <option value="reading-preference">Reading Preference</option>}
             <option value="title-asc">Title A–Z</option>
             <option value="title-desc">Title Z–A</option>
             <option value="year-desc">Newest First</option>

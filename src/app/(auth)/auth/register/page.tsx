@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useToast } from '../../../../components/Toast';
+import GoogleSignInButton from '../../../../components/GoogleSignInButton';
 
 export default function RegisterPage() {
+  useEffect(() => { document.title = "Register | Maududi's Legacy"; }, []);
   const { register, verifyEmail } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -128,7 +130,17 @@ export default function RegisterPage() {
       </div>
 
       {!showVerification ? (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <>
+          <div className="mb-6">
+            <GoogleSignInButton mode="signup" />
+            <div className="flex items-center gap-3 mt-5 mb-1">
+              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+              <span className="text-xs font-medium text-gray-400 dark:text-gray-500">or sign up with email</span>
+              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
             <div className="flex items-center gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400" role="alert">
               <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -248,6 +260,7 @@ export default function RegisterPage() {
             )}
           </button>
         </form>
+        </>
       ) : (
         <div className="space-y-6">
           {verificationError && (

@@ -47,11 +47,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     siteName: "Maududi's Legacy",
     url: 'https://maududi-legacy.vercel.app',
+    images: [{ url: '/logo.png', width: 160, height: 40, alt: "Maududi's Legacy" }],
   },
   twitter: {
     card: 'summary_large_image',
     title: "Maududi's Legacy",
     description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat.",
+    images: ['/logo.png'],
   },
   robots: {
     index: true,

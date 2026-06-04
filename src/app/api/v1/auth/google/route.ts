@@ -4,9 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { getDb, getNextId } from '@/lib/mongodb';
-
-const JWT_SECRET = process.env.JWT_SECRET_KEY || 'your_jwt_secret_key_here_change_in_production';
-const JWT_EXPIRATION_MINUTES = parseInt(process.env.JWT_EXPIRATION_MINUTES || '1440', 10);
+import { getJwtSecret, getJwtExpirationSeconds } from '@/lib/jwt';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID || '';
 
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -92,10 +90,10 @@ export async function POST(request: Request) {
       }
     }
 
-    const expiresIn = JWT_EXPIRATION_MINUTES * 60;
+    const expiresIn = getJwtExpirationSeconds();
     const accessToken = jwt.sign(
       { sub: String(user.id), username: user.username },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn },
     );
 

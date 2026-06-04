@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
 import { apiService } from '../services/apiService';
@@ -136,7 +137,7 @@ const QuickSearchModal: React.FC = () => {
                       }`}
                     >
                       <div className="w-8 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-brand-navy-mid flex-shrink-0">
-                        <img src={book.imageUrl} alt="" className="w-full h-full object-cover" />
+                        <Image src={book.imageUrl} alt="" width={32} height={40} className="w-full h-full object-cover" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className={`text-sm font-medium truncate ${idx === selectedIdx ? 'text-brand-green dark:text-brand-green-dark' : 'text-gray-900 dark:text-gray-100'}`}>

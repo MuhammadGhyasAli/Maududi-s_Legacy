@@ -71,6 +71,7 @@ body {
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover { background: #059669; }
+.scrollbar-thin { scrollbar-width: thin; }
 
 /* ═══════════════════════════════════════════
    Selection
@@ -137,7 +138,7 @@ body {
   position: absolute;
   top: -100%;
   left: 0;
-  z-index: 9999;
+  z-index: 99999;
   padding: 0.75rem 1.5rem;
   background: var(--gradient-brand);
   color: white;
@@ -196,6 +197,7 @@ body {
 .animate-fade-in-scale {
   animation: fadeInScale 0.35s ease both;
 }
+.animate-fade-in-scale-delay-0 { animation-delay: 0s; }
 .animate-fade-in-scale-delay-1 { animation-delay: 0.03s; }
 .animate-fade-in-scale-delay-2 { animation-delay: 0.06s; }
 .animate-fade-in-scale-delay-3 { animation-delay: 0.09s; }
@@ -235,9 +237,9 @@ body {
 }
 
 /* ═══════════════════════════════════════════
-   Header: hide desktop nav & AI Search ≥1000px
+   Header: hide desktop nav & AI Search on smaller screens
 ═══════════════════════════════════════════ */
-@media (min-width: 1000px) {
+@media (max-width: 999px) {
   .header-nav-links,
   .header-ai-search {
     display: none !important;

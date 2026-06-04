@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { getDb } from '@/lib/mongodb';
-
-const JWT_SECRET = process.env.JWT_SECRET_KEY || 'your_jwt_secret_key_here_change_in_production';
+import { getJwtSecret } from '@/lib/jwt';
 
 export async function PUT(request: Request) {
   try {
@@ -14,7 +13,7 @@ export async function PUT(request: Request) {
 
     let userId: number;
     try {
-      const payload = jwt.verify(authHeader.slice(7), JWT_SECRET) as { sub: string };
+      const payload = jwt.verify(authHeader.slice(7), getJwtSecret()) as { sub: string };
       userId = parseInt(payload.sub, 10);
     } catch {
       return NextResponse.json({ detail: 'Invalid or expired token' }, { status: 401 });

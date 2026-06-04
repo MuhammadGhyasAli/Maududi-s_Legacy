@@ -340,6 +340,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
             totalBooks={processedBooks.length}
             viewMode={viewMode}
             onViewModeChange={handleViewModeChange}
+            isAuthenticated={!!user}
           />
         </div>
 

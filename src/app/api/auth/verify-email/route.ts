@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { getDb } from '@/lib/mongodb';
-
-const JWT_SECRET = process.env.JWT_SECRET_KEY || 'your_jwt_secret_key_here_change_in_production';
-const JWT_EXPIRATION_MINUTES = parseInt(process.env.JWT_EXPIRATION_MINUTES || '1440', 10);
+import { getJwtSecret, getJwtExpirationSeconds } from '@/lib/jwt';
 
 export async function POST(request: Request) {
   try {
@@ -45,10 +43,10 @@ export async function POST(request: Request) {
       { $set: { is_verified: true }, $unset: { verification_code: '', verification_expires_at: '' } },
     );
 
-    const expiresIn = JWT_EXPIRATION_MINUTES * 60;
+    const expiresIn = getJwtExpirationSeconds();
     const accessToken = jwt.sign(
       { sub: String(user.id), username: user.username },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn },
     );
 

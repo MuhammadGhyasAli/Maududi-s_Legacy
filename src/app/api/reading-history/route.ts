@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { getDb } from '@/lib/mongodb';
-
-const JWT_SECRET = process.env.JWT_SECRET_KEY || 'your_jwt_secret_key_here_change_in_production';
+import { getJwtSecret } from '@/lib/jwt';
 
 function getUserId(request: NextRequest): number | null {
   const authHeader = request.headers.get('authorization');
   if (!authHeader?.startsWith('Bearer ')) return null;
   try {
-    const payload = jwt.verify(authHeader.slice(7), JWT_SECRET) as { sub: string };
+    const payload = jwt.verify(authHeader.slice(7), getJwtSecret()) as { sub: string };
     return parseInt(payload.sub, 10);
   } catch {
     return null;
