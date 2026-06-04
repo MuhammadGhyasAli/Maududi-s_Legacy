@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { apiService } from '../services/apiService';
 
-interface User {
+export interface User {
   id: number;
   username: string;
   email: string;
@@ -18,6 +18,9 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<User>;
   register: (username: string, email: string, password: string, display_name?: string) => Promise<User>;
   logout: () => void;
+  updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
+  changePassword: (current_password: string, new_password: string) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -63,8 +66,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
   }, []);
 
+  const updateProfile = useCallback(async (data: { display_name?: string; email?: string }) => {
+    if (!token) throw new Error('Not authenticated');
+    const u = await apiService.updateProfile(token, data);
+    setUser(u);
+    return u;
+  }, [token]);
+
+  const changePassword = useCallback(async (current_password: string, new_password: string) => {
+    if (!token) throw new Error('Not authenticated');
+    await apiService.changePassword(token, current_password, new_password);
+  }, [token]);
+
+  const deleteAccount = useCallback(async (password: string) => {
+    if (!token) throw new Error('Not authenticated');
+    await apiService.deleteAccount(token, password);
+    localStorage.removeItem('auth_token');
+    setUser(null);
+    setToken(null);
+  }, [token]);
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, changePassword, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

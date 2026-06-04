@@ -293,6 +293,48 @@ export const apiService = {
     return response.json();
   },
 
+  // Update profile (display_name, email)
+  updateProfile: async (token: string, data: { display_name?: string; email?: string }): Promise<{ id: number; username: string; email: string; display_name: string; is_active: boolean }> => {
+    const response = await fetch('/api/auth/me', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Update failed' }));
+      throw new Error(err.detail || 'Update failed');
+    }
+    return response.json();
+  },
+
+  // Change password
+  changePassword: async (token: string, current_password: string, new_password: string): Promise<{ message: string }> => {
+    const response = await fetch('/api/auth/password', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ current_password, new_password }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Failed to change password' }));
+      throw new Error(err.detail || 'Failed to change password');
+    }
+    return response.json();
+  },
+
+  // Delete account
+  deleteAccount: async (token: string, password: string): Promise<{ message: string }> => {
+    const response = await fetch('/api/auth/me', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ password }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Failed to delete account' }));
+      throw new Error(err.detail || 'Failed to delete account');
+    }
+    return response.json();
+  },
+
   // Clear cache (useful after mutations)
   clearCache,
 };
