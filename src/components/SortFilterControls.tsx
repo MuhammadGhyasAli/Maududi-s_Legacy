@@ -26,10 +26,10 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
         </div>
 
         <div className="flex-shrink-0 md:w-48 md:mr-10">
-          <label htmlFor="view-mode" className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 block">
+          <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 block">
             View as
-          </label>
-          <div className="flex space-x-2">
+          </span>
+          <div className="flex space-x-2" role="group" aria-label="View mode">
             <button
               onClick={() => onViewModeChange('grid')}
               className={`p-3 px-4 rounded-lg border-2 transition-colors cursor-pointer ${

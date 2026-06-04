@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getDb, getNextId } from '@/lib/mongodb';
+import { isDisposableEmail } from '@/utils/disposableEmails';
 
 export async function POST(request: Request) {
   try {
@@ -10,6 +11,9 @@ export async function POST(request: Request) {
 
     if (!email?.trim() || !email.includes('@')) {
       return NextResponse.json({ detail: 'Valid email is required' }, { status: 400 });
+    }
+    if (isDisposableEmail(email.trim())) {
+      return NextResponse.json({ detail: 'Temporary email addresses are not allowed. Please use a permanent email address.' }, { status: 400 });
     }
     if (!password || password.length < 6) {
       return NextResponse.json({ detail: 'Password must be at least 6 characters' }, { status: 400 });

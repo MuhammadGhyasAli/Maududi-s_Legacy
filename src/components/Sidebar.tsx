@@ -189,7 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors motion-reduce:transition-none"
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors motion-reduce:transition-none cursor-pointer"
             aria-label="Close sidebar"
           >
             <CloseIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />

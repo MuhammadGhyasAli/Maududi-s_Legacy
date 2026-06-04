@@ -181,7 +181,7 @@ const Header = React.memo(function Header({
 
                 {userMenuOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="fixed inset-0 z-40" aria-hidden="true" onClick={() => setUserMenuOpen(false)} />
                     <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-xl bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5 py-1.5 overflow-hidden">
                       <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.display_name || user.email}</p>

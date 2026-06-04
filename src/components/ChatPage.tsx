@@ -7,6 +7,7 @@ import ClipboardIcon from './icons/ClipboardIcon';
 import { useToast } from './Toast';
 import ChatMessageList from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
+import { useAuth } from '../contexts/AuthContext';
 
 const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 
@@ -19,6 +20,7 @@ interface ChatPageProps {
 
 const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigateToBook }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -159,6 +161,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         selectedLanguage={selectedLanguage}
         onNavigateToBook={onNavigateToBook}
         books={books}
+        userDisplayName={user?.display_name || user?.email}
       />
 
       <ChatInputArea 

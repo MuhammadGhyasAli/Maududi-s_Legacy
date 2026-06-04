@@ -18,6 +18,7 @@ interface ChatMessageListProps {
   onNavigateToBook?: (book: Book) => void;
   parseStructuredResponse?: (text: string) => StructuredResponse | null;
   books?: Book[];
+  userDisplayName?: string;
 }
 
 const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) => void, books: Book[] = []): React.ReactNode[] => {
@@ -96,7 +97,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   selectedLanguage, 
   onNavigateToBook,
   parseStructuredResponse,
-  books = []
+  books = [],
+  userDisplayName,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -118,7 +120,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
               <div className="flex-none mt-0.5">
                 {isUser ? (
                   <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-semibold text-sm">
-                     U
+                     {userDisplayName ? userDisplayName[0].toUpperCase() : 'U'}
                   </div>
                 ) : (
                   <div className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">

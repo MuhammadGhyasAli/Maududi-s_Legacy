@@ -24,18 +24,18 @@ export default function Breadcrumbs({ crumbs }: BreadcrumbsProps) {
                 </svg>
               )}
               {isLast ? (
-                <span className="text-gray-900 dark:text-gray-200 font-medium truncate max-w-[200px]">
+                <span className="text-gray-900 dark:text-gray-200 font-medium truncate max-w-[120px] sm:max-w-[200px]">
                   {crumb.label}
                 </span>
               ) : crumb.href ? (
                 <Link
                   href={crumb.href}
-                  className="hover:text-brand-green dark:hover:text-brand-green-dark transition-colors duration-200 truncate max-w-[200px]"
+                  className="hover:text-brand-green dark:hover:text-brand-green-dark transition-colors duration-200 truncate max-w-[120px] sm:max-w-[200px]"
                 >
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="truncate max-w-[200px]">{crumb.label}</span>
+                <span className="truncate max-w-[120px] sm:max-w-[200px]">{crumb.label}</span>
               )}
             </li>
           );

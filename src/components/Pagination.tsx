@@ -23,7 +23,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     return pages;
   }, [currentPage, totalPages]);
 
-  const btnBase = 'px-3 sm:px-4 py-2 rounded-md text-sm transition-colors';
+  const btnBase = 'px-3 sm:px-4 py-2 rounded-md text-sm transition-colors cursor-pointer';
   const btnActive = 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed';
 
   return (
@@ -51,7 +51,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                 onClick={() => onPageChange(number)}
                 aria-label={`Page ${number}`}
                 aria-current={currentPage === number ? 'page' : undefined}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md text-sm transition-colors ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md text-sm transition-colors cursor-pointer ${
                   currentPage === number
                     ? 'bg-brand-blue text-white font-bold'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
