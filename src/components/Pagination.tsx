@@ -23,27 +23,29 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     return pages;
   }, [currentPage, totalPages]);
 
-  const btnBase = 'px-3 sm:px-4 py-2 rounded-md text-sm transition-colors cursor-pointer';
-  const btnActive = 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed';
+  const btnBase = 'inline-flex items-center justify-center px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer';
+  const btnSecondary = 'bg-white dark:bg-brand-card-dark text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 hover:border-gray-300 dark:hover:border-gray-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-brand-card-dark disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700';
 
   return (
     <nav className="mt-12 flex justify-center" aria-label="Pagination">
-      <ul className="flex items-center gap-1 sm:gap-2">
+      <ul className="flex items-center gap-1.5 sm:gap-2">
         <li>
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
             aria-label="Previous page"
-            className={`${btnBase} ${btnActive}`}
+            className={`${btnBase} ${btnSecondary} gap-1.5`}
           >
-            <span className="hidden sm:inline"><span aria-hidden="true">&larr;</span> Previous</span>
-            <span className="sm:hidden" aria-hidden="true">&larr;</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="hidden sm:inline">Previous</span>
           </button>
         </li>
         {pageNumbers.map((number, idx) =>
           typeof number === 'string' ? (
             <li key={`ellipsis-${idx}`}>
-              <span className="px-1 sm:px-2 text-gray-400 dark:text-gray-500 select-none">...</span>
+              <span className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 select-none">...</span>
             </li>
           ) : (
             <li key={number}>
@@ -51,10 +53,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                 onClick={() => onPageChange(number)}
                 aria-label={`Page ${number}`}
                 aria-current={currentPage === number ? 'page' : undefined}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md text-sm transition-colors cursor-pointer ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                   currentPage === number
-                    ? 'bg-brand-green text-white font-bold'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-brand text-white shadow-md shadow-emerald-500/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
                 {number}
@@ -67,10 +69,12 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             aria-label="Next page"
-            className={`${btnBase} ${btnActive}`}
+            className={`${btnBase} ${btnSecondary} gap-1.5`}
           >
-            <span className="hidden sm:inline">Next <span aria-hidden="true">&rarr;</span></span>
-            <span className="sm:hidden" aria-hidden="true">&rarr;</span>
+            <span className="hidden sm:inline">Next</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </li>
       </ul>

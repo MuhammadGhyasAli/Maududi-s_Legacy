@@ -127,31 +127,32 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
         ]} />
 
         {/* Hero section */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs font-semibold
-                          bg-emerald-100 dark:bg-emerald-900/40
-                          text-brand-green dark:text-brand-green-dark
-                          border border-emerald-200 dark:border-emerald-800/50">
-            <span aria-hidden="true">📚</span>
-            <span>Islamic Scholarship Library</span>
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <div className="inline-flex items-center gap-1.5 mb-5 px-3.5 py-1.5 rounded-full text-xs font-semibold
+                          bg-emerald-50 dark:bg-emerald-900/30
+                          text-emerald-700 dark:text-emerald-300
+                          border border-emerald-200/60 dark:border-emerald-800/50
+                          shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+            Islamic Scholarship Library
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-[1.1] tracking-tight">
             Explore the{' '}
             <span className="gradient-text">Works of Maududi</span>
           </h1>
-          <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
             Search, read, and have AI-powered conversations about the complete writings of
-            Sayyid Abul A'la Maududi — in multiple languages.
+            Sayyid Abul A&apos;la Maududi — in multiple languages.
           </p>
         </div>
 
         {/* Search */}
-        <div className="max-w-xl mx-auto mb-5">
+        <div className="max-w-xl mx-auto mb-6">
           <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </div>
 
         {/* Sort & filter */}
-        <div className="max-w-5xl mx-auto mb-8">
+        <div className="max-w-5xl mx-auto mb-8 px-0.5">
           <SortFilterControls
             sortBy={sortBy}
             onSortByChange={setSortBy}
@@ -227,12 +228,16 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             )}
           </>
         ) : (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4" aria-hidden="true">🔍</div>
-            <p className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
+          <div className="text-center py-24">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800/60 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-7 h-7 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <p className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
               No books found
             </p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+            <p className="text-sm text-gray-400 dark:text-gray-500 max-w-xs mx-auto">
               Try adjusting your search or select a different category.
             </p>
           </div>

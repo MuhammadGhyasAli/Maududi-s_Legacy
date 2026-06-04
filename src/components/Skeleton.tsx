@@ -35,13 +35,15 @@ const Skeleton: React.FC<SkeletonProps> = ({
 
 // Specific skeleton components for different use cases
 export const BookCardSkeleton: React.FC = () => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-    <Skeleton variant="rectangular" className="w-full h-48" />
-    <div className="p-4">
-      <Skeleton variant="text" className="w-3/4 h-6 mb-2" />
-      <Skeleton variant="text" className="w-1/2 h-4 mb-2" />
-      <Skeleton variant="text" className="w-full h-3 mb-1" />
-      <Skeleton variant="text" className="w-2/3 h-3" />
+  <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">
+    <Skeleton variant="rectangular" className="w-full aspect-[3/4] max-h-48" />
+    <div className="p-4 space-y-2.5">
+      <Skeleton variant="text" className="w-4/5 h-4" />
+      <Skeleton variant="text" className="w-1/3 h-3" />
+      <div className="pt-1.5 space-y-1.5">
+        <Skeleton variant="text" className="w-full h-2.5" />
+        <Skeleton variant="text" className="w-2/3 h-2.5" />
+      </div>
     </div>
   </div>
 );
@@ -55,20 +57,23 @@ export const BookGridSkeleton: React.FC = () => (
 );
 
 export const BookDetailSkeleton: React.FC = () => (
-  <div className="max-w-6xl mx-auto px-4 py-8">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <Skeleton variant="rectangular" className="w-full h-96" />
+  <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+      <div className="md:col-span-1">
+        <Skeleton variant="rectangular" className="w-full aspect-[3/4] rounded-2xl" />
       </div>
-      <div className="space-y-4">
-        <Skeleton variant="text" className="w-3/4 h-8" />
-        <Skeleton variant="text" className="w-1/2 h-6" />
-        <Skeleton variant="text" className="w-full h-4 mb-2" />
-        <Skeleton variant="text" className="w-full h-4 mb-2" />
-        <Skeleton variant="text" className="w-2/3 h-4 mb-4" />
-        <div className="flex gap-4">
-          <Skeleton variant="rectangular" className="w-32 h-10" />
-          <Skeleton variant="rectangular" className="w-32 h-10" />
+      <div className="md:col-span-2 space-y-4">
+        <Skeleton variant="text" className="w-24 h-6" />
+        <Skeleton variant="text" className="w-3/4 h-10" />
+        <Skeleton variant="text" className="w-1/2 h-5" />
+        <div className="space-y-2 pt-2">
+          <Skeleton variant="text" className="w-full h-4" />
+          <Skeleton variant="text" className="w-full h-4" />
+          <Skeleton variant="text" className="w-4/5 h-4" />
+        </div>
+        <div className="flex gap-3 pt-4">
+          <Skeleton variant="rectangular" className="flex-1 h-12 rounded-xl" />
+          <Skeleton variant="rectangular" className="flex-1 h-12 rounded-xl" />
         </div>
       </div>
     </div>

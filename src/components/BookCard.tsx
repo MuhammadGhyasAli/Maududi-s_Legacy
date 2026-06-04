@@ -51,19 +51,21 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
         bg-white dark:bg-brand-card-dark
         rounded-2xl overflow-hidden text-left
         border border-gray-100 dark:border-white/[0.07]
-        shadow-card dark:shadow-black/30
-        hover:shadow-card-lg hover:-translate-y-1.5 hover:border-emerald-200 dark:hover:border-emerald-800/60
-        transition-all duration-300
+        shadow-sm hover:shadow-xl dark:shadow-black/20 dark:hover:shadow-black/40
+        hover:-translate-y-1.5 hover:border-emerald-200/80 dark:hover:border-emerald-700/60
+        transition-all duration-300 ease-out
       "
     >
       {/* Image */}
-      <div className="relative h-44 overflow-hidden bg-gray-100 dark:bg-brand-navy-mid flex-shrink-0">
+      <div className="relative aspect-[3/4] max-h-48 overflow-hidden bg-gray-100 dark:bg-brand-navy-mid flex-shrink-0">
         {imageError ? (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2
-                          bg-gradient-to-br from-emerald-50 to-cyan-50
-                          dark:from-emerald-950/30 dark:to-cyan-950/30">
-            <span className="text-4xl" aria-hidden="true">📖</span>
-            <span className="text-xs text-gray-400 dark:text-gray-500">No cover</span>
+                          bg-gradient-to-br from-emerald-50/80 to-cyan-50/80
+                          dark:from-emerald-950/20 dark:to-cyan-950/20">
+            <svg className="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">No cover</span>
           </div>
         ) : (
           <>
@@ -86,12 +88,12 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
         )}
 
         {/* Overlay gradient on image */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent
-                        group-hover:from-black/15 transition-all duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent
+                        group-hover:from-black/20 transition-all duration-300" />
 
         {/* Category badge on image */}
         <span className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-semibold
-                          backdrop-blur-sm ${badgeClass}`}>
+                          backdrop-blur-md shadow-sm ${badgeClass}`}>
           {book.category}
         </span>
       </div>
@@ -105,7 +107,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
           {book.title}
         </h3>
         <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">
-          {book.author} · {book.publicationYear}
+          {book.author} <span className="text-gray-300 dark:text-gray-600">·</span> {book.publicationYear}
         </p>
 
         <div className="flex-grow flex flex-col">
@@ -113,24 +115,23 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
                          ${!isExpanded && needsExpansion ? 'line-clamp-3' : ''}`}>
             {book.description}
           </p>
-          <div className="flex-grow" />
           {needsExpansion && (
             <button
               onClick={toggleExpand}
               aria-expanded={isExpanded}
               className="mt-2 text-[11px] font-semibold text-brand-green dark:text-brand-green-dark
-                         hover:underline cursor-pointer self-start"
+                         hover:text-brand-green-light transition-colors cursor-pointer self-start"
             >
-              {isExpanded ? 'Read less ↑' : 'Read more ↓'}
+              {isExpanded ? 'Show less' : 'Read more'}
             </button>
           )}
         </div>
       </div>
 
-      {/* Bottom accent line on hover */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5
+      {/* Bottom accent bar */}
+      <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full
                       bg-gradient-brand opacity-0 group-hover:opacity-100
-                      transition-opacity duration-300" />
+                      transition-all duration-300 scale-x-0 group-hover:scale-x-100" />
     </div>
   );
 };

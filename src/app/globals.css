@@ -168,6 +168,62 @@ body {
 .glow-gold    { box-shadow: var(--shadow-gold); }
 
 /* ═══════════════════════════════════════════
+   Focus ring utility (used across components)
+═══════════════════════════════════════════ */
+.focus-ring {
+  @apply outline-none ring-2 ring-brand-green/40 ring-offset-2 ring-offset-white dark:ring-offset-brand-bg-dark transition-all duration-200;
+}
+
+/* ═══════════════════════════════════════════
+   Subtle Scale on click for interactive elements
+═══════════════════════════════════════════ */
+@keyframes pressPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+.animate-press {
+  animation: pressPop 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════
+   Staggered fade-in for grid items
+═══════════════════════════════════════════ */
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-fade-in-scale {
+  animation: fadeInScale 0.35s ease both;
+}
+.animate-fade-in-scale-delay-1 { animation-delay: 0.03s; }
+.animate-fade-in-scale-delay-2 { animation-delay: 0.06s; }
+.animate-fade-in-scale-delay-3 { animation-delay: 0.09s; }
+.animate-fade-in-scale-delay-4 { animation-delay: 0.12s; }
+.animate-fade-in-scale-delay-5 { animation-delay: 0.15s; }
+
+/* ═══════════════════════════════════════════
+   Pill / Badge base styles
+═══════════════════════════════════════════ */
+.pill {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+         border transition-all duration-200;
+}
+
+/* ═══════════════════════════════════════════
+   Select dropdown base (used in SortFilterControls)
+═══════════════════════════════════════════ */
+.select-base {
+  @apply appearance-none w-full bg-white dark:bg-brand-bg-dark
+         border border-gray-200 dark:border-gray-700
+         rounded-xl py-2.5 pl-4 pr-10
+         text-sm text-gray-900 dark:text-gray-100
+         cursor-pointer
+         transition-all duration-200
+         focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green;
+}
+
+/* ═══════════════════════════════════════════
    Auth Page Dot Pattern
 ═══════════════════════════════════════════ */
 .bg-auth-pattern {

@@ -18,8 +18,8 @@ const linkBase = `
   motion-reduce:transition-none
 `;
 
-const activeClasses = 'bg-gradient-brand text-white shadow-emerald font-semibold';
-const inactiveClasses = 'text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-white/[0.06] hover:text-brand-green dark:hover:text-brand-green-dark font-medium';
+const activeClasses = 'bg-emerald-50 dark:bg-emerald-950/40 text-brand-green dark:text-brand-green-dark font-semibold';
+const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-emerald-50/50 dark:hover:bg-white/[0.04] hover:text-brand-green dark:hover:text-brand-green-dark font-medium';
 
 function NavLink({
   href,
@@ -50,7 +50,7 @@ function NavLink({
     >
       {/* Left accent bar on active item */}
       {isActive && !isCollapsed && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-white/70 rounded-full" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-brand-green dark:bg-brand-green-dark rounded-full" />
       )}
 
       <span className="text-lg flex-shrink-0" aria-hidden="true">{icon}</span>
