@@ -21,27 +21,16 @@ const linkBase = `
 const activeClasses = 'bg-emerald-50 dark:bg-emerald-950/40 text-brand-green dark:text-brand-green-dark font-semibold';
 const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-emerald-50/50 dark:hover:bg-white/[0.04] hover:text-brand-green dark:hover:text-brand-green-dark font-medium';
 
-const categoryColors: Record<string, string> = {
-  'Tafsir': 'bg-amber-500',
-  'Politics': 'bg-blue-500',
-  'Theology': 'bg-emerald-500',
-  'Economics': 'bg-yellow-500',
-  'Jurisprudence': 'bg-purple-500',
-  'Social Issues': 'bg-rose-500',
-  'History': 'bg-orange-500',
-  'Guidance': 'bg-teal-500',
-};
-
 function NavLink({
   href,
-  dotColor,
+  icon,
   label,
   isActive,
   isCollapsed,
   onNavigate,
 }: {
   href: string;
-  dotColor?: string;
+  icon: string;
   label: string;
   isActive: boolean;
   isCollapsed: boolean;
@@ -59,17 +48,15 @@ function NavLink({
         ${isActive ? activeClasses : inactiveClasses}
       `}
     >
+      {/* Left accent bar on active item */}
       {isActive && !isCollapsed && (
         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-brand-green dark:bg-brand-green-dark rounded-full" />
       )}
 
-      {dotColor ? (
-        <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${dotColor} ${isActive ? 'ring-2 ring-offset-1 ring-brand-green/30 dark:ring-offset-brand-sidebar-dark' : ''}`} />
-      ) : (
-        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-gray-300 dark:bg-gray-600" />
-      )}
+      <span className="text-lg flex-shrink-0" aria-hidden="true">{icon}</span>
       {!isCollapsed && <span className="text-sm truncate">{label}</span>}
 
+      {/* Tooltip when collapsed */}
       {isCollapsed && (
         <span className="
           absolute left-full ml-3 px-2.5 py-1.5 text-xs font-medium text-white
@@ -99,14 +86,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
   const isHome = !category && pathname === '/';
   const isBiography = pathname === '/biography';
 
-  const getCategoryDot = (cat: string) => categoryColors[cat] || 'bg-gray-400';
+  const getCategoryIcon = (cat: string) => {
+    const icons: Record<string, string> = {
+      'Tafsir': '📖',
+      'Politics': '🏛️',
+      'Theology': '🕌',
+      'Economics': '💰',
+      'Jurisprudence': '⚖️',
+      'Social Issues': '🤝',
+      'History': '📜',
+      'Guidance': '🧭',
+    };
+    return icons[cat] || '📚';
+  };
 
+  // On mobile sidebar opens as overlay — always show expanded (icons + labels).
+  // Only respect isCollapsed on desktop.
   const showCollapsed = isOpen ? false : isCollapsed;
 
   const handleMobileClose = useCallback(() => {
     if (window.innerWidth < 1024) onClose();
   }, [onClose]);
 
+  // Escape key + focus trap on mobile
   useEffect(() => {
     if (!isOpen) return;
 
@@ -139,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Scroll nav to top when mobile opens
   useEffect(() => {
     if (isOpen && navRef.current) {
       navRef.current.scrollTop = 0;
@@ -150,41 +153,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
 
-      {/* Mobile: bottom sheet */}
+      {/* Sidebar panel */}
       <div
         ref={sidebarRef}
         role="dialog"
         aria-modal={isOpen ? 'true' : undefined}
         aria-label="Navigation sidebar"
         className={`
-          fixed bottom-0 left-0 right-0 z-50
-          lg:static lg:fixed lg:top-20 lg:left-0 lg:h-[calc(100vh-5rem)]
-          flex flex-col
+          fixed lg:fixed lg:top-20 left-0 h-screen lg:h-[calc(100vh-5rem)]
+          z-40 flex flex-col overflow-x-hidden
           bg-white dark:bg-brand-sidebar-dark
-          lg:border-r border-gray-100 dark:border-white/[0.06]
+          border-r border-gray-100 dark:border-white/[0.06]
           shadow-xl dark:shadow-black/40
           transition-all duration-300 ease-in-out motion-reduce:transition-none
-          ${isOpen
-            ? 'translate-y-0 rounded-t-3xl'
-            : 'translate-y-full lg:translate-y-0'}
-          lg:rounded-none lg:translate-x-0
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
+          ${isOpen ? 'w-full sm:w-[70vw] md:w-[60vw]' : ''}
           ${isCollapsed ? 'lg:w-16' : 'lg:w-64'}
-          max-h-[80vh] lg:max-h-none
         `}
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-2 pb-1 lg:hidden flex-shrink-0">
-          <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
-        </div>
-
-        {/* Top accent line (desktop) */}
-        <div className="hidden lg:block h-0.5 bg-gradient-brand flex-shrink-0" />
+        {/* Top accent line */}
+        <div className="h-0.5 bg-gradient-brand flex-shrink-0" />
 
         {/* Mobile header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/[0.06] lg:hidden flex-shrink-0">
@@ -226,6 +221,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         <nav ref={navRef} role="navigation" aria-label="Main navigation" className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4 space-y-0.5">
           <NavLink
             href="/"
+            icon="📚"
             label="All Books"
             isActive={isHome}
             isCollapsed={showCollapsed}
@@ -234,6 +230,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
 
           <NavLink
             href="/biography"
+            icon="📝"
             label="Biography"
             isActive={isBiography}
             isCollapsed={showCollapsed}
@@ -242,6 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
 
           <NavLink
             href="/about"
+            icon="ℹ️"
             label="About"
             isActive={pathname === '/about'}
             isCollapsed={showCollapsed}
@@ -250,6 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
 
           <NavLink
             href="/ai-context-finder"
+            icon="🔍"
             label="AI Search"
             isActive={pathname === '/ai-context-finder'}
             isCollapsed={showCollapsed}
@@ -270,7 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
               <NavLink
                 key={cat}
                 href={`/${slug}`}
-                dotColor={getCategoryDot(cat)}
+                icon={getCategoryIcon(cat)}
                 label={cat}
                 isActive={category === slug}
                 isCollapsed={showCollapsed}
@@ -282,7 +281,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
 
         {/* Footer branding */}
         {!showCollapsed && (
-          <div className="flex-shrink-0 px-4 py-3 border-t border-gray-100 dark:border-white/[0.06] hidden lg:block">
+          <div className="flex-shrink-0 px-4 py-3 border-t border-gray-100 dark:border-white/[0.06]">
             <p className="text-[10px] font-medium tracking-wider uppercase text-gray-400 dark:text-gray-600 text-center">
               Maududi&apos;s Legacy
             </p>

@@ -211,23 +211,23 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             : []),
         ]} />
 
-        {/* Compact hero */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold
-                            bg-emerald-50 dark:bg-emerald-900/30
-                            text-emerald-700 dark:text-emerald-300
-                            border border-emerald-200/60 dark:border-emerald-800/50
-                            shadow-sm shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-              Islamic Scholarship Library
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-              <span className="gradient-text">Works of Maududi</span>
-            </h1>
+        {/* Hero section */}
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <div className="inline-flex items-center gap-1.5 mb-5 px-3.5 py-1.5 rounded-full text-xs font-semibold
+                          bg-emerald-50 dark:bg-emerald-900/30
+                          text-emerald-700 dark:text-emerald-300
+                          border border-emerald-200/60 dark:border-emerald-800/50
+                          shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+            Islamic Scholarship Library
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-md">
-            Search, read, and have AI-powered conversations about the complete writings — in multiple languages.
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-[1.1] tracking-tight">
+            Explore the{' '}
+            <span className="gradient-text">Works of Maududi</span>
+          </h1>
+          <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+            Search, read, and have AI-powered conversations about the complete writings of
+            Sayyid Abul A&apos;la Maududi — in multiple languages.
           </p>
         </div>
 
