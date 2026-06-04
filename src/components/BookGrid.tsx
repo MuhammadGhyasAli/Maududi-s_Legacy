@@ -145,6 +145,28 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
     return processedBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
   }, [currentPage, processedBooks, totalPages]);
 
+  const featuredBooks = useMemo(() => {
+    const FEATURED_PATTERNS = [
+      'Tafheem ul Quran',
+      'Khutabat',
+      'Jihad in Islam',
+      'Islamic Economic System',
+      'Towards Understanding Islam',
+      'Four Basic Quranic Terms',
+      'Process of Islamic Revolution',
+      'Human Rights in Islam',
+      'Islamic Civilization',
+      'Purda',
+    ];
+    return books
+      .filter(b => FEATURED_PATTERNS.some(p => b.title.toLowerCase().includes(p.toLowerCase())))
+      .sort((a, b) => {
+        const aIdx = FEATURED_PATTERNS.findIndex(p => a.title.toLowerCase().includes(p.toLowerCase()));
+        const bIdx = FEATURED_PATTERNS.findIndex(p => b.title.toLowerCase().includes(p.toLowerCase()));
+        return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+      });
+  }, [books]);
+
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     const params = new URLSearchParams(searchParams.toString());
@@ -249,7 +271,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
         </div>
 
         {/* Featured / Popular books */}
-        {!category && !debouncedSearch && !loading && (
+        {featuredBooks.length > 0 && !category && !debouncedSearch && !loading && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
@@ -259,14 +281,10 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
               <div className="h-px flex-1 bg-gradient-to-r from-amber-200/60 to-transparent dark:from-amber-800/30" />
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin -mx-4 px-4 snap-x snap-mandatory">
-              {books.filter(b => ['Tafheem ul Quran (Vol. 1)', 'Tafheem ul Quran (Vol. 6)', 'Khutabat', 'Islamic Economic System', 'Jihad in Islam'].includes(b.title)).map(book => (
+              {featuredBooks.map(book => (
                 <button
                   key={book.id}
-                  onClick={() => {
-                    const slug = book.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-                    const catSlug = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
-                    router.push(`/${catSlug}/${slug}`);
-                  }}
+                  onClick={() => handleSelectBook(book)}
                   className="flex-none w-28 snap-start group text-left"
                 >
                   <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-sm ring-1 ring-gray-200/60 dark:ring-white/10 group-hover:ring-amber-300 dark:group-hover:ring-amber-700 transition-all duration-200">
