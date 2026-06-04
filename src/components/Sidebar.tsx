@@ -77,7 +77,7 @@ const linkBase = `
   motion-reduce:transition-none
 `;
 
-const activeClasses = 'bg-emerald-50 dark:bg-emerald-950/40 text-brand-green dark:text-brand-green-dark font-semibold';
+const activeClasses = 'bg-gradient-brand text-white shadow-emerald font-semibold';
 const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-emerald-50/50 dark:hover:bg-white/[0.04] hover:text-brand-green dark:hover:text-brand-green-dark font-medium';
 
 function NavLink({
@@ -111,7 +111,7 @@ function NavLink({
     >
       {/* Left accent bar on active item */}
       {isActive && !isCollapsed && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-brand-green dark:bg-brand-green-dark rounded-full" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-white/70 rounded-full" />
       )}
 
       <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center" aria-hidden="true">{icon}</span>
@@ -255,27 +255,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         aria-modal={isOpen ? 'true' : undefined}
         aria-label="Navigation sidebar"
         className={
-          'fixed bottom-0 left-0 right-0 z-50 ' +
-          'lg:static lg:fixed lg:top-16 lg:left-0 lg:h-[calc(100vh-4rem)] ' +
+          'fixed left-0 z-50 ' +
+          'h-screen lg:top-16 lg:h-[calc(100vh-4rem)] ' +
           'flex flex-col ' +
           'bg-white dark:bg-brand-sidebar-dark ' +
           'lg:border-r border-gray-100 dark:border-white/[0.06] ' +
           'shadow-xl dark:shadow-black/40 ' +
           'transition-all duration-300 ease-in-out motion-reduce:transition-none ' +
-          (isOpen ? 'translate-y-0 rounded-t-3xl ' : 'translate-y-full lg:translate-y-0 ') +
-          'lg:rounded-none lg:translate-x-0 ' +
-          (isCollapsed ? 'lg:w-16 ' : 'lg:w-64 ') +
-          'max-h-[80vh] lg:max-h-none ' +
-          'overflow-y-auto overflow-x-visible'
+          (isOpen ? 'translate-x-0 ' : '-translate-x-full ') +
+          'lg:translate-x-0 ' +
+          (isOpen ? 'w-full sm:w-[70vw] md:w-[60vw] ' : '') +
+          (isCollapsed ? 'lg:w-16 ' : 'lg:w-64 ')
         }
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-2 pb-1 lg:hidden flex-shrink-0 cursor-grab active:cursor-grabbing">
-          <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
-        </div>
-
-        {/* Top accent line (desktop) */}
-        <div className="hidden lg:block h-0.5 bg-gradient-brand flex-shrink-0" />
+        {/* Top accent line */}
+        <div className="h-0.5 bg-gradient-brand flex-shrink-0" />
 
         {/* Mobile header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/[0.06] lg:hidden flex-shrink-0">
@@ -293,32 +287,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         </div>
 
         {/* Desktop header */}
-        <div className={`hidden lg:flex items-center ${showCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-4 flex-shrink-0 relative`}>
+        <div className={`hidden lg:flex items-center flex-shrink-0 ${showCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-4`}>
           {!showCollapsed && (
             <h2 className="text-sm font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500">
               Navigation
             </h2>
           )}
-          {showCollapsed && (
-            <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500 [writing-mode:vertical-rl]">
-              NAV
-            </span>
-          )}
           <button
             onClick={() => onCollapse?.()}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10
-                       p-1 rounded-full
-                       bg-white dark:bg-brand-card-dark
-                       border border-gray-200 dark:border-white/10
-                       text-gray-400 dark:text-gray-500
-                       hover:text-brand-green dark:hover:text-brand-green-dark
-                       hover:border-emerald-200 dark:hover:border-emerald-800/50
-                       hover:shadow-md
-                       transition-all duration-200 motion-reduce:transition-none
-                       shadow-sm cursor-pointer"
+            className="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50
+                       text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark
+                       border border-gray-200 dark:border-white/10 transition-all duration-200 motion-reduce:transition-none cursor-pointer"
             aria-label={showCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d={showCollapsed ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
             </svg>
