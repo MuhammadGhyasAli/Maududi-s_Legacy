@@ -24,11 +24,19 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
         setError(true);
         setLoading(false);
       }, 10000);
+      const handleKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKey);
+      return () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        window.removeEventListener('keydown', handleKey);
+      };
     }
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [isOpen, pdfUrl]);
+  }, [isOpen, pdfUrl, onClose]);
 
   const handleLoad = () => {
     setLoading(false);
