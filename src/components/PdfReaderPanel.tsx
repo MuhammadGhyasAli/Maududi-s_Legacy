@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Document, Page, pdfjs } from 'react-pdf';
 import CloseIcon from './icons/CloseIcon';
 
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+const PdfViewer = dynamic(() => import('./PdfViewer'), { ssr: false });
 
 interface PdfReaderPanelProps {
   isOpen: boolean;
@@ -48,11 +48,6 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [isOpen, onClose, numPages]);
-
-  const onDocumentLoadSuccess = ({ numPages: pages }: { numPages: number }) => {
-    setNumPages(pages);
-    setLoading(false);
-  };
 
   const onDocumentLoadError = () => {
     if (errorHandledRef.current) return;
@@ -152,30 +147,13 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
 
             <div className={`flex flex-col items-center py-8 sm:py-12 px-4 ${loading ? 'hidden' : ''}`}>
               <div className="w-full max-w-4xl">
-                <Document
-                  file={pdfUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
+                <PdfViewer
+                  pdfUrl={pdfUrl}
+                  pageNumber={pageNumber}
+                  scale={scale}
+                  onLoadSuccess={(pages) => { setNumPages(pages); setLoading(false); }}
                   onLoadError={onDocumentLoadError}
-                  loading={null}
-                >
-                  <div className="flex flex-col items-center">
-                    <Page
-                      pageNumber={pageNumber}
-                      scale={scale}
-                      renderTextLayer={false}
-                      renderAnnotationLayer={false}
-                      className="shadow-2xl rounded-sm overflow-hidden"
-                      loading={
-                        <div className="flex items-center justify-center h-96">
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-emerald-400 animate-spin" />
-                            <p className="text-xs text-white/40">Loading page...</p>
-                          </div>
-                        </div>
-                      }
-                    />
-                  </div>
-                </Document>
+                />
               </div>
             </div>
           </div>
