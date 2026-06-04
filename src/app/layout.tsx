@@ -36,8 +36,26 @@ export const metadata: Metadata = {
     default: "Maududi's Legacy",
     template: "%s | Maududi's Legacy",
   },
-  description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat.",
-  icons: { icon: "/favicon.ico" },
+  description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat. A digital archive preserving and providing intelligent access to his complete writings.",
+  keywords: ['Maududi', 'Islamic scholarship', 'Tafheem ul Quran', 'Islamic books', 'AI chat', 'Urdu books'],
+  authors: [{ name: "Maududi's Legacy Project" }],
+  openGraph: {
+    title: "Maududi's Legacy",
+    description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat.",
+    type: 'website',
+    locale: 'en_US',
+    siteName: "Maududi's Legacy",
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Maududi's Legacy",
+    description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: { icon: '/favicon.ico' },
 };
 
 export const viewport: Viewport = {

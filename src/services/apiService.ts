@@ -375,6 +375,34 @@ export const apiService = {
     return response.json();
   },
 
+  // Forgot password
+  forgotPassword: async (email: string): Promise<{ message: string }> => {
+    const response = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: 'Failed to send reset email' }));
+      throw new Error(err.error || 'Failed to send reset email');
+    }
+    return response.json();
+  },
+
+  // Reset password
+  resetPassword: async (token: string, new_password: string): Promise<{ message: string }> => {
+    const response = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, new_password }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: 'Failed to reset password' }));
+      throw new Error(err.error || 'Failed to reset password');
+    }
+    return response.json();
+  },
+
   // Clear cache (useful after mutations)
   clearCache,
 };

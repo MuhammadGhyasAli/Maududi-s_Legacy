@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Book } from '../types';
@@ -32,11 +32,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { user } = useAuth();
   const [readingPrefCategories, setReadingPrefCategories] = useState<string[] | null>(null);
-  const [currentPage, setCurrentPage] = useState(() => {
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    return isNaN(page) || page < 1 ? 1 : page;
-  });
-  const isExternalNav = useRef(false);
 
   useEffect(() => {
     if (sortBy === 'reading-preference' && user) {
@@ -54,13 +49,10 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
     }
   }, [sortBy, user]);
 
-  useEffect(() => {
-    if (isExternalNav.current) {
-      const page = parseInt(searchParams.get('page') || '1', 10);
-      setCurrentPage(isNaN(page) || page < 1 ? 1 : page);
-      isExternalNav.current = false;
-    }
-  }, [searchParams]);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    return isNaN(page) || page < 1 ? 1 : page;
+  });
 
   const processedBooks = useMemo(() => {
     let filteredBooks = books;
@@ -191,13 +183,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
       router.prefetch(`/${cat}/${slug}`);
     });
   }, [paginatedBooks, category, router]);
-
-  // Listen for browser back/forward navigation
-  useEffect(() => {
-    const handlePopState = () => { isExternalNav.current = true; };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
 
   return (
     <>

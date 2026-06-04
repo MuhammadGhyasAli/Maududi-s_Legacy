@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
+import { apiService } from '../../../../services/apiService';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -14,11 +15,10 @@ export default function ForgotPasswordPage() {
     setError('');
     setLoading(true);
     try {
-      // For now, just simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await apiService.forgotPassword(email);
       setSent(true);
-    } catch {
-      setError('Something went wrong. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

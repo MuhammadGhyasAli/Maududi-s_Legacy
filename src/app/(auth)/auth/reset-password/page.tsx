@@ -3,6 +3,7 @@
 import { useState, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { apiService } from '../../../../services/apiService';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -29,10 +30,11 @@ function ResetPasswordForm() {
 
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!token) throw new Error('Missing reset token');
+      await apiService.resetPassword(token, password);
       router.push('/auth/login?reset=success');
-    } catch {
-      setError('Something went wrong. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
