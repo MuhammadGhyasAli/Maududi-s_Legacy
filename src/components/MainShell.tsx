@@ -25,7 +25,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   });
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(true);
 
   // Prefetch book data in background as soon as shell mounts
   useEffect(() => {
@@ -55,6 +55,10 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const isChatRoute = pathname?.includes('/chat') || pathname?.includes('/ai-context-finder');
+  const segments = pathname?.split('/').filter(Boolean) || [];
+  const categorySlugs = ['tafsir', 'politics', 'theology', 'economics', 'jurisprudence', 'social-issues', 'history', 'guidance'];
+  const isBookDetail = segments.length === 2 && categorySlugs.includes(segments[0]);
+  const hideSidebar = isChatRoute || isBookDetail;
 
   return (
     <ToastProvider>
@@ -62,26 +66,24 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
       <ShortcutsModal />
       <QuickSearchModal />
       <div className="min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 transition-colors duration-300 flex overflow-x-clip">
-        {!isChatRoute && (
-          <>
-            <Sidebar
-              isOpen={isSidebarOpen}
-              onClose={() => setIsSidebarOpen(false)}
-              isCollapsed={isDesktopSidebarCollapsed}
-              onCollapse={() => setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)}
-            />
-
-            <Header
-              theme={theme}
-              setTheme={setTheme}
-              onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-              isSidebarOpen={isSidebarOpen}
-              onToggleDesktopSidebar={() => setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)}
-            />
-          </>
+        {!hideSidebar && (
+          <Sidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            isCollapsed={isDesktopSidebarCollapsed}
+            onCollapse={() => setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)}
+          />
         )}
 
-          <div id="main-content" tabIndex={-1} className={`flex-1 flex flex-col min-w-0 ${isChatRoute ? '' : (isDesktopSidebarCollapsed ? "lg:ml-16" : "lg:ml-64") + ' pt-20'}`}>
+        <Header
+          theme={theme}
+          setTheme={setTheme}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          isSidebarOpen={isSidebarOpen}
+          onToggleDesktopSidebar={() => setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)}
+        />
+
+          <div id="main-content" tabIndex={-1} className={`flex-1 flex flex-col min-w-0 ${hideSidebar ? 'pt-20' : (isDesktopSidebarCollapsed ? "lg:ml-16" : "lg:ml-64") + ' pt-20'}`}>
           <div className="flex-1 h-full">
             <AnimatePresence mode="wait">
               <motion.div
@@ -95,10 +97,10 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
               </motion.div>
             </AnimatePresence>
           </div>
-          {!isChatRoute && <Footer />}
+          {!hideSidebar && <Footer />}
         </div>
 
-        {!isChatRoute && <ScrollToTop />}
+        {!hideSidebar && <ScrollToTop />}
       </div>
     </ToastProvider>
   );
