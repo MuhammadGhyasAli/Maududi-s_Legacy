@@ -10,6 +10,7 @@ import { ToastProvider } from "./Toast";
 import OnboardingTour from "./OnboardingTour";
 import ShortcutsModal from "./ShortcutsModal";
 import QuickSearchModal from "./QuickSearchModal";
+import CookieConsent from "./CookieConsent";
 import type { Theme } from "../types/theme";
 import { apiService } from "../services/apiService";
 
@@ -86,6 +87,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
         )}
 
           <div id="main-content" tabIndex={-1} className={`flex-1 flex flex-col min-w-0 ${hideHeader ? 'pt-0' : hideSidebar ? 'pt-20' : (isDesktopSidebarCollapsed ? "lg:ml-16" : "lg:ml-64") + ' pt-20'}`}>
+        <CookieConsent />
           <div className="flex-1 h-full">
             <AnimatePresence mode="wait">
               <motion.div
