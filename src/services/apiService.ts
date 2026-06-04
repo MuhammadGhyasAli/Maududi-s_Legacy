@@ -1,6 +1,6 @@
 import type { Book } from '../types';
 
-export interface ChatMessage {
+export interface ApiChatMessage {
   role: string;
   content: string | any[];
 }
@@ -74,21 +74,20 @@ function clearCache(): void {
   }
 }
 
-let currentAbortController: AbortController | null = null;
+const activeControllers = new Set<AbortController>();
 
 export function cancelPendingRequests(): void {
-  if (currentAbortController) {
-    currentAbortController.abort();
-    currentAbortController = null;
-  }
+  activeControllers.forEach(c => c.abort());
+  activeControllers.clear();
 }
 
 function getAbortSignal(signal?: AbortSignal): AbortSignal | undefined {
   if (signal) return signal;
-  if (!currentAbortController) {
-    currentAbortController = new AbortController();
-  }
-  return currentAbortController.signal;
+  const controller = new AbortController();
+  activeControllers.add(controller);
+  const cleanup = () => activeControllers.delete(controller);
+  controller.signal.addEventListener('abort', cleanup, { once: true });
+  return controller.signal;
 }
 
 export const apiService = {
@@ -205,7 +204,7 @@ export const apiService = {
   },
 
   // Chat with AI about a book
-  chat: async (bookId: number, aiContext: string, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
+  chat: async (bookId: number, aiContext: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -230,7 +229,7 @@ export const apiService = {
   },
 
   // Global Chat (e.g., AiContextFinder)
-  globalChat: async (systemInstruction: string, messages: ChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
+  globalChat: async (systemInstruction: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
     const response = await fetch('/api/chat/global', {
       method: 'POST',
       headers: {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Book, MessageSender } from '../types';
-import { apiService, ChatMessage } from '../services/apiService';
+import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
@@ -147,7 +147,7 @@ If the user's message includes an image, you MUST follow this two-step process w
             prompt += `\n\nMy question is based on the attached image.`;
         }
 
-        const messagesToBackend: ChatMessage[] = conversation.map(msg => ({
+        const messagesToBackend: ApiChatMessage[] = conversation.map(msg => ({
           role: msg.sender === MessageSender.USER ? 'user' : 'assistant',
           content: msg.image ? [
             { type: 'image_url', image_url: { url: msg.image } },

@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Book, ChatMessage, MessageSender } from '../types';
-import { apiService, ChatMessage as ApiChatMessage } from '../services/apiService';
+import { Book, type ChatMessage, MessageSender } from '../types';
+import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import ClipboardIcon from './icons/ClipboardIcon';

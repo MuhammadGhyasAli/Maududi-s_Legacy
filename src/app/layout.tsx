@@ -32,6 +32,7 @@ const amiri = Amiri({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://maududi-legacy.vercel.app'),
   title: {
     default: "Maududi's Legacy",
     template: "%s | Maududi's Legacy",
@@ -45,6 +46,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: "Maududi's Legacy",
+    url: 'https://maududi-legacy.vercel.app',
   },
   twitter: {
     card: 'summary_large_image',

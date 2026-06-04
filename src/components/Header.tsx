@@ -16,8 +16,6 @@ interface HeaderProps {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   onToggleSidebar: () => void;
-  isSidebarOpen: boolean;
-  onToggleDesktopSidebar: () => void;
 }
 
 interface ReadingHistoryItem {
@@ -39,8 +37,6 @@ const Header = React.memo(function Header({
   theme,
   setTheme,
   onToggleSidebar,
-  isSidebarOpen: _isSidebarOpen,
-  onToggleDesktopSidebar: _onToggleDesktopSidebar,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [readingHistory, setReadingHistory] = useState<ReadingHistoryItem[]>([]);

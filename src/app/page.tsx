@@ -35,15 +35,15 @@ function HomePageFallback() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
         {[...Array(15)].map((_, i) => (
-          <div key={i} className={`animate-fade-in-scale-delay-${Math.min(i % 5, 5)}`}>
+          <div key={i} className={`animate-fade-in-scale-delay-${Math.min((i % 5) + 1, 5)}`}>
             <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">
               <div className="skeleton-shimmer rounded w-full aspect-[3/4] max-h-48" />
               <div className="p-4 space-y-2.5">
-                <div className="skeleton-shimmer rounded h-4 w-4/5 h-4" />
-                <div className="skeleton-shimmer rounded h-4 w-1/3 h-3" />
+                <div className="skeleton-shimmer rounded h-4 w-4/5" />
+                <div className="skeleton-shimmer rounded h-3 w-1/3" />
                 <div className="pt-1.5 space-y-1.5">
-                  <div className="skeleton-shimmer rounded h-4 w-full h-2.5" />
-                  <div className="skeleton-shimmer rounded h-4 w-2/3 h-2.5" />
+                  <div className="skeleton-shimmer rounded h-2.5 w-full" />
+                  <div className="skeleton-shimmer rounded h-2.5 w-2/3" />
                 </div>
               </div>
             </div>
@@ -93,7 +93,7 @@ function HomePageContent() {
             Backend Unreachable
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 leading-relaxed">{error}</p>
-          <p className="text-xs text-amber-600 dark:amber-400 font-medium bg-amber-50 dark:bg-amber-900/20
+          <p className="text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-900/20
                         rounded-lg px-3 py-2 border border-amber-200/60 dark:border-amber-700/40">
             Books are loaded directly from the server — no external backend needed
           </p>
