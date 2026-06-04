@@ -362,11 +362,11 @@ export const apiService = {
   },
 
   // Verify email
-  verifyEmail: async (code: string, email?: string): Promise<{ access_token: string; token_type: string; expires_in: number }> => {
+  verifyEmail: async (code: string): Promise<{ access_token: string; token_type: string; expires_in: number }> => {
     const response = await fetch('/api/auth/verify-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, email }),
+      body: JSON.stringify({ code }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: 'Verification failed' }));
