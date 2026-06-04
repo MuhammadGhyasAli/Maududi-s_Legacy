@@ -59,6 +59,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   const categorySlugs = ['tafsir', 'politics', 'theology', 'economics', 'jurisprudence', 'social-issues', 'history', 'guidance'];
   const isBookDetail = segments.length === 2 && categorySlugs.includes(segments[0]);
   const hideSidebar = isChatRoute || isBookDetail;
+  const hideHeader = isChatRoute;
 
   return (
     <ToastProvider>
@@ -75,13 +76,15 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
           />
         )}
 
-        <Header
-          theme={theme}
-          setTheme={setTheme}
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        />
+        {!hideHeader && (
+          <Header
+            theme={theme}
+            setTheme={setTheme}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
+        )}
 
-          <div id="main-content" tabIndex={-1} className={`flex-1 flex flex-col min-w-0 ${hideSidebar ? 'pt-20' : (isDesktopSidebarCollapsed ? "lg:ml-16" : "lg:ml-64") + ' pt-20'}`}>
+          <div id="main-content" tabIndex={-1} className={`flex-1 flex flex-col min-w-0 ${hideHeader ? 'pt-0' : hideSidebar ? 'pt-20' : (isDesktopSidebarCollapsed ? "lg:ml-16" : "lg:ml-64") + ' pt-20'}`}>
           <div className="flex-1 h-full">
             <AnimatePresence mode="wait">
               <motion.div
