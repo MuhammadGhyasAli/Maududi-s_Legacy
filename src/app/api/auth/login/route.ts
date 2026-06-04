@@ -23,6 +23,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: 'Invalid email or password' }, { status: 401 });
     }
 
+    if (!user.is_verified) {
+      return NextResponse.json({ detail: 'Please verify your email first. A verification code was sent to your email.' }, { status: 403 });
+    }
+
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return NextResponse.json({ detail: 'Invalid email or password' }, { status: 401 });

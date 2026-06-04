@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -10,6 +10,7 @@ import SystemIcon from './icons/SystemIcon';
 import SparklesIcon from './icons/SparklesIcon';
 import { Theme } from '../types/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { apiService } from '../services/apiService';
 
 interface HeaderProps {
   theme: Theme;
@@ -17,6 +18,15 @@ interface HeaderProps {
   onToggleSidebar: () => void;
   isSidebarOpen: boolean;
   onToggleDesktopSidebar: () => void;
+}
+
+interface ReadingHistoryItem {
+  bookId: number;
+  title: string;
+  slug: string;
+  imageUrl: string;
+  category: string;
+  openedAt: string;
 }
 
 const navLinks = [
@@ -33,6 +43,8 @@ const Header = React.memo(function Header({
   onToggleDesktopSidebar: _onToggleDesktopSidebar,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [readingHistory, setReadingHistory] = useState<ReadingHistoryItem[]>([]);
+  const [readingHistoryLoading, setReadingHistoryLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading: authLoading, logout } = useAuth();
@@ -41,9 +53,26 @@ const Header = React.memo(function Header({
     router.prefetch('/');
     router.prefetch('/auth/login');
     router.prefetch('/auth/register');
-    router.prefetch('/biography');
-    router.prefetch('/about');
   }, [router]);
+
+  const fetchReadingHistory = useCallback(async () => {
+    if (!user) return;
+    setReadingHistoryLoading(true);
+    try {
+      const history = await apiService.getReadingHistory();
+      setReadingHistory(history.slice(0, 5));
+    } catch {
+      setReadingHistory([]);
+    } finally {
+      setReadingHistoryLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (userMenuOpen && user) {
+      fetchReadingHistory();
+    }
+  }, [userMenuOpen, user, fetchReadingHistory]);
 
   const handleThemeChange = () => {
     const themes: Theme[] = ['light', 'dark', 'system'];
@@ -107,7 +136,7 @@ const Header = React.memo(function Header({
           </div>
 
           {/* Center — desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="header-nav-links hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActiveLink = pathname === link.href;
               return (
@@ -131,7 +160,7 @@ const Header = React.memo(function Header({
             {/* AI Context Finder */}
             <button
               onClick={() => router.push('/ai-context-finder')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium
+              className="header-ai-search flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium
                          text-brand-green dark:text-brand-green-dark
                          hover:bg-emerald-50 dark:hover:bg-emerald-950/40
                          border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800/40
@@ -175,6 +204,61 @@ const Header = React.memo(function Header({
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.display_name || user.email}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{user.email}</p>
                       </div>
+
+                      {/* Reading Preference / Last Read */}
+                      <div className="border-b border-gray-100 dark:border-gray-800">
+                        <div className="px-4 py-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            Reading Preference
+                          </p>
+                        </div>
+                        {readingHistoryLoading ? (
+                          <div className="px-4 py-3 space-y-2">
+                            {[1,2,3].map(i => (
+                              <div key={i} className="flex items-center gap-2.5 animate-pulse">
+                                <div className="w-7 h-7 rounded bg-gray-200 dark:bg-gray-700 shrink-0" />
+                                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : readingHistory.length > 0 ? (
+                          <div className="px-2 pb-2 max-h-48 overflow-y-auto">
+                            {readingHistory.map(book => (
+                              <button
+                                key={book.bookId}
+                                onClick={() => {
+                                  setUserMenuOpen(false);
+                                  const catSlug = book.category.toLowerCase().replace(/\s+/g, '-');
+                                  router.push(`/${catSlug}/${book.slug}`);
+                                }}
+                                className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer text-left"
+                              >
+                                <div className="w-7 h-7 rounded shrink-0 bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center overflow-hidden">
+                                  {book.imageUrl ? (
+                                    <Image
+                                      src={book.imageUrl}
+                                      alt=""
+                                      width={28}
+                                      height={28}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                  )}
+                                </div>
+                                <span className="truncate flex-1">{book.title}</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="px-4 pb-2.5 text-xs text-gray-400 dark:text-gray-500">
+                            No books read yet
+                          </div>
+                        )}
+                      </div>
+
                       <button
                         onClick={() => { setUserMenuOpen(false); router.push('/auth/settings'); }}
                         className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"

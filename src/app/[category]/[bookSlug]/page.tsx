@@ -6,7 +6,7 @@ import type { Book } from "../../../types";
 import { apiService } from "../../../services/apiService";
 import BookDetail from "../../../components/BookDetail";
 import { BookDetailSkeleton } from "../../../components/Skeleton";
-import { findBookBySlug } from "../../../utils/slugify";
+import { findBookBySlug, slugify } from "../../../utils/slugify";
 
 export default function BookPage() {
   const router = useRouter();
@@ -41,6 +41,18 @@ export default function BookPage() {
     if (!bookSlug) return null;
     return findBookBySlug(books, bookSlug) ?? null;
   }, [books, bookSlug]);
+
+  useEffect(() => {
+    if (book && typeof window !== 'undefined') {
+      apiService.recordReadingHistory(
+        book.id,
+        book.title,
+        slugify(book.title),
+        book.imageUrl,
+        book.category || '',
+      ).catch(() => {});
+    }
+  }, [book]);
 
   if (loading) return <BookDetailSkeleton />;
   if (error) {

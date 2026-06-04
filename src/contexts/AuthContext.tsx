@@ -15,7 +15,8 @@ interface AuthContextValue {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (email: string, password: string, display_name?: string) => Promise<User>;
+  register: (email: string, password: string, display_name?: string) => Promise<{ id: number; email: string }>;
+  verifyEmail: (code: string) => Promise<User>;
   logout: () => void;
   updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
@@ -56,9 +57,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(async (email: string, password: string, display_name?: string) => {
-    await apiService.register(email.split('@')[0], email, password, display_name);
-    return login(email, password);
-  }, [login]);
+    const result = await apiService.register(email.split('@')[0], email, password, display_name);
+    return result;
+  }, []);
+
+  const verifyEmail = useCallback(async (code: string) => {
+    const result = await apiService.verifyEmail(code);
+    localStorage.setItem('auth_token', result.access_token);
+    const u = await apiService.getMe(result.access_token);
+    setUser(u);
+    setToken(result.access_token);
+    return u;
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('auth_token');
@@ -95,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, changePassword, deleteAccount, googleSignIn }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, verifyEmail, logout, updateProfile, changePassword, deleteAccount, googleSignIn }}>
       {children}
     </AuthContext.Provider>
   );

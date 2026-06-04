@@ -177,3 +177,13 @@ body {
 .dark .bg-auth-pattern {
   background-image: radial-gradient(rgba(5, 150, 105, 0.04) 1px, transparent 1px);
 }
+
+/* ═══════════════════════════════════════════
+   Header: hide desktop nav & AI Search ≥1000px
+═══════════════════════════════════════════ */
+@media (min-width: 1000px) {
+  .header-nav-links,
+  .header-ai-search {
+    display: none !important;
+  }
+}

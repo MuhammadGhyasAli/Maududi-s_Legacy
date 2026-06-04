@@ -335,6 +335,46 @@ export const apiService = {
     return response.json();
   },
 
+  // Record reading history
+  recordReadingHistory: async (bookId: number, title: string, slug: string, imageUrl: string, category: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+    const response = await fetch('/api/reading-history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ bookId, title, slug, imageUrl, category }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Failed to record reading history' }));
+      throw new Error(err.detail || 'Failed to record reading history');
+    }
+  },
+
+  // Get reading history
+  getReadingHistory: async (): Promise<any[]> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return [];
+    const response = await fetch('/api/reading-history', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) return [];
+    return response.json();
+  },
+
+  // Verify email
+  verifyEmail: async (code: string): Promise<{ access_token: string; token_type: string; expires_in: number }> => {
+    const response = await fetch('/api/auth/verify-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Verification failed' }));
+      throw new Error(err.detail || 'Verification failed');
+    }
+    return response.json();
+  },
+
   // Clear cache (useful after mutations)
   clearCache,
 };
