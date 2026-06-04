@@ -19,17 +19,16 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [pageInput, setPageInput] = useState('');
-  const containerRef = useRef<HTMLDivElement>(null);
+  const errorHandledRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       setPageNumber(1);
       setScale(1);
       setLoading(true);
-      setError(false);
       setPageInput('');
+      errorHandledRef.current = false;
     }
   }, [isOpen, pdfUrl]);
 
@@ -56,8 +55,11 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
   };
 
   const onDocumentLoadError = () => {
-    setError(true);
+    if (errorHandledRef.current) return;
+    errorHandledRef.current = true;
     setLoading(false);
+    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+    onClose();
   };
 
   const goToPrevPage = () => setPageNumber(p => Math.max(1, p - 1));
@@ -138,8 +140,8 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
           </div>
 
           {/* PDF content */}
-          <div ref={containerRef} className="flex-1 overflow-auto bg-neutral-900/50">
-            {loading && !error && (
+          <div className="flex-1 overflow-auto bg-neutral-900/50">
+            {loading && (
               <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-emerald-400 animate-spin" />
@@ -148,57 +150,38 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
               </div>
             )}
 
-            {error ? (
-              <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5">
-                  <svg className="w-8 h-8 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                  </svg>
-                </div>
-                <p className="text-lg font-semibold text-white/70 mb-2">Cannot preview this PDF</p>
-                <p className="text-sm text-white/40 mb-6 max-w-sm">This PDF cannot be displayed inline. Open it in a new tab to read.</p>
-                <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 border border-white/10 transition-all">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                  </svg>
-                  Open PDF
-                </a>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center py-8 sm:py-12 px-4">
-                <div className="w-full max-w-4xl">
-                  <Document
-                    file={pdfUrl}
-                    onLoadSuccess={onDocumentLoadSuccess}
-                    onLoadError={onDocumentLoadError}
-                    loading={null}
-                  >
-                    <div className="flex flex-col items-center">
-                      <Page
-                        pageNumber={pageNumber}
-                        scale={scale}
-                        renderTextLayer={false}
-                        renderAnnotationLayer={false}
-                        className="shadow-2xl rounded-sm overflow-hidden"
-                        loading={
-                          <div className="flex items-center justify-center h-96">
-                            <div className="flex flex-col items-center gap-3">
-                              <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-emerald-400 animate-spin" />
-                              <p className="text-xs text-white/40">Loading page...</p>
-                            </div>
+            <div className={`flex flex-col items-center py-8 sm:py-12 px-4 ${loading ? 'hidden' : ''}`}>
+              <div className="w-full max-w-4xl">
+                <Document
+                  file={pdfUrl}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  onLoadError={onDocumentLoadError}
+                  loading={null}
+                >
+                  <div className="flex flex-col items-center">
+                    <Page
+                      pageNumber={pageNumber}
+                      scale={scale}
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                      className="shadow-2xl rounded-sm overflow-hidden"
+                      loading={
+                        <div className="flex items-center justify-center h-96">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-emerald-400 animate-spin" />
+                            <p className="text-xs text-white/40">Loading page...</p>
                           </div>
-                        }
-                      />
-                    </div>
-                  </Document>
-                </div>
+                        </div>
+                      }
+                    />
+                  </div>
+                </Document>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Mobile bottom bar */}
-          {numPages > 0 && !error && (
+          {numPages > 0 && (
             <div className="sm:hidden flex items-center justify-between px-4 h-12 bg-white/[0.04] border-t border-white/[0.06]">
               <button onClick={goToPrevPage} disabled={pageNumber <= 1}
                 className="cursor-pointer flex items-center gap-1.5 text-xs text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">
