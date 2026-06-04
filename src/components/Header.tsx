@@ -283,16 +283,29 @@ const Header = React.memo(function Header({
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => router.push('/auth/register')}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-white
-                           bg-gradient-brand hover:opacity-90
-                           shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
-                           transition-all duration-200 cursor-pointer"
-                aria-label="Get started"
-              >
-                Get Started
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => router.push('/auth/login')}
+                  className="px-3.5 py-2 rounded-xl text-sm font-medium
+                             text-gray-600 dark:text-gray-300
+                             hover:text-brand-green dark:hover:text-brand-green-dark
+                             hover:bg-gray-50 dark:hover:bg-white/5
+                             transition-all duration-200 cursor-pointer"
+                  aria-label="Sign in"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => router.push('/auth/register')}
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-white
+                             bg-gradient-brand hover:opacity-90
+                             shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
+                             transition-all duration-200 cursor-pointer"
+                  aria-label="Get started"
+                >
+                  Get Started
+                </button>
+              </div>
             )}
 
             {/* Theme toggle */}
