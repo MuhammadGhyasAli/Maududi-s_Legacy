@@ -20,12 +20,12 @@ export async function POST(request: Request) {
 
     const user = await db.collection('users').findOne({ email: email.trim().toLowerCase() });
     if (!user) {
-      return NextResponse.json({ detail: 'Invalid username or password' }, { status: 401 });
+      return NextResponse.json({ detail: 'Invalid email or password' }, { status: 401 });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
-      return NextResponse.json({ detail: 'Invalid username or password' }, { status: 401 });
+      return NextResponse.json({ detail: 'Invalid email or password' }, { status: 401 });
     }
 
     const expiresIn = JWT_EXPIRATION_MINUTES * 60;

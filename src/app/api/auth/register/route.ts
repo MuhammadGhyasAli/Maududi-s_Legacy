@@ -4,11 +4,10 @@ import { getDb, getNextId } from '@/lib/mongodb';
 
 export async function POST(request: Request) {
   try {
-    const { username, email, password, display_name } = await request.json();
+    const body = await request.json();
+    const { email, password, display_name } = body;
+    let username = body.username;
 
-    if (!username?.trim() || username.trim().length < 3 || username.trim().length > 50) {
-      return NextResponse.json({ detail: 'Username must be 3-50 characters' }, { status: 400 });
-    }
     if (!email?.trim() || !email.includes('@')) {
       return NextResponse.json({ detail: 'Valid email is required' }, { status: 400 });
     }
@@ -16,14 +15,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
+    username = username?.trim() || email.split('@')[0];
+
     const db = await getDb();
     if (!db) {
       return NextResponse.json({ detail: 'Service unavailable' }, { status: 503 });
-    }
-
-    const existingUser = await db.collection('users').findOne({ username: username.trim() });
-    if (existingUser) {
-      return NextResponse.json({ detail: 'Username already taken' }, { status: 400 });
     }
 
     const existingEmail = await db.collection('users').findOne({ email: email.trim().toLowerCase() });
@@ -36,9 +32,9 @@ export async function POST(request: Request) {
 
     const user = {
       id,
-      username: username.trim(),
+      username,
       email: email.trim().toLowerCase(),
-      display_name: display_name?.trim() || username.trim(),
+      display_name: display_name?.trim() || email.split('@')[0],
       password_hash: passwordHash,
       google_id: null,
       is_active: true,

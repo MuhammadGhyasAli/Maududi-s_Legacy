@@ -5,7 +5,6 @@ import { apiService } from '../services/apiService';
 
 export interface User {
   id: number;
-  username: string;
   email: string;
   display_name: string;
   is_active: boolean;
@@ -16,7 +15,7 @@ interface AuthContextValue {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (username: string, email: string, password: string, display_name?: string) => Promise<User>;
+  register: (email: string, password: string, display_name?: string) => Promise<User>;
   logout: () => void;
   updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
@@ -55,8 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return u;
   }, []);
 
-  const register = useCallback(async (username: string, email: string, password: string, display_name?: string) => {
-    await apiService.register(username, email, password, display_name);
+  const register = useCallback(async (email: string, password: string, display_name?: string) => {
+    await apiService.register(email.split('@')[0], email, password, display_name);
     return login(email, password);
   }, [login]);
 

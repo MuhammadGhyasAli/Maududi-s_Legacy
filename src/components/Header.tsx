@@ -171,9 +171,9 @@ const Header = React.memo(function Header({
                   aria-label="User menu"
                 >
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-green to-brand-blue flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                    {(user.display_name || user.username)[0].toUpperCase()}
+                    {(user.display_name || user.email)[0].toUpperCase()}
                   </div>
-                  <span className="hidden sm:inline max-w-[100px] truncate">{user.display_name || user.username}</span>
+                  <span className="hidden sm:inline max-w-[100px] truncate">{user.display_name || user.email}</span>
                   <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -184,7 +184,7 @@ const Header = React.memo(function Header({
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
                     <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-xl bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5 py-1.5 overflow-hidden">
                       <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.display_name || user.username}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.display_name || user.email}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{user.email}</p>
                       </div>
                       <button
@@ -211,29 +211,17 @@ const Header = React.memo(function Header({
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => router.push('/auth/login')}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200
-                             hover:bg-gray-50 dark:hover:bg-white/5
-                             border border-gray-200 dark:border-gray-700
-                             transition-all duration-200 cursor-pointer hidden sm:block"
-                  aria-label="Sign in"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => router.push('/auth/register')}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-white
-                             bg-gradient-to-r from-brand-green to-brand-blue
-                             hover:from-brand-green hover:to-brand-blue
-                             shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
-                             transition-all duration-200 cursor-pointer"
-                  aria-label="Create account"
-                >
-                  Get Started
-                </button>
-              </div>
+              <button
+                onClick={() => router.push('/auth/register')}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-white
+                           bg-gradient-to-r from-brand-green to-brand-blue
+                           hover:from-brand-green hover:to-brand-blue
+                           shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
+                           transition-all duration-200 cursor-pointer"
+                aria-label="Get started"
+              >
+                Get Started
+              </button>
             )}
 
             {/* Theme toggle */}
