@@ -4,6 +4,8 @@ export const metadata = {
     "A comprehensive digital archive preserving and providing intelligent access to the complete works of Sayyid Abul A'la Maududi (1903–1979), one of the most influential Islamic scholars of the 20th century. Browse 77+ books, read online, and chat with AI trained on his writings.",
 };
 
+import { CATEGORIES } from '@/constants';
+
 export default function AboutPage() {
   return (
     <main className="max-w-5xl mx-auto px-4 py-12 sm:py-16">
@@ -69,7 +71,7 @@ export default function AboutPage() {
           <FeatureCard
             icon="📚"
             title="Browse the Complete Library"
-            description="Explore 77+ books across 12 categories: Tafsir, Hadith, Fiqh, Political Thought, Economics, Philosophy, Biography, Social Reform, Comparative Religion, History, Education, and Children's Literature."
+            description={`Explore 77+ books across ${CATEGORIES.length - 1} categories: ${CATEGORIES.filter(c => c !== 'All').join(', ')}.`}
           />
           <FeatureCard
             icon="📖"
@@ -112,26 +114,24 @@ export default function AboutPage() {
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Library Categories</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { name: "Tafsir & Quranic Sciences", count: "6 volumes + commentaries", icon: "📜" },
-            { name: "Hadith Studies", count: "Multiple works", icon: "📝" },
-            { name: "Fiqh & Islamic Law", count: "10+ books", icon: "⚖️" },
-            { name: "Political Thought", count: "15+ books", icon: "🏛️" },
-            { name: "Islamic Economics", count: "5+ books", icon: "💰" },
-            { name: "Philosophy & Theology", count: "8+ books", icon: "🧠" },
-            { name: "Social Reform", count: "12+ books", icon: "👥" },
-            { name: "Biography & Seerah", count: "6+ books", icon: "📖" },
-            { name: "Comparative Religion", count: "4+ books", icon: "🕌" },
-            { name: "Islamic History", count: "5+ books", icon: "📜" },
-            { name: "Education & Da'wah", count: "7+ books", icon: "🎓" },
-            { name: "Children's Literature", count: "3+ books", icon: "🧸" },
-          ].map((cat) => (
-            <div key={cat.name} className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-              <div className="text-2xl mb-2">{cat.icon}</div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{cat.name}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{cat.count}</p>
-            </div>
-          ))}
+          {CATEGORIES.filter(c => c !== 'All').map((cat) => {
+            const icons: Record<string, string> = {
+              'Tafsir': '📜',
+              'Politics': '🏛️',
+              'Theology': '🧠',
+              'Economics': '💰',
+              'Jurisprudence': '⚖️',
+              'Social Issues': '👥',
+              'History': '📜',
+              'Guidance': '🧭',
+            };
+            return (
+              <div key={cat} className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div className="text-2xl mb-2">{icons[cat] || '📖'}</div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{cat}</h3>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -142,9 +142,9 @@ export default function AboutPage() {
             <span className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-sm">
               1
             </span>
-            <div>
-              <strong className="text-gray-800 dark:text-gray-200">Explore Categories</strong> — Browse by topic: Tafsir, Political Thought, Economics, Biography, etc.
-            </div>
+              <div>
+                <strong className="text-gray-800 dark:text-gray-200">Explore Categories</strong> — Browse by topic: {CATEGORIES.filter(c => c !== 'All').slice(0, 4).join(', ')}, etc.
+              </div>
           </li>
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-sm">
