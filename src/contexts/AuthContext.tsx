@@ -16,7 +16,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
   register: (email: string, password: string, display_name?: string) => Promise<{ id: number; email: string }>;
-  verifyEmail: (code: string) => Promise<User>;
+  verifyEmail: (code: string, email?: string) => Promise<User>;
   logout: () => void;
   updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
@@ -61,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result;
   }, []);
 
-  const verifyEmail = useCallback(async (code: string) => {
-    const result = await apiService.verifyEmail(code);
+  const verifyEmail = useCallback(async (code: string, email?: string) => {
+    const result = await apiService.verifyEmail(code, email);
     localStorage.setItem('auth_token', result.access_token);
     const u = await apiService.getMe(result.access_token);
     setUser(u);

@@ -71,7 +71,7 @@ export default function RegisterPage() {
     setVerificationLoading(true);
     setVerificationError('');
     try {
-      await verifyEmail(code);
+      await verifyEmail(code, email);
       router.push('/');
     } catch (err) {
       setVerificationError(err instanceof Error ? err.message : 'Verification failed');
