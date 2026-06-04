@@ -227,8 +227,7 @@ function ResetPasswordForm() {
                 type="submit"
                 disabled={loading}
                 className="w-full py-2.5 px-4 rounded-xl text-white font-semibold
-                           bg-gradient-to-r from-brand-green to-brand-blue
-                           hover:from-brand-green hover:to-brand-blue
+                           bg-gradient-brand hover:opacity-90
                            shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
                            disabled:opacity-50 disabled:cursor-not-allowed
                            transition-all duration-200 cursor-pointer"
@@ -247,11 +246,14 @@ function ResetPasswordForm() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
+            <div className="flex flex-col items-center gap-3 text-sm text-gray-500 dark:text-gray-400 mt-7">
               <Link href="/auth/forgot-password" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
                 Request a new token
               </Link>
-            </p>
+              <Link href="/auth/login" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
+                &larr; Back to sign in
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -263,7 +265,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50/50 via-white to-white dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-brand-bg-dark">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green" />
       </div>
     }>
       <ResetPasswordForm />

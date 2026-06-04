@@ -38,7 +38,7 @@ export default function SettingsPage() {
   if (authLoading) {
     return (
       <main className="min-h-[80vh] flex items-center justify-center px-4">
-        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-green border-t-transparent rounded-full animate-spin" />
       </main>
     );
   }

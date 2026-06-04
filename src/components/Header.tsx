@@ -154,7 +154,7 @@ const Header = React.memo(function Header({
                              transition-all duration-200 cursor-pointer"
                   aria-label="User menu"
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-green to-brand-blue flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold shadow-sm">
                     {(user.display_name || user.email)[0].toUpperCase()}
                   </div>
                   <span className="hidden sm:inline max-w-[100px] truncate">{user.display_name || user.email}</span>
@@ -198,8 +198,7 @@ const Header = React.memo(function Header({
               <button
                 onClick={() => router.push('/auth/register')}
                 className="px-4 py-2 rounded-xl text-sm font-medium text-white
-                           bg-gradient-to-r from-brand-green to-brand-blue
-                           hover:from-brand-green hover:to-brand-blue
+                           bg-gradient-brand hover:opacity-90
                            shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
                            transition-all duration-200 cursor-pointer"
                 aria-label="Get started"

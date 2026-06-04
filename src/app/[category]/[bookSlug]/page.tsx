@@ -19,6 +19,12 @@ export default function BookPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (bookSlug) {
+      document.title = `${bookSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} - Maududi's Legacy`;
+    }
+  }, [bookSlug]);
+
+  useEffect(() => {
     (async () => {
       try {
         const fetched = await apiService.getBooks();

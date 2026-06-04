@@ -11,6 +11,11 @@ import { deslugifyCategory } from "../../utils/slugify";
 export default function CategoryPage() {
   const params = useParams();
   const category = params?.category as string | undefined;
+  const categoryName = category ? deslugifyCategory(category) : 'All';
+
+  useEffect(() => {
+    document.title = categoryName !== 'All' ? `${categoryName} - Maududi's Legacy` : "Maududi's Legacy";
+  }, [categoryName]);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
