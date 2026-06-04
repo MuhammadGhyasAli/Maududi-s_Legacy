@@ -97,7 +97,7 @@ export default function BiographyPage() {
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Life Timeline</h2>
         <div className="space-y-4">
-          {timeline.map((item, index) => (
+          {timeline.map((item) => (
             <div
               key={item.year}
               className="relative pl-8 pb-8 border-l-2 border-emerald-200 dark:border-emerald-800 last:border-0"

@@ -171,7 +171,7 @@ const Header = React.memo(function Header({
                       </div>
 
                       <button
-                        onClick={() => { setUserMenuOpen(false); router.push('/auth/settings'); }}
+                        onClick={() => { setUserMenuOpen(false); router.push('/account/settings'); }}
                         className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
                       >
                         <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

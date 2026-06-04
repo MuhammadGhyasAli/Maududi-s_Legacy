@@ -59,8 +59,8 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   const segments = pathname?.split('/').filter(Boolean) || [];
   const categorySlugs = ['tafsir', 'politics', 'theology', 'economics', 'jurisprudence', 'social-issues', 'history', 'guidance'];
   const isBookDetail = segments.length === 2 && categorySlugs.includes(segments[0]);
-  const hideSidebar = isChatRoute || isBookDetail;
-  const hideHeader = isChatRoute || isAuthRoute;
+  const hideSidebar = isChatRoute || isBookDetail || isAuthRoute;
+  const hideHeader = isChatRoute;
 
   return (
     <ToastProvider>
