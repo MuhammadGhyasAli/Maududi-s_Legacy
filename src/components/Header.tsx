@@ -32,7 +32,6 @@ const Header = React.memo(function Header({
   onToggleDesktopSidebar: _onToggleDesktopSidebar,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading: authLoading, logout } = useAuth();
@@ -72,7 +71,7 @@ const Header = React.memo(function Header({
         <div className="flex items-center justify-between h-16">
 
           {/* Left — hamburger + logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-3 min-w-0">
             <button
               onClick={onToggleSidebar}
               className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400
@@ -95,10 +94,11 @@ const Header = React.memo(function Header({
                 alt="Maududi's Legacy"
                 width={160}
                 height={40}
-                className="h-8 sm:h-10 w-auto object-contain"
+                className="h-7 sm:h-10 w-auto object-contain"
                 priority
               />
-              <span className="hidden sm:inline text-lg font-display font-semibold
+              <span className="hidden sm:inline text-base sm:text-lg font-display font-semibold
+                               truncate max-w-[120px] sm:max-w-none
                                text-gray-800 dark:text-gray-100
                                group-hover:text-brand-green dark:group-hover:text-brand-green-dark
                                transition-colors">
@@ -126,26 +126,10 @@ const Header = React.memo(function Header({
 
           {/* Right — actions */}
           <div className="flex items-center gap-1.5">
-            {/* Mobile nav toggle */}
-            <button
-              onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="md:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400
-                         hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-              aria-label="Toggle navigation menu"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {mobileNavOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-
             {/* AI Context Finder */}
             <button
               onClick={() => router.push('/ai-context-finder')}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium
                          text-brand-green dark:text-brand-green-dark
                          hover:bg-emerald-50 dark:hover:bg-emerald-950/40
                          border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800/40
@@ -238,31 +222,7 @@ const Header = React.memo(function Header({
           </div>
         </div>
 
-        {/* Mobile nav dropdown */}
-        {mobileNavOpen && (
-          <div className="md:hidden border-t border-gray-100 dark:border-gray-800 py-2 pb-3 animate-fade-in-up">
-            {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => { router.push(link.href); setMobileNavOpen(false); }}
-                className={`block w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                  ${isActive(link.href)
-                    ? 'text-brand-green dark:text-brand-green-dark bg-emerald-50 dark:bg-emerald-950/40'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
-              >
-                {link.label}
-              </button>
-            ))}
-            <button
-              onClick={() => { router.push('/ai-context-finder'); setMobileNavOpen(false); }}
-              className="flex items-center gap-2 w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-brand-green dark:text-brand-green-dark hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer sm:hidden"
-            >
-              <SparklesIcon className="w-4 h-4" />
-              AI Search
-            </button>
-          </div>
-        )}
+
       </div>
     </header>
   );

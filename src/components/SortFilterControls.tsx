@@ -23,20 +23,20 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
         </div>
 
         <div className="flex-shrink-0 md:w-48 md:mr-10">
-          <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 block">
+          <span className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 block">
             View as
           </span>
           <div className="flex space-x-2" role="group" aria-label="View mode">
             <button
               onClick={() => onViewModeChange('grid')}
-              className={`p-3 px-4 rounded-lg border-2 transition-colors cursor-pointer ${
+              className={`p-2.5 sm:p-3 px-3 sm:px-4 rounded-lg border-2 transition-colors cursor-pointer ${
                 viewMode === 'grid'
                   ? 'bg-brand-green text-white border-brand-green'
                   : 'bg-white dark:bg-gray-800/60 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
               } focus:outline-none focus:ring-2 focus:ring-brand-green`}
               aria-label="Grid view"
             >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 20 20">
                 <rect x="2" y="2" width="5" height="5" rx="1" />
                 <rect x="9" y="2" width="5" height="5" rx="1" />
                 <rect x="2" y="9" width="5" height="5" rx="1" />
@@ -45,14 +45,14 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
             </button>
             <button
               onClick={() => onViewModeChange('list')}
-              className={`p-3 px-4 rounded-lg border-2 transition-colors cursor-pointer ${
+              className={`p-2.5 sm:p-3 px-3 sm:px-4 rounded-lg border-2 transition-colors cursor-pointer ${
                 viewMode === 'list'
                   ? 'bg-brand-green text-white border-brand-green'
                   : 'bg-white dark:bg-gray-800/60 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
               } focus:outline-none focus:ring-2 focus:ring-brand-green`}
               aria-label="List view"
             >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 4a1 1 0 000 2h6a1 1 0 100-2H2z" />
                 <path d="M2 8a1 1 0 000 2h8a1 1 0 100-2H2z" />
                 <path d="M2 12a1 1 0 000 2h4a1 1 0 100-2H2z" />
@@ -62,8 +62,8 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
         </div>
       </div>
 
-      <div className="flex-shrink-0 md:w-64">
-        <label htmlFor="sort-by" className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 block">
+      <div className="flex-shrink-0 w-full md:w-64">
+        <label htmlFor="sort-by" className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 block">
           Sort by
         </label>
         <div className="relative">

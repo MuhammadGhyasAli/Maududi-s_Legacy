@@ -131,7 +131,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             <span aria-hidden="true">📚</span>
             <span>Islamic Scholarship Library</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight">
             Explore the{' '}
             <span className="gradient-text">Works of Maududi</span>
           </h2>

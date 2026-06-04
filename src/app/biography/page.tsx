@@ -100,7 +100,7 @@ export default function BiographyPage() {
             <p className="text-sm font-semibold tracking-widest uppercase text-emerald-600 dark:text-emerald-400 mb-4">
               Biography
             </p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-gray-900 dark:text-gray-100 leading-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-display text-gray-900 dark:text-gray-100 leading-tight mb-4">
               Sayyid Abul A&apos;la
               <span className="gradient-text block mt-1">Maududi</span>
             </h1>

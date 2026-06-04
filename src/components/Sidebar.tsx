@@ -44,7 +44,7 @@ function NavLink({
       aria-current={isActive ? 'page' : undefined}
       className={`
         ${linkBase}
-        ${isCollapsed ? 'justify-center px-2 py-3.5' : 'px-3 py-2.5'}
+        ${isCollapsed ? 'justify-center px-2 py-3.5' : 'px-3 py-3 lg:py-2.5'}
         ${isActive ? activeClasses : inactiveClasses}
       `}
     >
@@ -174,7 +174,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
           transition-all duration-300 ease-in-out motion-reduce:transition-none
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
-          ${isOpen ? 'w-[75vw] sm:w-[70vw] md:w-[60vw]' : ''}
+          ${isOpen ? 'w-full sm:w-[70vw] md:w-[60vw]' : ''}
           ${isCollapsed ? 'lg:w-16' : 'lg:w-64'}
         `}
       >
@@ -242,6 +242,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
             icon="ℹ️"
             label="About"
             isActive={pathname === '/about'}
+            isCollapsed={showCollapsed}
+            onNavigate={handleMobileClose}
+          />
+
+          <NavLink
+            href="/ai-context-finder"
+            icon="🔍"
+            label="AI Search"
+            isActive={pathname === '/ai-context-finder'}
             isCollapsed={showCollapsed}
             onNavigate={handleMobileClose}
           />
