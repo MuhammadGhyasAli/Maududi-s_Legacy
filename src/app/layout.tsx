@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Noto_Nastaliq_Urdu, Amiri } from "next/font/google";
 import "./globals.css";
 import MainShell from "../components/MainShell";
-import { StoreProvider } from "../store/StoreProvider";
 import { AuthProvider } from "../contexts/AuthContext";
 
 const inter = Inter({
@@ -64,14 +63,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoNastaliq.variable} ${amiri.variable}`} suppressHydrationWarning>
-        <StoreProvider>
-          <AuthProvider>
-            <a href="#main-content" className="skip-link">
-              Skip to main content
-            </a>
-            <MainShell>{children}</MainShell>
-          </AuthProvider>
-        </StoreProvider>
+        <AuthProvider>
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+          <MainShell>{children}</MainShell>
+        </AuthProvider>
       </body>
     </html>
   );

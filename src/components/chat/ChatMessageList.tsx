@@ -146,7 +146,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                         <div className="space-y-4" dir={dir}>
                           <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
                             <p className="text-xs font-bold uppercase tracking-wider text-brand-green dark:text-brand-green-dark mb-3 flex items-center gap-2">
-                              <span className="text-xs">📚</span> Context Found
+                              <span className="text-xs" aria-hidden="true">📚</span> Context Found
                             </p>
                             <div className="space-y-2 text-[14px]">
                               {structuredDetails.bookTitle && (

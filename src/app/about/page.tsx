@@ -1,3 +1,9 @@
+export const metadata = {
+  title: "About — Maududi's Legacy",
+  description:
+    "Learn about Maududi's Legacy — a digital archive preserving and providing intelligent access to the works of Sayyid Abul A'la Maududi.",
+};
+
 export default function AboutPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
@@ -137,7 +143,7 @@ function FeatureCard({
 }) {
   return (
     <div className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-      <div className="text-2xl mb-3">{icon}</div>
+      <div className="text-2xl mb-3" aria-hidden="true">{icon}</div>
       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{description}</p>
     </div>

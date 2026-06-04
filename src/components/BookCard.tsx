@@ -58,7 +58,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
           <div className="w-full h-full flex flex-col items-center justify-center gap-2
                           bg-gradient-to-br from-emerald-50 to-cyan-50
                           dark:from-emerald-950/30 dark:to-cyan-950/30">
-            <span className="text-4xl">📖</span>
+            <span className="text-4xl" aria-hidden="true">📖</span>
             <span className="text-xs text-gray-400 dark:text-gray-500">No cover</span>
           </div>
         ) : (

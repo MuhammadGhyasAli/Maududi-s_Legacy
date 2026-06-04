@@ -53,7 +53,7 @@ function NavLink({
         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-white/70 rounded-full" />
       )}
 
-      <span className="text-lg flex-shrink-0">{icon}</span>
+      <span className="text-lg flex-shrink-0" aria-hidden="true">{icon}</span>
       {!isCollapsed && <span className="text-sm truncate">{label}</span>}
 
       {/* Tooltip when collapsed */}

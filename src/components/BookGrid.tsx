@@ -8,7 +8,6 @@ import BookCard from './BookCard';
 import Pagination from './Pagination';
 import SortFilterControls from './SortFilterControls';
 import SearchBar from './SearchBar';
-import { CATEGORIES } from '../constants';
 import { deslugifyCategory } from '../utils/slugify';
 import { useDebounce } from '../hooks/useDebounce';
 import Breadcrumbs from './Breadcrumbs';
@@ -129,7 +128,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
                           bg-emerald-100 dark:bg-emerald-900/40
                           text-brand-green dark:text-brand-green-dark
                           border border-emerald-200 dark:border-emerald-800/50">
-            <span>📚</span>
+            <span aria-hidden="true">📚</span>
             <span>Islamic Scholarship Library</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight">
@@ -150,9 +149,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
         {/* Sort & filter */}
         <div className="max-w-5xl mx-auto mb-8">
           <SortFilterControls
-            categories={CATEGORIES}
-            selectedCategory={category || 'All'}
-            onSelectCategory={() => {}}
             sortBy={sortBy}
             onSortByChange={setSortBy}
             totalBooks={processedBooks.length}
@@ -228,7 +224,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
           </>
         ) : (
           <div className="text-center py-20">
-            <div className="text-5xl mb-4">🔍</div>
+            <div className="text-5xl mb-4" aria-hidden="true">🔍</div>
             <p className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
               No books found
             </p>

@@ -1,9 +1,6 @@
 import React from 'react';
 
 interface SortFilterControlsProps {
-  categories: string[];
-  selectedCategory: string;
-  onSelectCategory: (category: string) => void;
   sortBy: string;
   onSortByChange: (sort: string) => void;
   totalBooks: number;
@@ -34,9 +31,9 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
               onClick={() => onViewModeChange('grid')}
               className={`p-3 px-4 rounded-lg border-2 transition-colors cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-brand-blue text-white border-brand-blue'
+                  ? 'bg-brand-green text-white border-brand-green'
                   : 'bg-white dark:bg-gray-800/60 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
-              } focus:outline-none focus:ring-2 focus:ring-brand-blue`}
+              } focus:outline-none focus:ring-2 focus:ring-brand-green`}
               aria-label="Grid view"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -50,9 +47,9 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
               onClick={() => onViewModeChange('list')}
               className={`p-3 px-4 rounded-lg border-2 transition-colors cursor-pointer ${
                 viewMode === 'list'
-                  ? 'bg-brand-blue text-white border-brand-blue'
+                  ? 'bg-brand-green text-white border-brand-green'
                   : 'bg-white dark:bg-gray-800/60 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
-              } focus:outline-none focus:ring-2 focus:ring-brand-blue`}
+              } focus:outline-none focus:ring-2 focus:ring-brand-green`}
               aria-label="List view"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -74,7 +71,7 @@ const SortFilterControls: React.FC<SortFilterControlsProps> = ({
             id="sort-by"
             value={sortBy}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onSortByChange(e.target.value)}
-            className="cursor-pointer w-full appearance-none bg-white dark:bg-gray-800/60 border-2 border-gray-300 dark:border-gray-600 rounded-lg py-2 pl-4 pr-10 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
+            className="cursor-pointer w-full appearance-none bg-white dark:bg-gray-800/60 border-2 border-gray-300 dark:border-gray-600 rounded-lg py-2 pl-4 pr-10 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
           >
             <option value="default">Default Order</option>
             <option value="title-asc">Title (A-Z)</option>

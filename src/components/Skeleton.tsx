@@ -47,8 +47,8 @@ export const BookCardSkeleton: React.FC = () => (
 );
 
 export const BookGridSkeleton: React.FC = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    {[...Array(8)].map((_, i) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+    {[...Array(10)].map((_, i) => (
       <BookCardSkeleton key={i} />
     ))}
   </div>

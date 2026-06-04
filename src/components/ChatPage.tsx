@@ -62,7 +62,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
             { role: 'assistant', content: response.response }
         ];
     } catch (e) {
-      console.error("API Error:", e);
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
       setError(`Sorry, I couldn't get a response. ${errorMessage}`);
       setMessages(prev => prev.slice(0, prev.length -1));
@@ -83,8 +82,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       try {
         await navigator.clipboard.writeText(transcript);
         toast('Chat copied to clipboard!');
-      } catch (error) {
-        console.error('Copying failed', error);
+      } catch (_error) {
         fallbackCopyTextToClipboard(transcript);
       }
     } else {
@@ -104,8 +102,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     try {
       document.execCommand('copy');
       toast('Chat copied to clipboard!');
-    } catch (err) {
-      console.error('Fallback copy failed', err);
+    } catch (_err) {
       toast('Could not copy chat. Your browser may not support this feature.', 'error');
     }
     textArea.remove();

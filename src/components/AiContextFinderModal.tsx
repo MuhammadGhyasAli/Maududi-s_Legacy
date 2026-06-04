@@ -176,7 +176,6 @@ If the user's message includes an image, you MUST follow this two-step process w
         const response = await apiService.globalChat(systemInstruction.current, messagesToBackend);
         setConversation(prev => [...prev, { sender: MessageSender.AI, text: response.response }]);
     } catch (e) {
-      console.error("API Error:", e);
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
       setError(`Sorry, something went wrong. ${errorMessage}`);
       setConversation(prev => prev.slice(0, -1));
@@ -197,8 +196,7 @@ If the user's message includes an image, you MUST follow this two-step process w
       try {
         await navigator.clipboard.writeText(transcript);
         toast('Chat copied!');
-      } catch (error) {
-        console.error('Copying failed', error);
+      } catch (_error) {
         fallbackCopyTextToClipboard(transcript);
       }
     } else {
@@ -218,8 +216,7 @@ If the user's message includes an image, you MUST follow this two-step process w
     try {
       document.execCommand('copy');
       toast('Chat copied!');
-    } catch (err) {
-      console.error('Fallback copy failed', err);
+    } catch (_err) {
       toast('Could not copy chat. Your browser may not support this feature.', 'error');
     }
     textArea.remove();

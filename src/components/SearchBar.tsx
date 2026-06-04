@@ -30,7 +30,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm }) => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         autoComplete="off"
-        className="w-full pl-4 pr-20 py-3 bg-white dark:bg-gray-800/60 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-blue dark:focus:ring-brand-blue transition-all duration-300"
+        className="w-full pl-4 pr-20 py-3 bg-white dark:bg-gray-800/60 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green dark:focus:ring-brand-green transition-all duration-300"
       />
       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
         {searchTerm && (

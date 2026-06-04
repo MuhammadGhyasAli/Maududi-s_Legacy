@@ -48,7 +48,7 @@ export default function RegisterPage() {
                       dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-brand-bg-dark">
       {/* Decorative gradient orbs */}
       <div className="fixed top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 -right-32 w-96 h-96 bg-brand-blue/10 dark:bg-brand-blue/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/4 -right-32 w-96 h-96 bg-brand-green/10 dark:bg-brand-green/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md animate-fade-in-up">
         {/* Brand */}

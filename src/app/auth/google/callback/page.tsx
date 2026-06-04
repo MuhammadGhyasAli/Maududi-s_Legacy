@@ -49,7 +49,6 @@ export default function GoogleCallbackPage() {
         router.push('/');
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Google sign-in failed';
-        console.error('Google auth callback error:', err);
         setError(message);
       }
     };

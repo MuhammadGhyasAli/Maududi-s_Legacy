@@ -55,7 +55,7 @@ export default function CategoryPage() {
                         border border-amber-200 dark:border-amber-800/40
                         shadow-card dark:shadow-black/30">
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 ${isInvalidCategory ? 'bg-blue-50 dark:bg-blue-900/30' : 'bg-amber-50 dark:bg-amber-900/30'}`}>
-            <span className="text-3xl">{isInvalidCategory ? '🔍' : '⚠️'}</span>
+            <span className="text-3xl" aria-hidden="true">{isInvalidCategory ? '🔍' : '⚠️'}</span>
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             {isInvalidCategory ? 'Category Not Found' : 'Server Unreachable'}
@@ -80,7 +80,7 @@ export default function CategoryPage() {
     return (
       <main className="flex-1 container mx-auto px-4 py-20">
         <div className="text-center">
-          <div className="text-5xl mb-4">🔍</div>
+          <div className="text-5xl mb-4" aria-hidden="true">🔍</div>
           <p className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
             No books found
           </p>

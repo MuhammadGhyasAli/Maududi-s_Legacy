@@ -48,7 +48,7 @@ export default function BookPage() {
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{error}</p>
           <button
             onClick={() => router.back()}
-            className="cursor-pointer px-6 py-3 bg-brand-blue text-white rounded-lg hover:bg-brand-blue/90 transition-colors font-medium"
+            className="cursor-pointer px-6 py-3 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition-colors font-medium"
           >
             Go Back
           </button>
@@ -66,7 +66,7 @@ export default function BookPage() {
           </p>
           <button
             onClick={() => router.back()}
-            className="cursor-pointer px-6 py-3 bg-brand-blue text-white rounded-lg hover:bg-brand-blue/90 transition-colors font-medium"
+            className="cursor-pointer px-6 py-3 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition-colors font-medium"
           >
             Go Back
           </button>

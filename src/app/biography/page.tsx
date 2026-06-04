@@ -95,7 +95,7 @@ export default function BiographyPage() {
         <div className="container mx-auto px-6 py-20 md:py-28 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="w-24 h-24 rounded-2xl bg-gradient-brand flex items-center justify-center mx-auto mb-6 shadow-emerald/30 shadow-lg">
-              <span className="text-4xl">📝</span>
+              <span className="text-4xl" aria-hidden="true">📝</span>
             </div>
             <p className="text-sm font-semibold tracking-widest uppercase text-emerald-600 dark:text-emerald-400 mb-4">
               Biography
@@ -109,7 +109,7 @@ export default function BiographyPage() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center mt-8">
               <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
-                <span>📖</span> 77+ Works
+                <span aria-hidden="true">📖</span> 77+ Works
               </span>
               <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
                 <span>🌍</span> Translated into 40+ Languages
@@ -240,7 +240,7 @@ export default function BiographyPage() {
                 href="/"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-brand text-white font-medium shadow-emerald hover:shadow-lg transition-all duration-200"
               >
-                <span>📚</span> Browse All Works
+                <span aria-hidden="true">📚</span> Browse All Works
               </Link>
             </div>
           </div>

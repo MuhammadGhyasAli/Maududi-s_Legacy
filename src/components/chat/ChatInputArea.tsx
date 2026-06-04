@@ -94,7 +94,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 <input type="file" ref={fileInputRef} onChange={onImageChange} accept="image/*" className="hidden" />
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="cursor-pointer p-2 rounded-full text-gray-400 hover:text-brand-blue hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  className="cursor-pointer p-2 rounded-full text-gray-400 hover:text-brand-green hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                   aria-label="Attach image"
                 >
                   <PaperclipIcon className="w-5 h-5" />

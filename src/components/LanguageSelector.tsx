@@ -38,7 +38,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ languages, selected
               <li key={lang}>
                 <button
                   onClick={() => handleSelect(lang)}
-                  className={`cursor-pointer w-full text-left px-4 py-2 text-sm transition-colors ${selectedLanguage === lang ? 'bg-brand-blue text-white' : 'text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  className={`cursor-pointer w-full text-left px-4 py-2 text-sm transition-colors ${selectedLanguage === lang ? 'bg-brand-green text-white' : 'text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   {lang}
                 </button>
@@ -49,7 +49,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ languages, selected
       )}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="cursor-pointer w-14 h-14 bg-brand-blue text-white rounded-full shadow-lg flex items-center justify-center hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-brand-blue/50 dark:focus:ring-brand-blue/50 transition-all transform hover:scale-110"
+        className="cursor-pointer w-14 h-14 bg-brand-green text-white rounded-full shadow-lg flex items-center justify-center hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-brand-green/50 dark:focus:ring-brand-green/50 transition-all transform hover:scale-110"
         aria-label="Select language"
         aria-expanded={isOpen}
       >
