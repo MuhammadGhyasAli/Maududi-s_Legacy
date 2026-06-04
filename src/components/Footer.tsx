@@ -13,9 +13,17 @@ const categoryLinks = CATEGORIES.filter(c => c !== 'All').map(name => ({
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [bookCount, setBookCount] = useState(0);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    apiService.getBooks().then((books) => setBookCount(books.length)).catch(() => {});
+    apiService.getBooks().then((books: { category: string }[]) => {
+      setBookCount(books.length);
+      const counts: Record<string, number> = {};
+      books.forEach((b: { category: string }) => {
+        counts[b.category] = (counts[b.category] || 0) + 1;
+      });
+      setCategoryCounts(counts);
+    }).catch(() => {});
   }, []);
 
   const linkClass =
@@ -79,6 +87,9 @@ export default function Footer() {
               {categoryLinks.map((cat) => (
                 <Link key={cat.name} href={cat.href} className={linkClass}>
                   {cat.name}
+                  {categoryCounts[cat.name] !== undefined && (
+                    <span className="ml-1 text-gray-300 dark:text-gray-600">({categoryCounts[cat.name]})</span>
+                  )}
                 </Link>
               ))}
             </div>

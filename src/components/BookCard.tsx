@@ -38,6 +38,7 @@ function BookCardInner({ book, onClick, priority }: BookCardProps) {
 
   const needsExpansion = book.description.length > 150;
   const badgeClass = categoryColors[book.category] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+  const readingTime = Math.max(1, Math.ceil(book.description.split(/\s+/).length / 200));
 
   return (
     <div
@@ -52,7 +53,9 @@ function BookCardInner({ book, onClick, priority }: BookCardProps) {
         rounded-2xl overflow-hidden text-left
         border border-gray-100 dark:border-white/[0.07]
         shadow-sm hover:shadow-xl dark:shadow-black/20 dark:hover:shadow-black/40
+        hover:shadow-emerald-500/5 dark:hover:shadow-emerald-500/10
         hover:-translate-y-1.5 hover:border-emerald-200/80 dark:hover:border-emerald-700/60
+        active:scale-[0.98] active:shadow-md
         transition-all duration-300 ease-out
       "
     >
@@ -78,7 +81,7 @@ function BookCardInner({ book, onClick, priority }: BookCardProps) {
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw"
               priority={priority}
-              className={`object-cover group-hover:scale-105 transition-all duration-500 relative z-10
+              className={`object-cover group-hover:scale-105 transition-all duration-700 ease-out relative z-10
                           ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               loading={priority ? undefined : 'lazy'}
               onLoad={() => setImageLoaded(true)}
@@ -105,6 +108,8 @@ function BookCardInner({ book, onClick, priority }: BookCardProps) {
         </h3>
         <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">
           {book.author} <span className="text-gray-300 dark:text-gray-600">·</span> {book.publicationYear}
+          <span className="text-gray-300 dark:text-gray-600"> · </span>
+          <span className="text-gray-400 dark:text-gray-500">{readingTime} min read</span>
         </p>
 
         <div className="flex-grow flex flex-col">

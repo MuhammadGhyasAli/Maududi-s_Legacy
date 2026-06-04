@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import CloseIcon from './icons/CloseIcon';
 
 interface PdfReaderPanelProps {
@@ -13,24 +13,25 @@ interface PdfReaderPanelProps {
 
 const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl, title }) => {
   const [loadError, setLoadError] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: prefersReducedMotion ? 1 : 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
             onClick={onClose}
           />
           <motion.div
-            initial={{ x: '100%' }}
+            initial={prefersReducedMotion ? { x: 0 } : { x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            exit={prefersReducedMotion ? { x: 0 } : { x: '100%' }}
+            transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 w-full sm:w-[85vw] lg:w-[70vw] xl:w-[60vw] z-50 flex flex-col bg-white dark:bg-brand-bg-dark shadow-2xl"
           >
             {/* Header */}
@@ -79,7 +80,7 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
                 </div>
               ) : (
                 <iframe
-                  src={`${pdfUrl}#toolbar=0&navpanes=0`}
+                  src={isOpen ? `${pdfUrl}#toolbar=0&navpanes=0` : undefined}
                   className="w-full h-full"
                   title={title}
                   onError={() => setLoadError(true)}

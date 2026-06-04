@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
@@ -9,6 +9,7 @@ import ScrollToTop from "./ScrollToTop";
 import { ToastProvider } from "./Toast";
 import OnboardingTour from "./OnboardingTour";
 import ShortcutsModal from "./ShortcutsModal";
+import QuickSearchModal from "./QuickSearchModal";
 import type { Theme } from "../types/theme";
 import { apiService } from "../services/apiService";
 
@@ -16,6 +17,7 @@ import { usePathname } from 'next/navigation';
 
 export default function MainShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const prefersReducedMotion = useReducedMotion();
   
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "system";
@@ -23,7 +25,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   });
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(true);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
 
   // Prefetch book data in background as soon as shell mounts
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
     <ToastProvider>
       <OnboardingTour />
       <ShortcutsModal />
+      <QuickSearchModal />
       <div className="min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 transition-colors duration-300 flex overflow-x-clip">
         {!isChatRoute && (
           <>
@@ -83,10 +86,10 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={pathname}
-                initial={{ opacity: 0, y: 12 }}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.2, ease: "easeInOut" }}
               >
                 {children}
               </motion.div>

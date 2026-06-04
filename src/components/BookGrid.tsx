@@ -16,11 +16,12 @@ import Breadcrumbs from './Breadcrumbs';
 
 interface BookGridProps {
   books: Book[];
+  loading?: boolean;
 }
 
 const BOOKS_PER_PAGE = 15;
 
-const BookGrid: React.FC<BookGridProps> = ({ books }) => {
+const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -212,7 +213,23 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
         ]} />
 
         {/* Hero section */}
-        <div className="text-center max-w-3xl mx-auto mb-8">
+        <div className="relative text-center max-w-3xl mx-auto mb-8">
+          {/* Decorative background pattern */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+            <svg className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-[0.03] dark:opacity-[0.04]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="0.5" />
+              <circle cx="300" cy="300" r="220" stroke="currentColor" strokeWidth="0.5" />
+              <circle cx="300" cy="300" r="160" stroke="currentColor" strokeWidth="0.5" />
+              <circle cx="300" cy="300" r="100" stroke="currentColor" strokeWidth="0.5" />
+              <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="0.3" />
+              <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="0.3" />
+              <line x1="102" y1="102" x2="498" y2="498" stroke="currentColor" strokeWidth="0.3" />
+              <line x1="498" y1="102" x2="102" y2="498" stroke="currentColor" strokeWidth="0.3" />
+              <polygon points="300,50 420,180 380,320 220,320 180,180" stroke="currentColor" strokeWidth="0.4" fill="none" />
+              <polygon points="300,550 420,420 380,280 220,280 180,420" stroke="currentColor" strokeWidth="0.4" fill="none" />
+              <circle cx="300" cy="300" r="40" stroke="currentColor" strokeWidth="0.4" fill="none" />
+            </svg>
+          </div>
           <div className="inline-flex items-center gap-1.5 mb-5 px-3.5 py-1.5 rounded-full text-xs font-semibold
                           bg-emerald-50 dark:bg-emerald-900/30
                           text-emerald-700 dark:text-emerald-300
@@ -230,6 +247,40 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             Sayyid Abul A&apos;la Maududi — in multiple languages.
           </p>
         </div>
+
+        {/* Featured / Popular books */}
+        {!category && !debouncedSearch && !loading && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              </svg>
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Featured Works</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-amber-200/60 to-transparent dark:from-amber-800/30" />
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin -mx-4 px-4 snap-x snap-mandatory">
+              {books.filter(b => ['Tafheem ul Quran (Vol. 1)', 'Tafheem ul Quran (Vol. 6)', 'Khutabat', 'Islamic Economic System', 'Jihad in Islam'].includes(b.title)).map(book => (
+                <button
+                  key={book.id}
+                  onClick={() => {
+                    const slug = book.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+                    const catSlug = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
+                    router.push(`/${catSlug}/${slug}`);
+                  }}
+                  className="flex-none w-28 snap-start group text-left"
+                >
+                  <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-sm ring-1 ring-gray-200/60 dark:ring-white/10 group-hover:ring-amber-300 dark:group-hover:ring-amber-700 transition-all duration-200">
+                    <Image src={book.imageUrl} alt={book.title} fill sizes="112px" className="object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  </div>
+                  <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 mt-1.5 truncate leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    {book.title}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Continue Reading */}
         {recentBooks.length > 0 && !category && !debouncedSearch && (
@@ -275,7 +326,33 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
         </div>
 
         {/* Book results */}
-        {paginatedBooks.length > 0 ? (
+        {loading ? (
+          <>
+            {/* Enhanced skeleton with category pills */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {['Tafsir', 'Politics', 'Theology', 'Economics', 'Jurisprudence', 'History'].map(cat => (
+                <div key={cat} className="skeleton-shimmer rounded-full h-8 w-20" />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+              {[...Array(15)].map((_, i) => (
+                <div key={i} className={`animate-fade-in-scale-delay-${Math.min(i % 5, 5)}`}>
+                  <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">
+                    <div className="skeleton-shimmer rounded w-full aspect-[3/4] max-h-48" />
+                    <div className="p-4 space-y-2.5">
+                      <div className="skeleton-shimmer rounded h-4 w-4/5 h-4" />
+                      <div className="skeleton-shimmer rounded h-4 w-1/3 h-3" />
+                      <div className="pt-1.5 space-y-1.5">
+                        <div className="skeleton-shimmer rounded h-4 w-full h-2.5" />
+                        <div className="skeleton-shimmer rounded h-4 w-2/3 h-2.5" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : paginatedBooks.length > 0 ? (
           <>
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
