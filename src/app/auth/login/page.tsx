@@ -31,15 +31,13 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-12
-                      bg-gradient-to-b from-emerald-50/50 via-white to-white
-                      dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-brand-bg-dark">
-      {/* Decorative gradient orb */}
-      <div className="fixed top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 -right-32 w-96 h-96 bg-brand-green/10 dark:bg-brand-green/5 rounded-full blur-3xl pointer-events-none" />
+                      bg-gradient-to-b from-emerald-50/40 via-white to-white
+                      dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-brand-bg-dark
+                      bg-auth-pattern">
 
       <div className="w-full max-w-md animate-fade-in-up">
         {/* Brand */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-2.5 group">
             <Image
               src="/logo.png"
@@ -53,17 +51,20 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="relative bg-white dark:bg-brand-card-dark rounded-2xl shadow-xl shadow-emerald-500/5 dark:shadow-black/20 border border-emerald-100/60 dark:border-emerald-900/20 overflow-hidden">
-          {/* Gradient accent bar */}
-          <div className="h-1 bg-gradient-to-r from-brand-green via-brand-blue to-brand-green" />
+        <div className="relative bg-white dark:bg-brand-card-dark rounded-2xl shadow-[0_0_40px_-12px_rgba(5,150,105,0.12)] dark:shadow-[0_0_40px_-12px_rgba(5,150,105,0.06)] border border-emerald-100/60 dark:border-emerald-900/20 overflow-hidden">
+          {/* Subtle top glow */}
+          <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-brand-green/[0.03] to-transparent pointer-events-none" />
 
           <div className="p-8 sm:p-10">
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-gray-50 text-center mb-1">
-              Welcome back
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-8">
-              Sign in to your account to continue
-            </p>
+            <div className="text-center mb-8">
+              <div className="w-12 h-1 bg-gradient-brand rounded-full mx-auto mb-6" />
+              <h1 className="text-2xl sm:text-3xl font-display font-bold gradient-text mb-1.5">
+                Welcome back
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Sign in to your account to continue
+              </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
@@ -145,7 +146,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={loading}
                 className="w-full py-2.5 px-4 rounded-xl text-white font-semibold
-                           bg-gradient-brand hover:opacity-90
+                           bg-gradient-brand hover:opacity-90 active:scale-[0.98]
                            shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
                            disabled:opacity-50 disabled:cursor-not-allowed
                            transition-all duration-200 cursor-pointer"
@@ -164,12 +165,14 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="relative my-7">
+            <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                <div className="w-full border-t border-gray-200 dark:border-gray-700/60" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase tracking-wider">
-                <span className="px-3 bg-white dark:bg-brand-card-dark text-gray-400 dark:text-gray-500">or continue with</span>
+              <div className="relative flex justify-center">
+                <span className="px-4 py-1 rounded-full bg-white dark:bg-brand-card-dark text-xs font-medium text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700/60">
+                  or continue with
+                </span>
               </div>
             </div>
 
@@ -213,7 +216,7 @@ export default function LoginPage() {
               Sign in with Google
             </button>
 
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
               Don&apos;t have an account?{' '}
               <Link href="/auth/register" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
                 Create one
