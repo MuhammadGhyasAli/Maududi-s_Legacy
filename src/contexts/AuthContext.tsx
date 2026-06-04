@@ -20,6 +20,7 @@ interface AuthContextValue {
   updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
   deleteAccount: (password: string) => Promise<void>;
+  googleSignIn: (token: string) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -77,6 +78,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await apiService.changePassword(token, current_password, new_password);
   }, [token]);
 
+  const googleSignIn = useCallback(async (token: string) => {
+    localStorage.setItem('auth_token', token);
+    const u = await apiService.getMe(token);
+    setUser(u);
+    setToken(token);
+    return u;
+  }, []);
+
   const deleteAccount = useCallback(async (password: string) => {
     if (!token) throw new Error('Not authenticated');
     await apiService.deleteAccount(token, password);
@@ -86,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, changePassword, deleteAccount }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, changePassword, deleteAccount, googleSignIn }}>
       {children}
     </AuthContext.Provider>
   );
