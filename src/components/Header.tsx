@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import SunIcon from './icons/SunIcon';
 import MoonIcon from './icons/MoonIcon';
@@ -18,6 +18,12 @@ interface HeaderProps {
   onToggleDesktopSidebar: () => void;
 }
 
+const navLinks = [
+  { href: '/', label: 'Books' },
+  { href: '/biography', label: 'Biography' },
+  { href: '/about', label: 'About' },
+];
+
 const Header = React.memo(function Header({
   theme,
   setTheme,
@@ -26,10 +32,11 @@ const Header = React.memo(function Header({
   onToggleDesktopSidebar: _onToggleDesktopSidebar,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { user, loading: authLoading, logout } = useAuth();
 
-  // Prefetch critical routes for instant navigation
   useEffect(() => {
     router.prefetch('/');
     router.prefetch('/auth/login');
@@ -45,141 +52,229 @@ const Header = React.memo(function Header({
     setTheme(themes[nextIndex]);
   };
 
-  const handleOpenContextFinder = () => {
-    router.push('/ai-context-finder');
-  };
-
   const themeIcons: Record<Theme, React.ReactNode> = {
     light: <SunIcon className="w-5 h-5" />,
     dark:  <MoonIcon className="w-5 h-5" />,
     system: <SystemIcon className="w-5 h-5" />,
   };
 
+  const isActive = (href: string) => pathname === href;
+
   return (
     <header className="
       fixed top-0 left-0 right-0 z-50
-      bg-white/80 dark:bg-brand-navy/90
-      backdrop-blur-md
-      border-b border-emerald-100/60 dark:border-white/5
+      bg-white/90 dark:bg-brand-bg-dark/90
+      backdrop-blur-lg
+      border-b border-emerald-100/40 dark:border-emerald-900/20
       transition-all duration-300
-      shadow-sm dark:shadow-brand-navy
     ">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
 
-        {/* Left — hamburger + logo */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onToggleSidebar}
-            className="lg:hidden p-2 rounded-xl text-gray-600 dark:text-gray-300 cursor-pointer
-                       hover:bg-emerald-50 dark:hover:bg-white/10 transition-colors"
-            aria-label="Toggle sidebar"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          {/* Logo / brand mark */}
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 group cursor-pointer"
-            aria-label="Go to home"
-          >
-            <Image
-              src="/logo.png"
-              alt="Maududi's Legacy"
-              width={180}
-              height={48}
-              className="h-8 sm:h-12 w-auto object-contain"
-              priority
-            />
-          </button>
-        </div>
-
-        {/* Right — actions */}
-        <div className="flex items-center gap-1.5">
-          {/* AI Context Finder */}
-          <button
-            onClick={handleOpenContextFinder}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer
-                       text-brand-green dark:text-brand-green-dark
-                       hover:bg-emerald-50 dark:hover:bg-emerald-950/50
-                       border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800
-                       transition-all duration-200"
-            aria-label="Open AI Context Finder"
-          >
-            <SparklesIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">AI Search</span>
-          </button>
-
-          {/* Auth */}
-          {authLoading ? null : user ? (
-            <div className="relative">
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer
-                           text-gray-700 dark:text-gray-200
-                           hover:bg-gray-100 dark:hover:bg-white/10
-                           border border-transparent hover:border-gray-200 dark:hover:border-white/10
-                           transition-all duration-200"
-                aria-label="User menu"
-              >
-                <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">
-                  {(user.display_name || user.username)[0].toUpperCase()}
-                </div>
-                <span className="hidden sm:inline">{user.display_name || user.username}</span>
-              </button>
-
-              {userMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-50 w-48 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
-                    <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
-                      {user.email}
-                    </div>
-                    <button
-                      onClick={() => { setUserMenuOpen(false); router.push('/auth/settings'); }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-                    >
-                      Account Settings
-                    </button>
-                    <button
-                      onClick={() => { logout(); setUserMenuOpen(false); router.push('/'); }}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
+          {/* Left — hamburger + logo */}
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push('/auth/login')}
-              className="px-3 py-2 rounded-xl text-sm font-medium cursor-pointer
-                         bg-emerald-600 hover:bg-emerald-700 text-white
-                         transition-colors duration-200"
-              aria-label="Sign in"
+              onClick={onToggleSidebar}
+              className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400
+                         hover:bg-emerald-50 dark:hover:bg-white/5 transition-colors"
+              aria-label="Toggle sidebar"
             >
-              Sign In
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
-          )}
 
-          {/* Theme toggle */}
-          <button
-            onClick={handleThemeChange}
-            className="p-2.5 rounded-xl cursor-pointer
-                       text-gray-500 dark:text-gray-400
-                       hover:bg-gray-100 dark:hover:bg-white/10
-                       hover:text-brand-green dark:hover:text-brand-green-dark
-                       border border-transparent hover:border-gray-200 dark:hover:border-white/10
-                       transition-all duration-200"
-            aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} mode`}
-          >
-            {themeIcons[theme]}
-          </button>
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center gap-2.5 group"
+              aria-label="Go to home"
+            >
+              <Image
+                src="/logo.png"
+                alt="Maududi's Legacy"
+                width={160}
+                height={40}
+                className="h-8 sm:h-10 w-auto object-contain"
+                priority
+              />
+              <span className="hidden sm:inline text-lg font-display font-semibold
+                               text-gray-800 dark:text-gray-100
+                               group-hover:text-brand-green dark:group-hover:text-brand-green-dark
+                               transition-colors">
+                Maududi&apos;s Legacy
+              </span>
+            </button>
+          </div>
+
+          {/* Center — desktop nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <button
+                key={link.href}
+                onClick={() => router.push(link.href)}
+                className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer
+                  ${isActive(link.href)
+                    ? 'text-brand-green dark:text-brand-green-dark bg-emerald-50 dark:bg-emerald-950/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-white/5'
+                  }`}
+              >
+                {link.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Right — actions */}
+          <div className="flex items-center gap-1.5">
+            {/* Mobile nav toggle */}
+            <button
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              className="md:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400
+                         hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {mobileNavOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+
+            {/* AI Context Finder */}
+            <button
+              onClick={() => router.push('/ai-context-finder')}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium
+                         text-brand-green dark:text-brand-green-dark
+                         hover:bg-emerald-50 dark:hover:bg-emerald-950/40
+                         border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800/40
+                         transition-all duration-200 cursor-pointer"
+              aria-label="Open AI Context Finder"
+            >
+              <SparklesIcon className="w-4 h-4" />
+              <span>AI Search</span>
+            </button>
+
+            {/* Auth */}
+            {authLoading ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+            ) : user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
+                             text-gray-700 dark:text-gray-200
+                             hover:bg-gray-50 dark:hover:bg-white/5
+                             border border-transparent hover:border-gray-200 dark:hover:border-white/10
+                             transition-all duration-200 cursor-pointer"
+                  aria-label="User menu"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-green to-brand-blue flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                    {(user.display_name || user.username)[0].toUpperCase()}
+                  </div>
+                  <span className="hidden sm:inline max-w-[100px] truncate">{user.display_name || user.username}</span>
+                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-xl bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5 py-1.5 overflow-hidden">
+                      <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.display_name || user.username}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{user.email}</p>
+                      </div>
+                      <button
+                        onClick={() => { setUserMenuOpen(false); router.push('/auth/settings'); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Account Settings
+                      </button>
+                      <button
+                        onClick={() => { logout(); setUserMenuOpen(false); router.push('/'); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => router.push('/auth/login')}
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200
+                             hover:bg-gray-50 dark:hover:bg-white/5
+                             border border-gray-200 dark:border-gray-700
+                             transition-all duration-200 cursor-pointer hidden sm:block"
+                  aria-label="Sign in"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => router.push('/auth/register')}
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-white
+                             bg-gradient-to-r from-brand-green to-brand-blue
+                             hover:from-brand-green hover:to-brand-blue
+                             shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
+                             transition-all duration-200 cursor-pointer"
+                  aria-label="Create account"
+                >
+                  Get Started
+                </button>
+              </div>
+            )}
+
+            {/* Theme toggle */}
+            <button
+              onClick={handleThemeChange}
+              className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400
+                         hover:bg-gray-50 dark:hover:bg-white/5
+                         hover:text-brand-green dark:hover:text-brand-green-dark
+                         transition-all duration-200 cursor-pointer"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} mode`}
+            >
+              {themeIcons[theme]}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile nav dropdown */}
+        {mobileNavOpen && (
+          <div className="md:hidden border-t border-gray-100 dark:border-gray-800 py-2 pb-3 animate-fade-in-up">
+            {navLinks.map((link) => (
+              <button
+                key={link.href}
+                onClick={() => { router.push(link.href); setMobileNavOpen(false); }}
+                className={`block w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+                  ${isActive(link.href)
+                    ? 'text-brand-green dark:text-brand-green-dark bg-emerald-50 dark:bg-emerald-950/40'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
+                  }`}
+              >
+                {link.label}
+              </button>
+            ))}
+            <button
+              onClick={() => { router.push('/ai-context-finder'); setMobileNavOpen(false); }}
+              className="flex items-center gap-2 w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-brand-green dark:text-brand-green-dark hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer sm:hidden"
+            >
+              <SparklesIcon className="w-4 h-4" />
+              AI Search
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );
