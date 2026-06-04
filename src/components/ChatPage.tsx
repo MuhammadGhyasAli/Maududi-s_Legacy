@@ -24,6 +24,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
@@ -45,6 +46,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setInput('');
     setIsLoading(true);
     setError(null);
+    setLoadingStatus('Researching...');
+    const statusTimer = setTimeout(() => setLoadingStatus('Generating response...'), 3000);
 
     try {
         const currentApiMessages = apiMessagesRef.current;
@@ -67,6 +70,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       setMessages(prev => prev.slice(0, prev.length -1));
       setInput(textToSend);
     } finally {
+      clearTimeout(statusTimer);
+      setLoadingStatus('');
       setIsLoading(false);
     }
   }, [input, isLoading, selectedLanguage, book.id, book.aiContext]);
@@ -127,34 +132,42 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   return (
     <div className="flex flex-col h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
       
-      {/* Floating Action Buttons */}
-      <div className="fixed top-4 left-4 z-50">
-        <button onClick={onBack} className="cursor-pointer p-2.5 bg-white/80 dark:bg-brand-card-dark/80 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-full shadow-sm hover:bg-white dark:hover:bg-brand-card-dark text-gray-600 dark:text-gray-300 transition-colors" title="Back to library">
-          <ArrowLeftIcon className="w-5 h-5" />
-        </button>
-      </div>
-
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <button onClick={handleCopyChat} className="cursor-pointer p-2.5 bg-white/80 dark:bg-brand-card-dark/80 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-full shadow-sm hover:bg-white dark:hover:bg-brand-card-dark text-gray-600 dark:text-gray-300 transition-colors" title="Copy Chat">
-          <ClipboardIcon className="w-5 h-5" />
-        </button>
-        <button 
-          onClick={handleClearChat} 
-          className={`cursor-pointer p-2.5 backdrop-blur-md border rounded-full shadow-sm transition-colors flex items-center justify-center gap-2
-            ${showClearConfirm 
-              ? 'bg-red-500 hover:bg-red-600 text-white border-red-600' 
-              : 'bg-white/80 dark:bg-brand-card-dark/80 border-gray-200/50 dark:border-white/10 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300'
-            }`} 
-          title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
-        >
-          <TrashIcon className="w-5 h-5" />
-          {showClearConfirm && <span className="text-sm pr-1 font-medium text-white">Confirm</span>}
-        </button>
+      {/* Slim top bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 h-14 bg-white/90 dark:bg-brand-bg-dark/90 backdrop-blur-lg border-b border-emerald-100/40 dark:border-emerald-900/20">
+        <div className="flex items-center justify-between h-full px-4 max-w-5xl mx-auto">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={onBack} className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all duration-200 whitespace-nowrap" title="Back to library">
+              <ArrowLeftIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </button>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[200px] sm:max-w-[400px]">
+              {book.title}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button onClick={handleCopyChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Copy Chat">
+              <ClipboardIcon className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={handleClearChat} 
+              className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
+                showClearConfirm 
+                  ? 'bg-red-500 text-white' 
+                  : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
+              }`}
+              title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
+            >
+              <TrashIcon className="w-4 h-4" />
+              {showClearConfirm && <span className="text-xs font-medium ml-1">Confirm</span>}
+            </button>
+          </div>
+        </div>
       </div>
 
       <ChatMessageList 
         messages={messages} 
         isLoading={isLoading} 
+        loadingStatus={loadingStatus}
         selectedLanguage={selectedLanguage}
         onNavigateToBook={onNavigateToBook}
         books={books}

@@ -128,7 +128,7 @@ export default function TermsPage() {
           For questions about these Terms, please contact us at:
         </p>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
-          Email: <a href="mailto:legal@maududislegacy.com" className="text-brand-green dark:text-brand-green-dark hover:underline">legal@maududislegacy.com</a>
+          Email: <a href="mailto:ghyasnaqvi05@gmail.com" className="text-brand-green dark:text-brand-green-dark hover:underline">ghyasnaqvi05@gmail.com</a>
         </p>
       </section>
     </main>

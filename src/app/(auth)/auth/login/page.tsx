@@ -118,18 +118,7 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="relative my-7">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200 dark:border-gray-700/60" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="px-3 text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-brand-card-dark">
-            or
-          </span>
-        </div>
-      </div>
-
-      <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
         Don&apos;t have an account?{' '}
         <Link href="/auth/register" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
           Create one

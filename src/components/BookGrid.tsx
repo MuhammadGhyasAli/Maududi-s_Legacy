@@ -32,6 +32,21 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { user } = useAuth();
   const [readingPrefCategories, setReadingPrefCategories] = useState<string[] | null>(null);
+  const [recentBooks, setRecentBooks] = useState<Book[]>([]);
+
+  useEffect(() => {
+    if (!user || category) return;
+    apiService.getReadingHistory()
+      .then(history => {
+        const slugs = history.slice(0, 8).map((h: { slug: string }) => h.slug);
+        const matched = books.filter(b => {
+          const slug = b.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+          return slugs.includes(slug);
+        });
+        setRecentBooks(matched);
+      })
+      .catch(() => setRecentBooks([]));
+  }, [user, category, books]);
 
   useEffect(() => {
     if (sortBy === 'reading-preference' && user) {
@@ -196,25 +211,52 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             : []),
         ]} />
 
-        {/* Hero section */}
-        <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 mb-5 px-3.5 py-1.5 rounded-full text-xs font-semibold
-                          bg-emerald-50 dark:bg-emerald-900/30
-                          text-emerald-700 dark:text-emerald-300
-                          border border-emerald-200/60 dark:border-emerald-800/50
-                          shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-            Islamic Scholarship Library
+        {/* Compact hero */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold
+                            bg-emerald-50 dark:bg-emerald-900/30
+                            text-emerald-700 dark:text-emerald-300
+                            border border-emerald-200/60 dark:border-emerald-800/50
+                            shadow-sm shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+              Islamic Scholarship Library
+            </span>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+              <span className="gradient-text">Works of Maududi</span>
+            </h1>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-[1.1] tracking-tight">
-            Explore the{' '}
-            <span className="gradient-text">Works of Maududi</span>
-          </h1>
-          <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
-            Search, read, and have AI-powered conversations about the complete writings of
-            Sayyid Abul A&apos;la Maududi — in multiple languages.
+          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-md">
+            Search, read, and have AI-powered conversations about the complete writings — in multiple languages.
           </p>
         </div>
+
+        {/* Continue Reading */}
+        {recentBooks.length > 0 && !category && !debouncedSearch && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Continue Reading</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-emerald-200/60 to-transparent dark:from-emerald-800/30" />
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin -mx-4 px-4 snap-x snap-mandatory">
+              {recentBooks.map(book => (
+                <button
+                  key={book.id}
+                  onClick={() => handleSelectBook(book)}
+                  className="flex-none w-28 snap-start group text-left"
+                >
+                  <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-sm ring-1 ring-gray-200/60 dark:ring-white/10 group-hover:ring-emerald-300 dark:group-hover:ring-emerald-700 transition-all duration-200">
+                    <Image src={book.imageUrl} alt={book.title} fill sizes="112px" className="object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  </div>
+                  <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 mt-1.5 truncate leading-snug group-hover:text-brand-green dark:group-hover:text-brand-green-dark transition-colors">
+                    {book.title}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search */}
         <div className="max-w-xl mx-auto mb-6">
@@ -299,18 +341,36 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             )}
           </>
         ) : (
-          <div className="text-center py-24">
-            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800/60 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-7 h-7 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="text-center py-20">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-950/30 dark:to-cyan-950/30 flex items-center justify-center mx-auto mb-6 ring-1 ring-emerald-200/50 dark:ring-emerald-800/30">
+              <svg className="w-9 h-9 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
-              No books found
+            <p className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
+              {debouncedSearch ? 'No books match your search' : 'No books found'}
             </p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 max-w-xs mx-auto">
-              Try adjusting your search or select a different category.
+            <p className="text-sm text-gray-400 dark:text-gray-500 max-w-sm mx-auto mb-8">
+              {debouncedSearch
+                ? 'Try a different keyword or browse by category below.'
+                : 'Try adjusting your search or select a different category.'}
             </p>
+            {!debouncedSearch && !category && (
+              <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
+                {['Tafsir', 'Politics', 'Theology', 'History'].map(cat => {
+                  const slug = cat.toLowerCase().replace(/\s+/g, '-');
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => router.push(`/${slug}`)}
+                      className="cursor-pointer px-4 py-2 rounded-xl text-sm font-medium bg-white dark:bg-brand-card-dark text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:text-brand-green dark:hover:text-brand-green-dark hover:shadow-sm transition-all duration-200"
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </main>

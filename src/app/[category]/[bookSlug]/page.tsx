@@ -97,7 +97,6 @@ export default function BookPage() {
     <BookDetail
       book={book}
       onBack={() => router.back()}
-      onReadPdf={() => window.open(book.pdfUrl, "_blank", "noopener,noreferrer")}
       onStartChat={() => router.push(`/${category}/${bookSlug}/chat`)}
     />
   );

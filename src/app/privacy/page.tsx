@@ -17,7 +17,7 @@ export default function PrivacyPage() {
       <section className="mb-10">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">1. Introduction</h2>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-          Maududi&apos;s Legacy (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website at maududislegacy.com (the &ldquo;Site&rdquo;).
+          Maududi&apos;s Legacy (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (the &ldquo;Site&rdquo;).
         </p>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
           By using the Site, you agree to the collection and use of information in accordance with this policy.
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
           If you have questions about this Privacy Policy or wish to exercise your data rights, please contact us at:
         </p>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
-          Email: <a href="mailto:privacy@maududislegacy.com" className="text-brand-green dark:text-brand-green-dark hover:underline">privacy@maududislegacy.com</a>
+          Email: <a href="mailto:ghyasnaqvi05@gmail.com" className="text-brand-green dark:text-brand-green-dark hover:underline">ghyasnaqvi05@gmail.com</a>
         </p>
       </section>
     </main>

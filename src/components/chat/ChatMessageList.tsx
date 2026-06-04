@@ -19,6 +19,7 @@ interface ChatMessageListProps {
   parseStructuredResponse?: (text: string) => StructuredResponse | null;
   books?: Book[];
   userDisplayName?: string;
+  loadingStatus?: string;
 }
 
 const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) => void, books: Book[] = []): React.ReactNode[] => {
@@ -94,6 +95,7 @@ const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) =>
 const ChatMessageList: React.FC<ChatMessageListProps> = ({ 
   messages, 
   isLoading, 
+  loadingStatus,
   selectedLanguage, 
   onNavigateToBook,
   parseStructuredResponse,
@@ -205,10 +207,15 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                  <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2 opacity-50">
                   AI Assistant
                 </div>
-                 <div className="flex space-x-1.5 ml-1 mt-1">
-                  <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft"></span>
-                  <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.2s' }}></span>
-                  <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.4s' }}></span>
+                 <div className="flex items-center gap-2 ml-1 mt-1">
+                  <div className="flex space-x-1.5">
+                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft"></span>
+                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.2s' }}></span>
+                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.4s' }}></span>
+                  </div>
+                  {loadingStatus && (
+                    <span className="text-xs text-gray-400 dark:text-gray-500 animate-pulse">{loadingStatus}</span>
+                  )}
                 </div>
               </div>
             </div>

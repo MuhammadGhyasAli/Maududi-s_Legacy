@@ -4,10 +4,12 @@ import { useState, FormEvent, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
+import { useToast } from '../../../../components/Toast';
 
 export default function RegisterPage() {
   const { register, verifyEmail } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -67,6 +69,7 @@ export default function RegisterPage() {
     setVerificationError('');
     try {
       await verifyEmail(code, email);
+      toast('Welcome! Your account is ready');
       router.push('/');
     } catch (err) {
       setVerificationError(err instanceof Error ? err.message : 'Verification failed');
@@ -323,18 +326,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <div className="relative my-7">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200 dark:border-gray-700/60" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="px-3 text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-brand-card-dark">
-            or
-          </span>
-        </div>
-      </div>
-
-      <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
         Already have an account?{' '}
         <Link href="/auth/login" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
           Sign in
