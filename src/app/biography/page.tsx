@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 
 export const metadata = {
   title: "Biography of Sayyid Abul A'la Maududi (1903–1979)",
@@ -157,7 +156,7 @@ export default function BiographyPage() {
             <li>Khutabat (collected addresses) volumes</li>
           </ul>
           <p className="text-sm">
-            For deeper study, explore the <Link href="/category/biography" className="underline hover:text-emerald-600">Biography &amp; Seerah category</Link> in our library.
+            For deeper study, visit the <a href="https://jamaat.org/founder" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-600">official biography on Jamaat-e-Islami</a>.
           </p>
         </div>
       </section>
