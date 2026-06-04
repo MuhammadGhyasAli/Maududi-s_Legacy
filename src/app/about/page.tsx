@@ -47,6 +47,22 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="mb-16 p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-100 dark:border-emerald-900/30">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Why This Platform Exists</h2>
+        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 space-y-3">
+          <p>
+            For decades, students of Islamic thought have faced a persistent problem: Maududi&rsquo;s
+            works — among the most systematic and comprehensive in modern Islamic literature — were
+            scattered across physical libraries, fragmented PDFs, and inconsistent translations.
+          </p>
+          <p>
+            This platform represents a new approach: a unified, intelligent, and accessible
+            digital home for his complete intellectual output. By combining meticulous curation
+            with modern AI, we aim to make his ideas as accessible as they are profound.
+          </p>
+        </div>
+      </section>
+
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">What You Can Do Here</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

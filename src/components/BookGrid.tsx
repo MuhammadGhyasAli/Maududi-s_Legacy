@@ -270,45 +270,30 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
           </p>
         </div>
 
-        {/* Featured / Popular books */}
-        {featuredBooks.length > 0 && !category && !debouncedSearch && !loading && (
+        {/* Featured Works / Last Read Books */}
+        {((user && recentBooks.length > 0) || (!user && featuredBooks.length > 0)) && !category && !debouncedSearch && !loading && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-              </svg>
-              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Featured Works</h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-amber-200/60 to-transparent dark:from-amber-800/30" />
+              {user ? (
+                <>
+                  <svg className="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" d="M12 1.5a10.5 10.5 0 100 21 10.5 10.5 0 000-21zM10.75 4.75a.75.75 0 00-1.5 0v3.5H5.75a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z" clipRule="evenodd" />
+                  </svg>
+                  <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Last Read Books</h2>
+                  <div className="h-px flex-1 bg-gradient-to-r from-emerald-200/60 to-transparent dark:from-emerald-800/30" />
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022 .001-.704 0l-.003-.001z" />
+                  </svg>
+                  <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Featured Works</h2>
+                  <div className="h-px flex-1 bg-gradient-to-r from-amber-200/60 to-transparent dark:from-amber-800/30" />
+                </>
+              )}
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin -mx-4 px-4 snap-x snap-mandatory">
-              {featuredBooks.map(book => (
-                <button
-                  key={book.id}
-                  onClick={() => handleSelectBook(book)}
-                  className="flex-none w-28 snap-start group text-left"
-                >
-                  <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-sm ring-1 ring-gray-200/60 dark:ring-white/10 group-hover:ring-amber-300 dark:group-hover:ring-amber-700 transition-all duration-200">
-                    <Image src={book.imageUrl} alt={book.title} fill sizes="112px" className="object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  </div>
-                  <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 mt-1.5 truncate leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                    {book.title}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Continue Reading */}
-        {recentBooks.length > 0 && !category && !debouncedSearch && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Continue Reading</h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-emerald-200/60 to-transparent dark:from-emerald-800/30" />
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin -mx-4 px-4 snap-x snap-mandatory">
-              {recentBooks.map(book => (
+              {(user ? recentBooks : featuredBooks).map(book => (
                 <button
                   key={book.id}
                   onClick={() => handleSelectBook(book)}
@@ -318,7 +303,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
                     <Image src={book.imageUrl} alt={book.title} fill sizes="112px" className="object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   </div>
-                  <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 mt-1.5 truncate leading-snug group-hover:text-brand-green dark:group-hover:text-brand-green-dark transition-colors">
+                  <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 mt-1.5 truncate leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                     {book.title}
                   </p>
                 </button>
@@ -326,6 +311,8 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
             </div>
           </div>
         )}
+
+
 
         {/* Search */}
         <div className="max-w-xl mx-auto mb-6">
