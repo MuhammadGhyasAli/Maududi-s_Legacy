@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Book } from '../types';
+import BookOpenIcon from './icons/BookOpenIcon';
 import ChatIcon from './icons/ChatIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
+import PdfReaderPanel from './PdfReaderPanel';
 
 interface BookDetailProps {
   book: Book;
@@ -15,6 +17,7 @@ interface BookDetailProps {
 
 const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) => {
   const [imageError, setImageError] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
 
   return (
     <>
@@ -121,6 +124,20 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 mt-auto">
                 <button
+                  onClick={() => setPdfOpen(true)}
+                  className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2.5
+                             px-6 py-3.5 rounded-xl font-semibold text-sm
+                             bg-white dark:bg-brand-card-dark text-gray-800 dark:text-gray-200
+                             hover:bg-gray-50 dark:hover:bg-white/5
+                             border border-gray-200 dark:border-gray-700
+                             shadow-sm hover:shadow-md
+                             active:scale-[0.98]
+                             transition-all duration-200 group"
+                >
+                  <BookOpenIcon className="w-5 h-5 text-gray-400 group-hover:text-brand-green dark:group-hover:text-brand-green-dark transition-colors duration-200" />
+                  <span>Read PDF</span>
+                </button>
+                <button
                   onClick={onStartChat}
                   className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2.5
                              px-6 py-3.5 rounded-xl font-semibold text-sm text-white
@@ -150,6 +167,13 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
           </motion.div>
         </div>
       </main>
+
+      <PdfReaderPanel
+        isOpen={pdfOpen}
+        onClose={() => setPdfOpen(false)}
+        pdfUrl={book.pdfUrl}
+        title={book.title}
+      />
     </>
   );
 };
