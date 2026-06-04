@@ -123,19 +123,19 @@ export default function SettingsPage() {
         <section className="bg-white dark:bg-brand-card-dark rounded-2xl p-6 shadow-card dark:shadow-black/30 border border-gray-200/60 dark:border-white/5">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Profile</h2>
           {profileMsg && (
-            <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-700 dark:text-emerald-300">{profileMsg}</div>
+            <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-700 dark:text-emerald-300" role="status">{profileMsg}</div>
           )}
           {profileErr && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300">{profileErr}</div>
+            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300" role="alert">{profileErr}</div>
           )}
           <form onSubmit={handleProfileSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
-              <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
+              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
+              <input id="displayName" type="text" value={displayName} onChange={e => setDisplayName(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
+              <label htmlFor="settingsEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <input id="settingsEmail" type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
             </div>
             <button type="submit" disabled={profileLoading} className="px-6 py-2.5 rounded-lg bg-gradient-brand hover:opacity-90 text-white font-medium disabled:opacity-50 transition-all cursor-pointer">
               {profileLoading ? 'Saving...' : 'Save Changes'}
@@ -147,23 +147,23 @@ export default function SettingsPage() {
         <section className="bg-white dark:bg-brand-card-dark rounded-2xl p-6 shadow-card dark:shadow-black/30 border border-gray-200/60 dark:border-white/5">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Change Password</h2>
           {passwordMsg && (
-            <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-700 dark:text-emerald-300">{passwordMsg}</div>
+            <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-700 dark:text-emerald-300" role="status">{passwordMsg}</div>
           )}
           {passwordErr && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300">{passwordErr}</div>
+            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300" role="alert">{passwordErr}</div>
           )}
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
-              <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
+              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
+              <input id="currentPassword" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required autoComplete="current-password" className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
-              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
+              <input id="newPassword" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={6} autoComplete="new-password" className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
-              <input type="password" value={confirmNewPassword} onChange={e => setConfirmNewPassword(e.target.value)} required minLength={6} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
+              <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
+              <input id="confirmNewPassword" type="password" value={confirmNewPassword} onChange={e => setConfirmNewPassword(e.target.value)} required minLength={6} autoComplete="new-password" className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all duration-200" />
             </div>
             <button type="submit" disabled={passwordLoading} className="px-6 py-2.5 rounded-lg bg-gradient-brand hover:opacity-90 text-white font-medium disabled:opacity-50 transition-all cursor-pointer">
               {passwordLoading ? 'Changing...' : 'Change Password'}
@@ -176,7 +176,7 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold text-red-600 dark:text-red-400 mb-2">Danger Zone</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
           {deleteErr && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300">{deleteErr}</div>
+            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300" role="alert">{deleteErr}</div>
           )}
 
           {!showDeleteConfirm ? (
@@ -186,7 +186,7 @@ export default function SettingsPage() {
           ) : (
             <div className="space-y-4">
               <p className="text-sm font-medium text-red-600 dark:text-red-400">Type your password to confirm deletion:</p>
-              <input type="password" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} placeholder="Enter your password" className="w-full px-4 py-3 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200" />
+              <input type="password" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} placeholder="Enter your password" autoComplete="off" className="w-full px-4 py-3 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200" />
               <div className="flex gap-3">
                 <button onClick={handleDeleteAccount} disabled={deleteLoading || !deletePassword} className="px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium disabled:opacity-50 transition-colors cursor-pointer">
                   {deleteLoading ? 'Deleting...' : 'Confirm Delete'}

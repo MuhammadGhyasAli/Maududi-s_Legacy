@@ -8,7 +8,7 @@ import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import ClipboardIcon from './icons/ClipboardIcon';
 import { useToast } from './Toast';
-import ChatMessageList from './chat/ChatMessageList';
+import ChatMessageList, { StructuredResponse } from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
 
 interface AiContextFinderPageProps {
@@ -19,14 +19,6 @@ interface ConversationPart {
   sender: MessageSender;
   text: string;
   image?: string;
-}
-
-interface StructuredResponse {
-    bookTitle?: string;
-    chapter?: string;
-    page?: string;
-    context?: string;
-    remainingText: string;
 }
 
 const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];

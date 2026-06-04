@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import SunIcon from './icons/SunIcon';
@@ -57,8 +58,6 @@ const Header = React.memo(function Header({
     system: <SystemIcon className="w-5 h-5" />,
   };
 
-  const isActive = (href: string) => pathname === href;
-
   return (
     <header className="
       fixed top-0 left-0 right-0 z-50
@@ -109,19 +108,22 @@ const Header = React.memo(function Header({
 
           {/* Center — desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => router.push(link.href)}
-                className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer
-                  ${isActive(link.href)
-                    ? 'text-brand-green dark:text-brand-green-dark bg-emerald-50 dark:bg-emerald-950/40'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
-              >
-                {link.label}
-              </button>
-            ))}
+            {navLinks.map((link) => {
+              const isActiveLink = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200
+                    ${isActiveLink
+                      ? 'text-brand-green dark:text-brand-green-dark bg-emerald-50 dark:bg-emerald-950/40'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-white/5'
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right — actions */}
@@ -153,6 +155,8 @@ const Header = React.memo(function Header({
                              border border-transparent hover:border-gray-200 dark:hover:border-white/10
                              transition-all duration-200 cursor-pointer"
                   aria-label="User menu"
+                  aria-haspopup="true"
+                  aria-expanded={userMenuOpen}
                 >
                   <div className="w-7 h-7 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold shadow-sm">
                     {(user.display_name || user.email)[0].toUpperCase()}

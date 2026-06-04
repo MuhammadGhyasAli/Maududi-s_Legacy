@@ -204,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
             </h2>
           )}
           <button
-            onClick={onCollapse}
+            onClick={() => onCollapse?.()}
             className="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50
                        text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark
                        border border-gray-200 dark:border-white/10 transition-all duration-200 motion-reduce:transition-none"

@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "About — Maududi's Legacy",
+  title: "About",
   description:
     "Learn about Maududi's Legacy — a digital archive preserving and providing intelligent access to the works of Sayyid Abul A'la Maududi.",
 };

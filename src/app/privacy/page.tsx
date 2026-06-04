@@ -1,7 +1,7 @@
 import React from "react";
 
 export const metadata = {
-  title: "Privacy Policy — Maududi's Legacy",
+  title: "Privacy Policy",
   description:
     "Privacy Policy for Maududi's Legacy digital archive. Learn how we collect, use, and protect your personal data.",
 };
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
           If you have questions about this Privacy Policy or wish to exercise your data rights, please contact us at:
         </p>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
-          Email: privacy@maududislegacy.com
+          Email: <a href="mailto:privacy@maududislegacy.com" className="text-brand-green dark:text-brand-green-dark hover:underline">privacy@maududislegacy.com</a>
         </p>
       </section>
     </main>

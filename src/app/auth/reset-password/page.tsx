@@ -73,9 +73,9 @@ function ResetPasswordForm() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-12
                       bg-gradient-to-b from-emerald-50/50 via-white to-white
-                      dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-brand-bg-dark">
-      <div className="fixed top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 -right-32 w-96 h-96 bg-brand-green/10 dark:bg-brand-green/5 rounded-full blur-3xl pointer-events-none" />
+                      dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-brand-bg-dark
+                      bg-auth-pattern">
+
 
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
@@ -91,11 +91,12 @@ function ResetPasswordForm() {
           </Link>
         </div>
 
-        <div className="relative bg-white dark:bg-brand-card-dark rounded-2xl shadow-xl shadow-emerald-500/5 dark:shadow-black/20 border border-emerald-100/60 dark:border-emerald-900/20 overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-brand-green via-brand-blue to-brand-green" />
+        <div className="relative bg-white dark:bg-brand-card-dark rounded-2xl shadow-[0_0_40px_-12px_rgba(5,150,105,0.12)] dark:shadow-[0_0_40px_-12px_rgba(5,150,105,0.06)] border border-emerald-100/60 dark:border-emerald-900/20 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-brand-green/[0.03] to-transparent pointer-events-none" />
 
           <div className="p-8 sm:p-10">
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-gray-50 text-center mb-1">
+            <div className="w-12 h-1 bg-gradient-brand rounded-full mx-auto mb-6" />
+            <h1 className="text-2xl sm:text-3xl font-display font-bold gradient-text text-center mb-1.5">
               Reset password
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-8">
@@ -104,7 +105,7 @@ function ResetPasswordForm() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-300">
+                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-300" role="alert">
                   <svg className="w-5 h-5 mt-0.5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -113,7 +114,7 @@ function ResetPasswordForm() {
               )}
 
               {success && (
-                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-sm text-emerald-700 dark:text-emerald-300">
+                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-sm text-emerald-700 dark:text-emerald-300" role="status">
                   <svg className="w-5 h-5 mt-0.5 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -227,7 +228,7 @@ function ResetPasswordForm() {
                 type="submit"
                 disabled={loading}
                 className="w-full py-2.5 px-4 rounded-xl text-white font-semibold
-                           bg-gradient-brand hover:opacity-90
+                           bg-gradient-brand hover:opacity-90 active:scale-[0.98]
                            shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
                            disabled:opacity-50 disabled:cursor-not-allowed
                            transition-all duration-200 cursor-pointer"

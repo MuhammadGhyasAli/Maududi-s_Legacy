@@ -11,11 +11,7 @@ import { deslugifyCategory } from "../../utils/slugify";
 export default function CategoryPage() {
   const params = useParams();
   const category = params?.category as string | undefined;
-  const categoryName = category ? deslugifyCategory(category) : 'All';
 
-  useEffect(() => {
-    document.title = categoryName !== 'All' ? `${categoryName} - Maududi's Legacy` : "Maududi's Legacy";
-  }, [categoryName]);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +49,7 @@ export default function CategoryPage() {
   }
 
   if (error) {
-    const isInvalidCategory = error.includes('Invalid category');
+    const isInvalidCategory = error?.toLowerCase().includes('invalid category') || error?.toLowerCase().includes('not found');
     return (
       <main className="flex-1 container mx-auto px-4 py-16 flex items-center justify-center">
         <div className="max-w-md w-full bg-white dark:bg-brand-card-dark rounded-2xl p-8 text-center

@@ -45,7 +45,7 @@ export default function BookChatPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
       </div>
     );
   }
@@ -55,7 +55,7 @@ export default function BookChatPage() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-600 dark:text-gray-400">
         <p className="text-lg mb-4">Failed to load books</p>
         <p className="text-sm mb-6">{error}</p>
-        <button onClick={() => router.back()} className="px-4 py-2 bg-brand-primary text-white rounded hover:opacity-90">
+        <button onClick={() => router.back()} className="px-4 py-2 bg-emerald-600 text-white rounded hover:opacity-90">
           Go Back
         </button>
       </div>
@@ -67,7 +67,7 @@ export default function BookChatPage() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-600 dark:text-gray-400">
         <p className="text-lg mb-4">Book not found</p>
         <p className="text-sm mb-6">The book "{bookSlug}" could not be found.</p>
-        <button onClick={() => router.back()} className="px-4 py-2 bg-brand-primary text-white rounded hover:opacity-90">
+        <button onClick={() => router.back()} className="px-4 py-2 bg-emerald-600 text-white rounded hover:opacity-90">
           Go Back
         </button>
       </div>

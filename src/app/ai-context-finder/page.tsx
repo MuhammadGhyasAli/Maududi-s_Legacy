@@ -4,6 +4,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { Book } from "../../types";
+import { slugify } from "../../utils/slugify";
 
 const AiContextFinderPage = dynamic(() => import("../../components/AiContextFinderModal"), {
   loading: () => (
@@ -13,20 +14,12 @@ const AiContextFinderPage = dynamic(() => import("../../components/AiContextFind
   ),
 });
 
-function slugifyTitle(title: string) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
-
 export default function AiContextFinderRoute() {
   const router = useRouter();
 
   const onNavigateToBook = (book: Book) => {
     // Best-effort: route via "all" category.
-    router.push(`/all/${slugifyTitle(book.title)}`);
+    router.push(`/all/${slugify(book.title)}`);
   };
 
   return <AiContextFinderPage onNavigateToBook={onNavigateToBook} />;

@@ -87,14 +87,14 @@ export default function BiographyPage() {
   return (
     <main className="flex-1">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/80 via-white to-white dark:from-brand-navy dark:to-brand-bg-dark">
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/80 via-white to-white dark:from-brand-navy dark:via-brand-bg-dark dark:to-brand-bg-dark">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-emerald-100/40 dark:bg-emerald-900/10 blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-amber-100/30 dark:bg-amber-900/10 blur-3xl" />
         </div>
         <div className="container mx-auto px-6 py-20 md:py-28 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-24 h-24 rounded-2xl bg-gradient-brand flex items-center justify-center mx-auto mb-6 shadow-emerald/30 shadow-lg">
+            <div className="w-24 h-24 rounded-2xl bg-gradient-brand flex items-center justify-center mx-auto mb-6 shadow-lg">
               <span className="text-4xl" aria-hidden="true">📝</span>
             </div>
             <p className="text-sm font-semibold tracking-widest uppercase text-emerald-600 dark:text-emerald-400 mb-4">
@@ -169,10 +169,10 @@ export default function BiographyPage() {
             <h2 className="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-gray-100 mb-12 text-center">
               Life Timeline
             </h2>
-            <div className="relative">
-              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-300 via-emerald-500 to-amber-400 dark:from-emerald-700 dark:via-emerald-600 dark:to-amber-600" />
+            <ol className="relative" aria-label="Life timeline">
+              <li className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-300 via-emerald-500 to-amber-400 dark:from-emerald-700 dark:via-emerald-600 dark:to-amber-600" aria-hidden="true" />
               {timeline.map((item, i) => (
-                <div key={item.year} className={`relative flex items-start gap-6 mb-10 md:mb-12 ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                <li key={item.year} className={`relative flex items-start gap-6 mb-10 md:mb-12 ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                   <div className={`hidden md:block w-1/2 ${i % 2 === 0 ? 'text-right pr-10' : 'text-left pl-10'}`}>
                     <div className={`bg-white dark:bg-brand-card-dark rounded-2xl p-5 shadow-sm border border-emerald-100/60 dark:border-white/5 ${i % 2 === 0 ? '' : ''}`}>
                       <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
@@ -181,7 +181,7 @@ export default function BiographyPage() {
                     </div>
                   </div>
                   <div className="flex items-center md:absolute md:left-1/2 md:-translate-x-1/2 z-10">
-                    <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center shadow-emerald/30 shadow-sm flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center shadow-sm flex-shrink-0">
                       <span className="text-white text-xs font-bold">{i + 1}</span>
                     </div>
                     <span className="ml-3 md:hidden font-bold text-emerald-600 dark:text-emerald-400 text-sm">
@@ -203,9 +203,9 @@ export default function BiographyPage() {
                       {item.year}
                     </span>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ol>
           </div>
         </div>
       </section>

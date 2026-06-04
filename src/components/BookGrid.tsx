@@ -135,10 +135,10 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
             <span aria-hidden="true">📚</span>
             <span>Islamic Scholarship Library</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight">
             Explore the{' '}
             <span className="gradient-text">Works of Maududi</span>
-          </h2>
+          </h1>
           <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
             Search, read, and have AI-powered conversations about the complete writings of
             Sayyid Abul A'la Maududi — in multiple languages.

@@ -1,7 +1,7 @@
 import React from "react";
 
 export const metadata = {
-  title: "Terms of Service — Maududi's Legacy",
+  title: "Terms of Service",
   description:
     "Terms of Service for Maududi's Legacy digital archive. Please read these terms carefully before using the Site.",
 };
@@ -128,7 +128,7 @@ export default function TermsPage() {
           For questions about these Terms, please contact us at:
         </p>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
-          Email: legal@maududislegacy.com
+          Email: <a href="mailto:legal@maududislegacy.com" className="text-brand-green dark:text-brand-green-dark hover:underline">legal@maududislegacy.com</a>
         </p>
       </section>
     </main>
