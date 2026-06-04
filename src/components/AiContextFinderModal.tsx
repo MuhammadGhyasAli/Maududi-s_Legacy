@@ -106,6 +106,11 @@ If the user's message includes an image, you MUST follow this two-step process w
           sender: MessageSender.AI,
           text: `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`,
       }]);
+    }).catch(() => {
+      setConversation([{
+          sender: MessageSender.AI,
+          text: `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`,
+      }]);
     });
   }, []);
   
