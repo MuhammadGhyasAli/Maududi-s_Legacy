@@ -88,7 +88,11 @@ function getAuthToken(): string | null {
 }
 
 async function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  const response = await fetch(url, options);
+  const merged: RequestInit = {
+    ...options,
+    credentials: 'include',
+  };
+  const response = await fetch(url, merged);
   return handleApiResponse(response);
 }
 
@@ -295,19 +299,17 @@ export const apiService = {
   },
 
   // Get current user
-  getMe: async (token: string): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
-    const response = await apiFetch('/api/auth/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  getMe: async (): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
+    const response = await apiFetch('/api/auth/me');
     if (!response.ok) throw new Error('Failed to get user info');
     return response.json();
   },
 
   // Update profile (display_name, email)
-  updateProfile: async (token: string, data: { display_name?: string; email?: string }): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
+  updateProfile: async (data: { display_name?: string; email?: string }): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
     const response = await apiFetch('/api/auth/me', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -318,10 +320,10 @@ export const apiService = {
   },
 
   // Change password
-  changePassword: async (token: string, current_password: string, new_password: string): Promise<{ message: string }> => {
+  changePassword: async (current_password: string, new_password: string): Promise<{ message: string }> => {
     const response = await apiFetch('/api/auth/password', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ current_password, new_password }),
     });
     if (!response.ok) {
@@ -332,10 +334,10 @@ export const apiService = {
   },
 
   // Delete account
-  deleteAccount: async (token: string, password: string): Promise<{ message: string }> => {
+  deleteAccount: async (password: string): Promise<{ message: string }> => {
     const response = await apiFetch('/api/auth/me', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     });
     if (!response.ok) {
@@ -347,11 +349,9 @@ export const apiService = {
 
   // Record reading history
   recordReadingHistory: async (bookId: number, title: string, slug: string, imageUrl: string, category: string): Promise<void> => {
-    const token = getAuthToken();
-    if (!token) return;
     const response = await apiFetch('/api/reading-history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bookId, title, slug, imageUrl, category }),
     });
     if (!response.ok) {
@@ -362,11 +362,7 @@ export const apiService = {
 
   // Get reading history
   getReadingHistory: async (): Promise<any[]> => {
-    const token = getAuthToken();
-    if (!token) return [];
-    const response = await apiFetch('/api/reading-history', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await apiFetch('/api/reading-history');
     if (!response.ok) return [];
     return response.json();
   },
@@ -411,6 +407,11 @@ export const apiService = {
       throw new Error(err.error || 'Failed to reset password');
     }
     return response.json();
+  },
+
+  // Logout
+  logout: async (): Promise<void> => {
+    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
   },
 
   // Clear cache (useful after mutations)

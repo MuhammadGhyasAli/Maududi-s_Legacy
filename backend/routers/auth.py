@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pymongo.database import Database
 from pydantic import BaseModel, field_validator
@@ -17,6 +18,35 @@ logger = get_logger(__name__)
 router = APIRouter()
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+COOKIE_NAME = "auth_token"
+
+
+def set_auth_cookie(response: Response, token: str) -> None:
+    max_age = settings.jwt_expiration_minutes * 60
+    secure = os.environ.get("VERCEL") == "1"
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        max_age=max_age,
+        expires=max_age,
+        httponly=True,
+        secure=secure,
+        samesite="lax",
+        path="/",
+    )
+
+
+def clear_auth_cookie(response: Response) -> None:
+    secure = os.environ.get("VERCEL") == "1"
+    response.delete_cookie(
+        key=COOKIE_NAME,
+        path="/",
+        httponly=True,
+        secure=secure,
+        samesite="lax",
+    )
 
 
 # ── Schemas ──
@@ -133,10 +163,18 @@ def decode_access_token(token: str) -> dict:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    cookie_token: Optional[str] = Cookie(None, alias=COOKIE_NAME),
     db: Database = Depends(get_db),
 ) -> UserModel:
-    payload = decode_access_token(credentials.credentials)
+    token = None
+    if credentials:
+        token = credentials.credentials
+    if not token:
+        token = cookie_token
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    payload = decode_access_token(token)
     user_id = int(payload.get("sub", 0))
     repo = UserRepository(db)
     user = repo.get_by_id(user_id)
@@ -148,7 +186,7 @@ async def get_current_user(
 # ── Endpoints ──
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest, db: Database = Depends(get_db)):
+async def login(request: LoginRequest, response: Response, db: Database = Depends(get_db)):
     repo = UserRepository(db)
     user = repo.get_by_username(request.username)
     if not user or not pwd_context.verify(request.password, user.password_hash):
@@ -156,6 +194,7 @@ async def login(request: LoginRequest, db: Database = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
     token = create_access_token(user.id, user.username)
+    set_auth_cookie(response, token)
     logger.info("Login successful", username=request.username)
     return TokenResponse(
         access_token=token,
@@ -182,7 +221,7 @@ async def register(request: RegisterRequest, db: Database = Depends(get_db)):
 
 
 @router.post("/google", response_model=TokenResponse)
-async def google_auth(request: GoogleAuthRequest, db: Database = Depends(get_db)):
+async def google_auth(request: GoogleAuthRequest, response: Response, db: Database = Depends(get_db)):
     from google.oauth2 import id_token
     from google.auth.transport import requests as google_requests
     import traceback
@@ -237,6 +276,7 @@ async def google_auth(request: GoogleAuthRequest, db: Database = Depends(get_db)
                 user.google_id = google_id
 
         token = create_access_token(user.id, user.username)
+        set_auth_cookie(response, token)
         return TokenResponse(
             access_token=token,
             expires_in=settings.jwt_expiration_minutes * 60,
@@ -310,6 +350,12 @@ async def reset_password(request: ResetPasswordRequest, db: Database = Depends(g
 
     logger.info("Password reset successful", user_id=user.id)
     return MessageResponse(message="Password has been reset successfully.")
+
+
+@router.post("/logout")
+async def logout(response: Response):
+    clear_auth_cookie(response)
+    return {"message": "Logged out successfully"}
 
 
 @router.get("/me", response_model=UserResponse)

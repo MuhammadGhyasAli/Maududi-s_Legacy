@@ -123,16 +123,16 @@ export default function PrivacyPage() {
       <section className="mb-10">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">7. Local Storage & Cookies</h2>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-          We use browser <strong>localStorage</strong> (not HTTP cookies) for essential functionality:
+          We use an <strong>httpOnly authentication cookie</strong> for login sessions and <strong>localStorage</strong> for preferences:
         </p>
         <ul className="list-disc pl-6 text-gray-600 dark:text-gray-400 leading-relaxed space-y-1 mb-3">
-          <li><strong>auth_token</strong> — JWT token for maintaining your login session (expires in 7 days)</li>
+          <li><strong>auth_token (cookie)</strong> — httpOnly JWT cookie for maintaining your login session (expires in 7 days, secure, sameSite=lax)</li>
           <li><strong>theme</strong> — Your preferred color theme (light/dark/system)</li>
           <li><strong>maududi_cache_*</strong> — Cached API responses for improved performance (30-minute TTL)</li>
           <li><strong>cookie_consent</strong> — Your cookie consent preference ("accepted" or "declined")</li>
         </ul>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-          We do <strong>not</strong> use cookies for tracking, advertising, or analytics purposes. All locally stored data stays on your device and is not sent to third parties except the <code>auth_token</code> which is sent to our API to authenticate your session.
+          The <code>auth_token</code> cookie is <strong>httpOnly</strong> (inaccessible to JavaScript) and <strong>Secure</strong> (only sent over HTTPS). We do <strong>not</strong> use cookies for tracking, advertising, or analytics purposes.
         </p>
 
         <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mt-4 mb-2">7.1 Cookie Policy Summary</h3>
@@ -149,7 +149,7 @@ export default function PrivacyPage() {
           <tbody>
             <tr>
               <td className="p-2 border border-gray-200 dark:border-gray-700 font-mono">auth_token</td>
-              <td className="p-2 border border-gray-200 dark:border-gray-700">localStorage</td>
+              <td className="p-2 border border-gray-200 dark:border-gray-700">httpOnly Cookie</td>
               <td className="p-2 border border-gray-200 dark:border-gray-700">User authentication session</td>
               <td className="p-2 border border-gray-200 dark:border-gray-700">7 days</td>
               <td className="p-2 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400">Essential</td>

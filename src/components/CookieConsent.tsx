@@ -11,7 +11,7 @@ const CONSENT_KEY = "cookie_consent";
 type ConsentStatus = "accepted" | "declined" | null;
 
 const storageItems = [
-  { key: "auth_token", desc: "JWT token for login session", expires: "7 days", category: "Essential" },
+  { key: "auth_token (cookie)", desc: "JWT token for login session (httpOnly cookie)", expires: "7 days", category: "Essential" },
   { key: "theme", desc: "UI theme preference (light/dark/system)", expires: "Persistent", category: "Essential" },
   { key: "maududi_cache_*", desc: "Cached API responses for performance", expires: "30 minutes", category: "Performance" },
   { key: "cookie_consent", desc: "Your consent preference", expires: "1 year", category: "Essential" },
@@ -54,7 +54,7 @@ export default function CookieConsent() {
           </div>
           <div className="flex-1 min-w-0">
             <p id="cookie-consent-desc" className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-              We use <strong>localStorage</strong> (not cookies) for essential site functionality. No tracking, advertising, or analytics cookies are used.
+              We use an <strong>httpOnly cookie</strong> for login sessions and <strong>localStorage</strong> for preferences. No tracking, advertising, or analytics cookies are used.
             </p>
 
             <button
