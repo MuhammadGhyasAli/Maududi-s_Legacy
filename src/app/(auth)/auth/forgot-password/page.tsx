@@ -2,14 +2,10 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { apiService } from '../../../../services/apiService';
-import { AuthInput, AuthButton, AuthErrorMessage } from '../../../../components/auth';
-import { MailIcon } from '../../../../components/icons';
 
 export default function ForgotPasswordPage() {
   useEffect(() => { document.title = "Forgot Password | Maududi's Legacy"; }, []);
-  const _router = useRouter();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
@@ -32,35 +28,33 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <>
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-brand-green/10 dark:bg-brand-green-dark/20 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-brand-green dark:text-brand-green-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+        <div className="text-center py-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/25 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 18v.75c0 .414.336.75.75.75h18a.75.75 0 00.75-.75V18l-7.5-4.5m0 0L21.75 9l-7.5-4.5M2.25 9l7.5-4.5L2.25 9z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Check your email</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            If an account exists for <span className="font-medium text-gray-700 dark:text-gray-300">{email}</span>, you&apos;ll receive a password reset link shortly.
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Check your email</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 leading-relaxed max-w-xs mx-auto">
+            If an account exists for <span className="font-semibold text-gray-700 dark:text-gray-300">{email}</span>, you&apos;ll receive a password reset link shortly.
           </p>
         </div>
 
-        <div className="text-center space-y-4">
-          <AuthButton variant="secondary" onClick={() => { setSent(false); setEmail(''); }}>
+        <div className="space-y-3 mt-6">
+          <button
+            type="button"
+            onClick={() => { setSent(false); setEmail(''); }}
+            className="w-full py-3 rounded-xl text-sm font-semibold text-brand-green dark:text-brand-green-dark bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+          >
             Send another email
-          </AuthButton>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            <Link href="/auth/login" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
-              Back to sign in
-            </Link>
-          </p>
+          </button>
+          <Link
+            href="/auth/login"
+            className="block w-full text-center py-3 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            Back to sign in
+          </Link>
         </div>
-
-        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-8 leading-relaxed">
-          Protected by encryption.{' '}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Privacy</Link>
-          &nbsp;·&nbsp;
-          <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Terms</Link>
-        </p>
       </>
     );
   }
@@ -68,28 +62,57 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Reset your password</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Enter your email and we&apos;ll send you a reset link</p>
+        <h1 className="text-[1.75rem] font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+          Forgot password?
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          No worries. Enter your email and we&apos;ll send you a reset link.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        <AuthErrorMessage message={error} />
+        {error && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60" role="alert">
+            <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+          </div>
+        )}
 
-        <AuthInput
-          label="Email"
-          icon={<MailIcon className="w-5 h-5" />}
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          placeholder="you@example.com"
-          error={error && !email ? 'Email is required' : undefined}
-        />
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="name@example.com"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+          />
+        </div>
 
-        <AuthButton loading={loading} type="submit">
-          Send reset link
-        </AuthButton>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 active:scale-[0.98] shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/35 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Sending...
+            </span>
+          ) : (
+            'Send reset link'
+          )}
+        </button>
       </form>
 
       <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
@@ -97,13 +120,6 @@ export default function ForgotPasswordPage() {
         <Link href="/auth/login" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
           Sign in
         </Link>
-      </p>
-
-      <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-8 leading-relaxed">
-        Protected by encryption.{' '}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Privacy</Link>
-        &nbsp;·&nbsp;
-        <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Terms</Link>
       </p>
     </>
   );

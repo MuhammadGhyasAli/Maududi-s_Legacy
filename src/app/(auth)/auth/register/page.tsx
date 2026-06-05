@@ -5,12 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useToast } from '../../../../components/Toast';
-import { AuthInput, AuthButton, AuthErrorMessage, PasswordStrength } from '../../../../components/auth';
 import GoogleSignInButton from '../../../../components/GoogleSignInButton';
-import { MailIcon, LockIcon, UserIcon } from '../../../../components/icons';
 
 export default function RegisterPage() {
-  useEffect(() => { document.title = "Register | Maududi's Legacy"; }, []);
+  useEffect(() => { document.title = "Create Account | Maududi's Legacy"; }, []);
   const { register, verifyEmail } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -121,26 +119,36 @@ export default function RegisterPage() {
     }
   };
 
+  // Verification view
   if (showVerification) {
     return (
       <div className="space-y-6">
-        <AuthErrorMessage message={verificationError} />
+        {verificationError && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60" role="alert">
+            <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-red-600 dark:text-red-400">{verificationError}</div>
+          </div>
+        )}
 
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-full bg-brand-green/10 dark:bg-brand-green-dark/20 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-brand-green dark:text-brand-green-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+        <div className="text-center py-2">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/25 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 18v.75c0 .414.336.75.75.75h18a.75.75 0 00.75-.75V18l-7.5-4.5m0 0L21.75 9l-7.5-4.5M2.25 9l7.5-4.5L2.25 9z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Check your email</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            We sent a 6-digit code to <span className="font-medium text-gray-700 dark:text-gray-300">{email}</span>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Verify your email</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs mx-auto">
+            We sent a 6-digit code to <span className="font-semibold text-gray-700 dark:text-gray-300">{email}</span>. Check your inbox.
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-center text-gray-600 dark:text-gray-400 mb-4">Verification code</label>
-          <div className="flex justify-center gap-2" onPaste={handleCodePaste} role="group" aria-label="Enter 6-digit verification code">
+          <label className="block text-sm font-semibold text-center text-gray-700 dark:text-gray-300 mb-4">
+            Enter verification code
+          </label>
+          <div className="flex justify-center gap-2.5" onPaste={handleCodePaste} role="group" aria-label="Enter 6-digit verification code">
             {verificationCode.map((digit, i) => (
               <input
                 key={i}
@@ -151,17 +159,32 @@ export default function RegisterPage() {
                 value={digit}
                 onChange={e => handleCodeChange(i, e.target.value)}
                 onKeyDown={e => handleCodeKeyDown(i, e)}
-                className="w-11 h-12 text-center text-lg font-semibold rounded-lg border-2 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-green/30 transition-all duration-200
-                  {digit ? 'border-brand-green' : 'border-gray-300 dark:border-gray-600'}"
+                style={{ width: '3rem', height: '3.25rem' }}
+                className="text-center text-xl font-bold rounded-xl border-2 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-green/30 transition-all duration-200"
                 aria-label={`Digit ${i + 1}`}
               />
             ))}
           </div>
         </div>
 
-        <AuthButton loading={verificationLoading} disabled={verificationCode.join('').length !== 6} onClick={handleVerify}>
-          Verify email
-        </AuthButton>
+        <button
+          type="button"
+          onClick={handleVerify}
+          disabled={verificationLoading || verificationCode.join('').length !== 6}
+          className="w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 active:scale-[0.98] shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+        >
+          {verificationLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Verifying...
+            </span>
+          ) : (
+            'Verify email'
+          )}
+        </button>
 
         <div className="text-center">
           <button
@@ -170,118 +193,168 @@ export default function RegisterPage() {
             disabled={resendTimer > 0 || verificationLoading}
             className="text-sm font-medium text-brand-green dark:text-brand-green-dark hover:text-brand-green-light disabled:text-gray-400 dark:disabled:text-gray-600 transition-colors cursor-pointer"
           >
-            {resendTimer > 0 ? `Resend code in ${resendTimer}s` : 'Resend code'}
+            {resendTimer > 0 ? (
+              <span>Resend code in <span className="font-semibold">{resendTimer}s</span></span>
+            ) : (
+              'Resend code'
+            )}
           </button>
         </div>
 
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-800">
           Already have an account?{' '}
           <Link href="/auth/login" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
             Sign in
           </Link>
         </p>
-
-        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-8 leading-relaxed">
-          Protected by encryption.{' '}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Privacy</Link>
-          &nbsp;·&nbsp;
-          <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Terms</Link>
-        </p>
       </div>
     );
   }
 
+  // Registration view
   return (
     <>
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create your account</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Join to explore the works of Maududi</p>
+        <h1 className="text-[1.75rem] font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+          Create account
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          Join to explore the works of Maududi
+        </p>
       </div>
 
+      {/* Google Sign Up */}
       <div className="mb-6">
         <GoogleSignInButton mode="signup" />
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200 dark:border-gray-700" />
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="px-4 bg-white dark:bg-brand-card-dark text-gray-400 dark:text-gray-500 font-medium">Or sign up with email</span>
-          </div>
+      </div>
+
+      <div className="relative mb-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="px-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 bg-white dark:bg-brand-card-dark">
+            Or sign up with email
+          </span>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        <AuthErrorMessage message={error} />
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {error && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60" role="alert">
+            <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+          </div>
+        )}
 
-        <AuthInput
-          label="Full name"
-          icon={<UserIcon className="w-5 h-5" />}
-          type="text"
-          value={displayName}
-          onChange={e => setDisplayName(e.target.value)}
-          placeholder="Your full name"
-          hint="Optional"
-        />
+        <div>
+          <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Full name <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <input
+            id="displayName"
+            type="text"
+            value={displayName}
+            onChange={e => setDisplayName(e.target.value)}
+            placeholder="Your full name"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+          />
+        </div>
 
-        <AuthInput
-          label="Email"
-          icon={<MailIcon className="w-5 h-5" />}
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          placeholder="you@example.com"
-          error={error && !email ? 'Email is required' : undefined}
-        />
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="name@example.com"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+          />
+        </div>
 
-        <AuthInput
-          label="Password"
-          icon={<LockIcon className="w-5 h-5" />}
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          minLength={6}
-          autoComplete="new-password"
-          placeholder="At least 6 characters"
-          showPasswordToggle
-          error={error && !password ? 'Password is required' : undefined}
-        />
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            minLength={6}
+            autoComplete="new-password"
+            placeholder="Create a strong password"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+          />
+          {password && (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <svg className="w-3.5 h-3.5 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={password.length >= 6 ? "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" : "M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"} />
+              </svg>
+              <span>{password.length >= 6 ? 'Strong enough' : 'Minimum 6 characters'}</span>
+            </div>
+          )}
+        </div>
 
-        <PasswordStrength password={password} show={!!password} />
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Confirm password
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            required
+            minLength={6}
+            autoComplete="new-password"
+            placeholder="Repeat your password"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+          />
+          {confirmPassword && password !== confirmPassword && (
+            <p className="mt-1.5 text-xs text-red-500">Passwords do not match</p>
+          )}
+        </div>
 
-        <AuthInput
-          label="Confirm password"
-          icon={<LockIcon className="w-5 h-5" />}
-          type="password"
-          value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
-          required
-          minLength={6}
-          autoComplete="new-password"
-          placeholder="Repeat your password"
-          showPasswordToggle
-          error={confirmPassword && password !== confirmPassword ? 'Passwords do not match' : undefined}
-        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 active:scale-[0.98] shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/35 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Creating account...
+            </span>
+          ) : (
+            'Create account'
+          )}
+        </button>
 
-        <AuthButton loading={loading} type="submit">
-          Create account
-        </AuthButton>
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+          By creating an account, you agree to our{' '}
+          <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Terms</Link>
+          &nbsp;and&nbsp;
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Privacy Policy</Link>
+        </p>
       </form>
 
-      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-7">
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
         Already have an account?{' '}
         <Link href="/auth/login" className="font-semibold text-brand-green dark:text-brand-green-dark hover:text-brand-green-light transition-colors">
           Sign in
         </Link>
-      </p>
-
-      <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-8 leading-relaxed">
-        Protected by encryption.{' '}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Privacy</Link>
-        &nbsp;·&nbsp;
-        <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">Terms</Link>
       </p>
     </>
   );
