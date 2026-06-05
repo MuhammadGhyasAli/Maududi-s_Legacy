@@ -15,6 +15,9 @@ import type { Theme } from "../types/theme";
 import { apiService } from "../services/apiService";
 
 import { usePathname } from 'next/navigation';
+import NavigationProgress from './NavigationProgress';
+import { CATEGORY_SLUGS } from '../constants';
+import RateLimitListener from './RateLimitListener';
 
 export default function MainShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -58,13 +61,14 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   const isChatRoute = pathname?.includes('/chat') || pathname?.includes('/ai-context-finder');
   const isAuthRoute = pathname?.startsWith('/auth');
   const segments = pathname?.split('/').filter(Boolean) || [];
-  const categorySlugs = ['tafsir', 'politics', 'theology', 'economics', 'jurisprudence', 'social-issues', 'history', 'guidance'];
-  const isBookDetail = segments.length === 2 && categorySlugs.includes(segments[0]);
+  const isBookDetail = segments.length === 2 && CATEGORY_SLUGS.includes(segments[0]);
   const hideSidebar = isChatRoute || isBookDetail || isAuthRoute;
   const hideHeader = isChatRoute;
 
   return (
     <ToastProvider>
+      <NavigationProgress />
+      <RateLimitListener />
       <OnboardingTour />
       <ShortcutsModal />
       <QuickSearchModal />

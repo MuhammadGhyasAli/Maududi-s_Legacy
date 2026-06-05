@@ -29,9 +29,9 @@ def _seed_books() -> list[Book]:
 
 @router.get("", response_model=list[BookResponse])
 @limiter.limit("100/minute")
-async def get_books(request: Request, category: Optional[str] = None, db: Database = Depends(get_db)):
-    """Get all books or filter by category"""
-    logger.info("Fetching books", category=category)
+async def get_books(request: Request, category: Optional[str] = None, search: Optional[str] = None, db: Database = Depends(get_db)):
+    """Get all books or filter by category and/or search term"""
+    logger.info("Fetching books", category=category, search=search)
     
     # Validate category if provided
     if category:
@@ -41,7 +41,14 @@ async def get_books(request: Request, category: Optional[str] = None, db: Databa
         logger.warning("Database unavailable, using local seed data")
         all_books = _seed_books()
         if category and category != "All":
-            return [b for b in all_books if b.category.lower() == category.lower()]
+            all_books = [b for b in all_books if b.category.lower() == category.lower()]
+        if search:
+            term = search.lower()
+            all_books = [b for b in all_books if
+                         term in b.title.lower() or
+                         term in b.description.lower() or
+                         term in b.author.lower() or
+                         (b.aiContext and term in b.aiContext.lower())]
         return all_books
 
     book_repo = BookRepository(db)
@@ -55,13 +62,28 @@ async def get_books(request: Request, category: Optional[str] = None, db: Databa
         # Convert to Pydantic models
         books = [book_repo.to_pydantic(book) for book in books_models]
         
+        if search:
+            term = search.lower()
+            books = [b for b in books if
+                     term in b.title.lower() or
+                     term in b.description.lower() or
+                     term in b.author.lower() or
+                     (b.aiContext and term in b.aiContext.lower())]
+        
         logger.info("Books fetched successfully", count=len(books))
         return books
     except Exception as e:
         logger.warning("Failed to fetch books from database, using local seed data", error=str(e))
         all_books = _seed_books()
         if category and category != "All":
-            return [b for b in all_books if b.category.lower() == category.lower()]
+            all_books = [b for b in all_books if b.category.lower() == category.lower()]
+        if search:
+            term = search.lower()
+            all_books = [b for b in all_books if
+                         term in b.title.lower() or
+                         term in b.description.lower() or
+                         term in b.author.lower() or
+                         (b.aiContext and term in b.aiContext.lower())]
         return all_books
 
 @router.get("/categories", response_model=list[str])

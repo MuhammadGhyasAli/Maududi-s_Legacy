@@ -82,7 +82,8 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
       filteredBooks = filteredBooks.filter(book =>
         book.title.toLowerCase().includes(lowercasedTerm) ||
         book.description.toLowerCase().includes(lowercasedTerm) ||
-        book.author.toLowerCase().includes(lowercasedTerm)
+        book.author.toLowerCase().includes(lowercasedTerm) ||
+        (book.aiContext && book.aiContext.toLowerCase().includes(lowercasedTerm))
       );
     }
 

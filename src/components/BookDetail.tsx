@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Book } from '../types';
@@ -18,6 +18,16 @@ interface BookDetailProps {
 const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) => {
   const [imageError, setImageError] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !pdfOpen) {
+        onBack();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onBack, pdfOpen]);
 
   return (
     <>

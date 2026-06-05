@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { ChatMessage, MessageSender, Book } from '../../types';
 import { getLangProps } from '../../utils/language';
@@ -14,7 +14,7 @@ export interface StructuredResponse {
 }
 
 interface ChatMessageListProps {
-  messages: (ChatMessage & { image?: string })[];
+  messages: (ChatMessage & { image?: string; timestamp?: Date })[];
   isLoading: boolean;
   selectedLanguage: string;
   onNavigateToBook?: (book: Book) => void;
@@ -94,6 +94,10 @@ const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) =>
   return parts;
 };
 
+const formatTime = (date: Date): string => {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
 const ChatMessageList: React.FC<ChatMessageListProps> = ({ 
   messages, 
   isLoading, 
@@ -104,20 +108,67 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   books = [],
   userDisplayName,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const isAtBottomRef = useRef(true);
+  const prevMessagesLengthRef = useRef(0);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  };
+  const checkIfAtBottom = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return true;
+    const threshold = 200;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+  }, []);
 
-  useEffect(scrollToBottom, [messages, isLoading]);
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+    setShowScrollBtn(false);
+    setUnreadCount(0);
+    isAtBottomRef.current = true;
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const atBottom = checkIfAtBottom();
+    isAtBottomRef.current = atBottom;
+    setShowScrollBtn(!atBottom);
+    if (atBottom) {
+      setUnreadCount(0);
+    } else {
+      const prevLen = prevMessagesLengthRef.current;
+      const currentLen = messages.length;
+      if (currentLen > prevLen) {
+        setUnreadCount(prev => prev + (currentLen - prevLen));
+      }
+    }
+    prevMessagesLengthRef.current = messages.length;
+  }, [checkIfAtBottom, messages.length]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  useEffect(() => {
+    if (isAtBottomRef.current) {
+      scrollToBottom('auto');
+    }
+  }, [messages, isLoading, scrollToBottom]);
+
+  useEffect(() => {
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages.length]);
 
   return (
-    <div className="flex-1 overflow-y-auto" role="log" aria-live="polite" aria-label="Chat messages">
+    <div ref={containerRef} className="flex-1 overflow-y-auto relative" role="log" aria-live="polite" aria-label="Chat messages">
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-8 mt-12">
         {messages.map((msg, index) => {
           const { dir, className } = getLangProps(msg.text, selectedLanguage);
           const isUser = msg.sender === MessageSender.USER;
+          const timestamp = msg.timestamp || new Date();
 
           return (
             <div key={index} className="flex gap-4 w-full">
@@ -135,8 +186,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 )}
               </div>
               <div className="flex-1 min-w-0 pt-1">
-                <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                  {isUser ? 'You' : 'AI Assistant'}
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    {isUser ? 'You' : 'AI Assistant'}
+                  </span>
+                  <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+                    {formatTime(timestamp)}
+                  </span>
                 </div>
                 
                 {isUser ? (
@@ -210,8 +266,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 </div>
               </div>
               <div className="flex-1 pt-1">
-                 <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2 opacity-50">
-                  AI Assistant
+                 <div className="flex items-center gap-2 mb-2">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100 opacity-50">AI Assistant</span>
                 </div>
                  <div className="flex items-center gap-2 ml-1 mt-1">
                   <div className="flex space-x-1.5">
@@ -229,6 +285,23 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
         )}
         <div ref={messagesEndRef} className="h-8" />
       </div>
+
+      {showScrollBtn && (
+        <button
+          onClick={() => scrollToBottom()}
+          className="cursor-pointer fixed bottom-28 right-8 z-40 w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:shadow-xl transition-all duration-200"
+          aria-label="Scroll to bottom"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-brand-green text-white text-[10px] font-bold shadow-md">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      )}
     </div>
   );
 };

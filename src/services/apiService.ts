@@ -1,4 +1,5 @@
 import type { Book } from '../types';
+import { handleApiResponse } from './apiEvents';
 
 export interface ApiChatMessage {
   role: string;
@@ -81,6 +82,16 @@ export function cancelPendingRequests(): void {
   activeControllers.clear();
 }
 
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+}
+
+async function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  const response = await fetch(url, options);
+  return handleApiResponse(response);
+}
+
 function getAbortSignal(signal?: AbortSignal): AbortSignal | undefined {
   if (signal) return signal;
   const controller = new AbortController();
@@ -131,7 +142,7 @@ export const apiService = {
     
     const promise = (async () => {
       try {
-        const response = await fetch(url, { signal: getAbortSignal(signal) });
+        const response = await apiFetch(url, { signal: getAbortSignal(signal) });
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
           throw new Error((body as any).detail || `Failed to fetch books: ${response.status} ${response.statusText}`);
@@ -161,7 +172,7 @@ export const apiService = {
     if (cached && cached.isStale && cached.data.length > 0) {
       const refresh = async () => {
         try {
-          const response = await fetch('/api/v1/books/categories', { signal: getAbortSignal(signal) });
+          const response = await apiFetch('/api/v1/books/categories', { signal: getAbortSignal(signal) });
           if (!response.ok) throw new Error('Failed to fetch categories');
           const data = await response.json();
           swrSet(cacheKey, data);
@@ -171,7 +182,7 @@ export const apiService = {
       return cached.data;
     }
 
-    const response = await fetch('/api/v1/books/categories', { signal: getAbortSignal(signal) });
+        const response = await apiFetch('/api/v1/books/categories', { signal: getAbortSignal(signal) });
     if (!response.ok) throw new Error('Failed to fetch categories');
     const data = await response.json();
     swrSet(cacheKey, data);
@@ -186,7 +197,7 @@ export const apiService = {
     if (cached && cached.isStale) {
       const refresh = async () => {
         try {
-          const response = await fetch(`/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
+          const response = await apiFetch(`/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
           if (!response.ok) throw new Error('Failed to fetch book');
           const data = await response.json();
           swrSet(cacheKey, data);
@@ -196,7 +207,7 @@ export const apiService = {
       return cached.data;
     }
 
-    const response = await fetch(`/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
+    const response = await apiFetch(`/api/v1/books/${bookId}`, { signal: getAbortSignal(signal) });
     if (!response.ok) throw new Error('Failed to fetch book');
     const data = await response.json();
     swrSet(cacheKey, data);
@@ -205,7 +216,7 @@ export const apiService = {
 
   // Chat with AI about a book
   chat: async (bookId: number, aiContext: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
-    const response = await fetch('/api/chat', {
+    const response = await apiFetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -230,7 +241,7 @@ export const apiService = {
 
   // Global Chat (e.g., AiContextFinder)
   globalChat: async (systemInstruction: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
-    const response = await fetch('/api/chat/global', {
+    const response = await apiFetch('/api/chat/global', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -257,7 +268,7 @@ export const apiService = {
 
   // Login
   login: async (email: string, password: string): Promise<{ access_token: string; expires_in: number }> => {
-    const response = await fetch('/api/auth/login', {
+    const response = await apiFetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -271,7 +282,7 @@ export const apiService = {
 
   // Register
   register: async (username: string, email: string, password: string, display_name?: string): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch('/api/auth/register', {
+    const response = await apiFetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username || email.split('@')[0], email, password, display_name: display_name || '' }),
@@ -285,7 +296,7 @@ export const apiService = {
 
   // Get current user
   getMe: async (token: string): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch('/api/auth/me', {
+    const response = await apiFetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error('Failed to get user info');
@@ -294,7 +305,7 @@ export const apiService = {
 
   // Update profile (display_name, email)
   updateProfile: async (token: string, data: { display_name?: string; email?: string }): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
-    const response = await fetch('/api/auth/me', {
+    const response = await apiFetch('/api/auth/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -308,7 +319,7 @@ export const apiService = {
 
   // Change password
   changePassword: async (token: string, current_password: string, new_password: string): Promise<{ message: string }> => {
-    const response = await fetch('/api/auth/password', {
+    const response = await apiFetch('/api/auth/password', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ current_password, new_password }),
@@ -322,7 +333,7 @@ export const apiService = {
 
   // Delete account
   deleteAccount: async (token: string, password: string): Promise<{ message: string }> => {
-    const response = await fetch('/api/auth/me', {
+    const response = await apiFetch('/api/auth/me', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ password }),
@@ -336,9 +347,9 @@ export const apiService = {
 
   // Record reading history
   recordReadingHistory: async (bookId: number, title: string, slug: string, imageUrl: string, category: string): Promise<void> => {
-    const token = localStorage.getItem('auth_token');
+    const token = getAuthToken();
     if (!token) return;
-    const response = await fetch('/api/reading-history', {
+    const response = await apiFetch('/api/reading-history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ bookId, title, slug, imageUrl, category }),
@@ -351,9 +362,9 @@ export const apiService = {
 
   // Get reading history
   getReadingHistory: async (): Promise<any[]> => {
-    const token = localStorage.getItem('auth_token');
+    const token = getAuthToken();
     if (!token) return [];
-    const response = await fetch('/api/reading-history', {
+    const response = await apiFetch('/api/reading-history', {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) return [];
@@ -362,7 +373,7 @@ export const apiService = {
 
   // Verify email
   verifyEmail: async (code: string, email: string): Promise<{ access_token: string; token_type: string; expires_in: number }> => {
-    const response = await fetch('/api/auth/verify-email', {
+    const response = await apiFetch('/api/auth/verify-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, code }),
@@ -376,7 +387,7 @@ export const apiService = {
 
   // Forgot password
   forgotPassword: async (email: string): Promise<{ message: string }> => {
-    const response = await fetch('/api/auth/forgot-password', {
+    const response = await apiFetch('/api/auth/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -390,7 +401,7 @@ export const apiService = {
 
   // Reset password
   resetPassword: async (token: string, new_password: string): Promise<{ message: string }> => {
-    const response = await fetch('/api/auth/reset-password', {
+    const response = await apiFetch('/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, new_password }),

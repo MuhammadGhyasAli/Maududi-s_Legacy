@@ -3,6 +3,8 @@ import { Inter, Playfair_Display, Noto_Nastaliq_Urdu, Amiri } from "next/font/go
 import "./globals.css";
 import MainShell from "../components/MainShell";
 import { AuthProvider } from "../contexts/AuthContext";
+import JsonLd from "../components/JsonLd";
+import ServiceWorkerRegister from "../components/ServiceWorkerRegister";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,6 +24,7 @@ const notoNastaliq = Noto_Nastaliq_Urdu({
   subsets: ["arabic"],
   variable: "--font-nastaliq",
   display: "swap",
+  preload: false,
 });
 
 const amiri = Amiri({
@@ -29,6 +32,7 @@ const amiri = Amiri({
   subsets: ["arabic"],
   variable: "--font-amiri",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -88,8 +92,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <link rel="dns-prefetch" href="http://localhost:8000" />
           </>
         )}
+        <JsonLd data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Maududi's Legacy",
+          url: "https://maududi-legacy.vercel.app",
+          description: "Explore the works of Sayyid Abul A'la Maududi with AI-powered chat. A digital archive preserving and providing intelligent access to his complete writings.",
+          inLanguage: ["en", "ur", "ar", "fa", "tr", "bn"],
+          author: {
+            "@type": "Person",
+            name: "Sayyid Abul A'la Maududi",
+            url: "https://jamaat.org/founder",
+          },
+          about: {
+            "@type": "Thing",
+            name: "Islamic Scholarship",
+            description: "Works of Sayyid Abul A'la Maududi covering Tafsir, Politics, Theology, Economics, Jurisprudence, and more.",
+          },
+        }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoNastaliq.variable} ${amiri.variable}`} suppressHydrationWarning>
+        <ServiceWorkerRegister />
         <AuthProvider>
           <a href="#main-content" className="skip-link">
             Skip to main content

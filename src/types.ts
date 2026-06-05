@@ -21,4 +21,5 @@ export interface ChatMessage {
   sender: MessageSender;
   text: string;
   image?: string;
+  timestamp?: Date;
 }
