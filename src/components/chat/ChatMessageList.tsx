@@ -140,54 +140,54 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 </div>
                 
                 {isUser ? (
-                  <div className={`whitespace-pre-wrap leading-relaxed text-[16px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
+                  <div className={`whitespace-pre-wrap leading-relaxed text-[15px] text-gray-850 dark:text-gray-250 p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 shadow-sm ${className}`} dir={dir}>
                     {msg.image && <Image src={msg.image} alt="User upload" width={320} height={240} className="max-w-xs rounded-xl mb-3 shadow-sm border border-white/20" />}
                     {msg.text}
                   </div>
                 ) : (() => {
                   const structuredDetails = parseStructuredResponse ? parseStructuredResponse(msg.text) : null;
                   return (
-                    <div className="w-full">
+                    <div className="w-full bg-white/60 dark:bg-brand-card-dark/40 border border-gray-100 dark:border-white/[0.06] p-4 sm:p-5 rounded-2xl shadow-sm">
                       {structuredDetails ? (
                         <div className="space-y-4" dir={dir}>
-                          <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
-                            <p className="text-xs font-bold uppercase tracking-wider text-brand-green dark:text-brand-green-dark mb-3 flex items-center gap-2">
-                              <span className="text-xs" aria-hidden="true">📚</span> Context Found
+                          <div className="bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-brand-green dark:text-brand-green-dark mb-2.5 flex items-center gap-2">
+                              <span className="text-xs" aria-hidden="true">📚</span> Context Reference
                             </p>
-                            <div className="space-y-2 text-[14px]">
+                            <div className="space-y-1.5 text-[13px] font-medium">
                               {structuredDetails.bookTitle && (
-                                <div>
+                                <div className="text-gray-650 dark:text-gray-350">
                                   <strong className="text-gray-900 dark:text-gray-100">Book:</strong>{' '}
                                   <span className={className}>{renderFormattedMessage(structuredDetails.bookTitle, onNavigateToBook, books)}</span>
                                 </div>
                               )}
                               {structuredDetails.chapter && (
-                                <div>
+                                <div className="text-gray-650 dark:text-gray-350">
                                   <strong className="text-gray-900 dark:text-gray-100">Chapter:</strong>{' '}
                                   <span className={className}>{renderFormattedMessage(structuredDetails.chapter, onNavigateToBook, books)}</span>
                                 </div>
                               )}
                               {structuredDetails.page && (
-                                <div>
+                                <div className="text-gray-650 dark:text-gray-350">
                                   <strong className="text-gray-900 dark:text-gray-100">Page:</strong>{' '}
                                   <span className={className}>{renderFormattedMessage(structuredDetails.page, onNavigateToBook, books)}</span>
                                 </div>
                               )}
                             </div>
                             {structuredDetails.context && (
-                              <blockquote className={`mt-4 pl-4 border-l-2 border-brand-green/40 dark:border-brand-green-dark/40 text-gray-700 dark:text-gray-300 italic ${className}`}>
+                              <blockquote className={`mt-3 pl-3.5 border-l-2 border-brand-green/35 dark:border-brand-green-dark/35 text-gray-600 dark:text-gray-400 text-xs italic ${className}`}>
                                 {renderFormattedMessage(structuredDetails.context, onNavigateToBook, books)}
                               </blockquote>
                             )}
                           </div>
                           {structuredDetails.remainingText && (
-                            <div className={`whitespace-pre-wrap leading-relaxed text-[16px] text-gray-800 dark:text-gray-200 ${className}`}>
+                            <div className={`whitespace-pre-wrap leading-relaxed text-[15px] text-gray-800 dark:text-gray-200 ${className}`}>
                               {renderFormattedMessage(structuredDetails.remainingText, onNavigateToBook, books)}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className={`whitespace-pre-wrap leading-relaxed text-[16px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
+                        <div className={`whitespace-pre-wrap leading-relaxed text-[15px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
                           {renderFormattedMessage(msg.text, onNavigateToBook, books)}
                         </div>
                       )}

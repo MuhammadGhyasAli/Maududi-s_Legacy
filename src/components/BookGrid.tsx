@@ -235,77 +235,92 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
         ]} />
 
         {/* Hero section */}
-        <div className="relative text-center max-w-3xl mx-auto mb-8">
+        <div className="relative text-center max-w-4xl mx-auto mb-12 mt-4 p-8 rounded-3xl overflow-hidden bg-white/40 dark:bg-brand-card-dark/40 border border-white/40 dark:border-white/5 backdrop-blur-md shadow-xl">
           {/* Decorative background pattern */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
-            <svg className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-[0.03] dark:opacity-[0.04]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-[0.03] dark:opacity-[0.05]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="0.5" />
               <circle cx="300" cy="300" r="220" stroke="currentColor" strokeWidth="0.5" />
               <circle cx="300" cy="300" r="160" stroke="currentColor" strokeWidth="0.5" />
-              <circle cx="300" cy="300" r="100" stroke="currentColor" strokeWidth="0.5" />
               <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="0.3" />
               <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="0.3" />
-              <line x1="102" y1="102" x2="498" y2="498" stroke="currentColor" strokeWidth="0.3" />
-              <line x1="498" y1="102" x2="102" y2="498" stroke="currentColor" strokeWidth="0.3" />
-              <polygon points="300,50 420,180 380,320 220,320 180,180" stroke="currentColor" strokeWidth="0.4" fill="none" />
-              <polygon points="300,550 420,420 380,280 220,280 180,420" stroke="currentColor" strokeWidth="0.4" fill="none" />
-              <circle cx="300" cy="300" r="40" stroke="currentColor" strokeWidth="0.4" fill="none" />
             </svg>
           </div>
-          <div className="inline-flex items-center gap-1.5 mb-5 px-3.5 py-1.5 rounded-full text-xs font-semibold
-                          bg-emerald-50 dark:bg-emerald-900/30
-                          text-emerald-700 dark:text-emerald-300
-                          border border-emerald-200/60 dark:border-emerald-800/50
-                          shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-            Islamic Scholarship Library
+
+          <div className="inline-flex items-center gap-1.5 mb-6 px-4 py-1.5 rounded-full text-xs font-semibold
+                          bg-emerald-500/10 dark:bg-emerald-500/5
+                          text-emerald-700 dark:text-emerald-400
+                          border border-emerald-500/20 dark:border-emerald-500/10
+                          shadow-inner">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse-soft" />
+            Preserving Knowledge · Empowering Exploration
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-[1.1] tracking-tight">
-            Explore the{' '}
-            <span className="gradient-text">Works of Maududi</span>
+
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 dark:text-gray-100 mb-5 leading-[1.15] tracking-tight">
+            Explore the Digital <br/>
+            <span className="gradient-text">Legacy of Sayyid Abul A&apos;la Maududi</span>
           </h1>
-          <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
-            Search, read, and have AI-powered conversations about the complete writings of
-            Sayyid Abul A&apos;la Maududi — in multiple languages.
+
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-8 font-medium">
+            Discover a comprehensive archive of profound scholarship. Engage with his complete works, search key concepts, and chat with custom AI contexts across multiple languages.
           </p>
+
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-gray-100 dark:border-white/5">
+            {[
+              { label: 'Books Published', value: '76+' },
+              { label: 'Literary Categories', value: '9' },
+              { label: 'Active Languages', value: '6' },
+              { label: 'AI Assistance', value: '24/7' }
+            ].map((stat, idx) => (
+              <div key={idx} className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{stat.value}</p>
+                <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Featured Works / Last Read Books */}
         {((user && recentBooks.length > 0) || (!user && featuredBooks.length > 0)) && !category && !debouncedSearch && !loading && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="mb-10 bg-white/30 dark:bg-brand-card-dark/20 border border-gray-100 dark:border-white/5 p-5 sm:p-6 rounded-3xl backdrop-blur-sm shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
               {user ? (
                 <>
-                  <svg className="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-brand-green-light" fill="currentColor" viewBox="0 0 24 24">
                     <path fillRule="evenodd" d="M12 1.5a10.5 10.5 0 100 21 10.5 10.5 0 000-21zM10.75 4.75a.75.75 0 00-1.5 0v3.5H5.75a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z" clipRule="evenodd" />
                   </svg>
-                  <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Last Read Books</h2>
-                  <div className="h-px flex-1 bg-gradient-to-r from-emerald-200/60 to-transparent dark:from-emerald-800/30" />
+                  <h2 className="text-base font-bold text-gray-800 dark:text-gray-200">Last Read Books</h2>
+                  <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/20 to-transparent" />
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022 .001-.704 0l-.003-.001z" />
                   </svg>
-                  <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Featured Works</h2>
-                  <div className="h-px flex-1 bg-gradient-to-r from-amber-200/60 to-transparent dark:from-amber-800/30" />
+                  <h2 className="text-base font-bold text-gray-800 dark:text-gray-200">Featured & Essential Works</h2>
+                  <div className="h-px flex-1 bg-gradient-to-r from-amber-500/20 to-transparent" />
                 </>
               )}
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin -mx-4 px-4 snap-x snap-mandatory">
+            <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-thin -mx-2 px-2 snap-x snap-mandatory">
               {(user ? recentBooks : featuredBooks).map(book => (
                 <button
                   key={book.id}
                   onClick={() => handleSelectBook(book)}
-                  className="flex-none w-28 snap-start group text-left"
+                  className="flex-none w-32 snap-start group text-left cursor-pointer transition-all duration-300"
                 >
-                  <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-sm ring-1 ring-gray-200/60 dark:ring-white/10 group-hover:ring-emerald-300 dark:group-hover:ring-emerald-700 transition-all duration-200">
-                    <Image src={book.imageUrl} alt={book.title} fill sizes="112px" className="object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-md ring-1 ring-gray-200/50 dark:ring-white/10 group-hover:ring-brand-green dark:group-hover:ring-brand-green-dark transition-all duration-300 group-hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/10">
+                    <Image src={book.imageUrl} alt={book.title} fill sizes="128px" className="object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+                    <span className="absolute bottom-2 left-2 right-2 text-[9px] font-bold uppercase tracking-wider text-white bg-black/40 backdrop-blur-md py-1 px-2 rounded-lg text-center truncate">
+                      {book.category}
+                    </span>
                   </div>
-                  <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 mt-1.5 truncate leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  <p className="text-[12px] font-bold text-gray-800 dark:text-gray-200 mt-2 truncate leading-snug group-hover:text-brand-green dark:group-hover:text-brand-green-dark transition-colors duration-200">
                     {book.title}
                   </p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">{book.author}</p>
                 </button>
               ))}
             </div>

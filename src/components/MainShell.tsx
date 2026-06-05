@@ -68,7 +68,12 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
       <OnboardingTour />
       <ShortcutsModal />
       <QuickSearchModal />
-      <div className="min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 transition-colors duration-300 flex overflow-x-clip">
+      <div className="min-h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 transition-colors duration-300 flex overflow-x-clip relative">
+        {/* Background ambient blobs */}
+        <div className="absolute top-20 left-10 w-96 h-96 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] pointer-events-none select-none animate-float-slow z-0" />
+        <div className="absolute top-[35vh] right-10 w-96 h-96 rounded-full bg-cyan-500/10 dark:bg-cyan-500/5 blur-[120px] pointer-events-none select-none animate-float-slow-reverse z-0" />
+        <div className="absolute bottom-10 left-1/3 w-96 h-96 rounded-full bg-amber-500/5 dark:bg-amber-500/2.5 blur-[120px] pointer-events-none select-none animate-float-slow z-0" />
+
         {!hideSidebar && (
           <Sidebar
             isOpen={isSidebarOpen}
