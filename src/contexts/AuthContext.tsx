@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string, _remember?: boolean) => {
-    const result = await apiService.login(email, password);
+    await apiService.login(email, password);
     setToken('authenticated');
     const u = await apiService.getMe();
     setUser(u);
@@ -52,12 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(async (email: string, password: string, display_name?: string) => {
-    const result = await apiService.register(email.split('@')[0], email, password, display_name);
-    return result;
+    return apiService.register(email.split('@')[0], email, password, display_name);
   }, []);
 
   const verifyEmail = useCallback(async (code: string, email: string) => {
-    const result = await apiService.verifyEmail(code, email);
+    await apiService.verifyEmail(code, email);
     setToken('authenticated');
     const u = await apiService.getMe();
     setUser(u);

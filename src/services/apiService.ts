@@ -82,11 +82,6 @@ export function cancelPendingRequests(): void {
   activeControllers.clear();
 }
 
-function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-}
-
 async function apiFetch(url: string, options?: RequestInit): Promise<Response> {
   const merged: RequestInit = {
     ...options,
