@@ -14,7 +14,7 @@ interface AuthContextValue {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string, remember?: boolean) => Promise<User>;
   register: (email: string, password: string, display_name?: string) => Promise<{ id: number; email: string }>;
   verifyEmail: (code: string, email: string) => Promise<User>;
   logout: () => void;
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
+    const storedToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     if (!storedToken) {
       setLoading(false);
       return;
@@ -42,17 +42,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(u => { setUser(u); setLoading(false); })
       .catch(() => {
         localStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_token');
         setToken(null);
         setLoading(false);
       });
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, remember?: boolean) => {
     const result = await apiService.login(email, password);
-    localStorage.setItem('auth_token', result.access_token);
-    const u = await apiService.getMe(result.access_token);
+    const t = result.access_token;
+    if (remember !== false) {
+      localStorage.setItem('auth_token', t);
+      sessionStorage.removeItem('auth_token');
+    } else {
+      sessionStorage.setItem('auth_token', t);
+      localStorage.removeItem('auth_token');
+    }
+    const u = await apiService.getMe(t);
     setUser(u);
-    setToken(result.access_token);
+    setToken(t);
     return u;
   }, []);
 
@@ -72,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_token');
     setUser(null);
     setToken(null);
   }, []);
@@ -100,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!token) throw new Error('Not authenticated');
     await apiService.deleteAccount(token, password);
     localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_token');
     setUser(null);
     setToken(null);
   }, [token]);

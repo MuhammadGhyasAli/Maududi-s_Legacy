@@ -15,13 +15,14 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password.');
@@ -135,7 +136,9 @@ export default function LoginPage() {
           <input
             id="remember"
             type="checkbox"
-            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-brand-green focus:ring-brand-green/30 focus:ring-2"
+            checked={rememberMe}
+            onChange={e => setRememberMe(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-brand-green focus:ring-brand-green/30 focus:ring-2 cursor-pointer"
           />
           <label htmlFor="remember" className="ml-2.5 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
             Remember this device
