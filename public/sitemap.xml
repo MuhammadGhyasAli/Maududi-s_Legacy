@@ -21,6 +21,46 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://maududi-legacy.vercel.app/tafsir</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/politics</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/theology</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/economics</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/jurisprudence</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/social-issues</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/history</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://maududi-legacy.vercel.app/guidance</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://maududi-legacy.vercel.app/privacy</loc>
     <priority>0.3</priority>
     <changefreq>yearly</changefreq>

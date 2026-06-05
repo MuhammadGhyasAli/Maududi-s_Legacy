@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /auth/
 Disallow: /api/
+Disallow: /account/
 
 Sitemap: https://maududi-legacy.vercel.app/sitemap.xml
