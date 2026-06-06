@@ -10,6 +10,7 @@ import BookDetail from "../../../components/BookDetail";
 import { BookDetailSkeleton } from "../../../components/Skeleton";
 import { useToast } from "../../../components/Toast";
 import { findBookBySlug, slugify } from "../../../utils/slugify";
+import { useDocumentMeta, emojiFavicon } from "../../../hooks/useDocumentMeta";
 
 export default function BookPage() {
   const router = useRouter();
@@ -21,12 +22,6 @@ export default function BookPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (bookSlug) {
-      document.title = `${bookSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} - Maududi's Legacy`;
-    }
-  }, [bookSlug]);
 
   useEffect(() => {
     (async () => {
@@ -45,6 +40,9 @@ export default function BookPage() {
     if (!bookSlug) return null;
     return findBookBySlug(books, bookSlug) ?? null;
   }, [books, bookSlug]);
+
+  const bookTitle = book?.title || (bookSlug ? bookSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '');
+  useDocumentMeta(bookTitle, emojiFavicon('📚'));
 
   const relatedBooks = useMemo(() => {
     if (!book || !books.length) return [];

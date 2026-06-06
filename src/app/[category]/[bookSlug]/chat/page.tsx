@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import type { Book } from "../../../../types";
 import { apiService } from "../../../../services/apiService";
 import { findBookBySlug, slugify } from "../../../../utils/slugify";
+import { useDocumentMeta, emojiFavicon } from "../../../../hooks/useDocumentMeta";
 
 const ChatPage = dynamic(() => import("../../../../components/ChatPage"), {
   loading: () => (
@@ -24,6 +25,13 @@ export default function BookChatPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const book = useMemo(() => {
+    if (!bookSlug) return null;
+    return findBookBySlug(books, bookSlug);
+  }, [books, bookSlug]);
+
+  useDocumentMeta(book ? `Chat: ${book.title}` : 'Chat', emojiFavicon('💬'));
+
   useEffect(() => {
     (async () => {
       try {
@@ -36,11 +44,6 @@ export default function BookChatPage() {
       }
     })();
   }, []);
-
-  const book = useMemo(() => {
-    if (!bookSlug) return null;
-    return findBookBySlug(books, bookSlug);
-  }, [books, bookSlug]);
 
   if (loading) {
     return (
