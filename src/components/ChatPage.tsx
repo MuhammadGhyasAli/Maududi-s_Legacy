@@ -5,7 +5,6 @@ import { Book, type ChatMessage, MessageSender } from '../types';
 import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
-import ClipboardIcon from './icons/ClipboardIcon';
 import { useToast } from './Toast';
 import ChatMessageList from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
@@ -109,25 +108,35 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     }
   }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation]);
 
-  const handleCopyChat = async () => {
+  const handleShareChat = async () => {
     const transcript = messages.map(msg => {
-        const content = `${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}: ${msg.text}`;
-        return content;
+        const sender = msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1);
+        return `${sender}: ${msg.text}`;
     }).join('\n\n');
-    
+    const shareText = `Chat about "${book.title}"\n\n${transcript}\n\n— Maududi's Legacy`;
+
+    if (navigator.share && window.innerWidth < 768) {
+      try {
+        await navigator.share({ title: `Chat about ${book.title}`, text: shareText });
+        return;
+      } catch {
+        // user cancelled or fallback needed
+      }
+    }
+
     if (navigator.clipboard && window.isSecureContext) {
       try {
-        await navigator.clipboard.writeText(transcript);
+        await navigator.clipboard.writeText(shareText);
         toast('Chat copied to clipboard!');
-      } catch (_error) {
-        fallbackCopyTextToClipboard(transcript);
+      } catch {
+        fallbackCopy(shareText);
       }
     } else {
-      fallbackCopyTextToClipboard(transcript);
+      fallbackCopy(shareText);
     }
   };
 
-  const fallbackCopyTextToClipboard = (text: string) => {
+  const fallbackCopy = (text: string) => {
     const textArea = document.createElement("textarea");
     textArea.value = text;
     textArea.style.position = "fixed";
@@ -139,13 +148,24 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     try {
       document.execCommand('copy');
       toast('Chat copied to clipboard!');
-    } catch (_err) {
-      toast('Could not copy chat. Your browser may not support this feature.', 'error');
+    } catch {
+      toast('Could not share chat. Your browser may not support this feature.', 'error');
     }
     textArea.remove();
   };
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleDeleteConversation = (id: string) => {
+    if (deleteConfirmId === id) {
+      deleteConversation(id);
+      setDeleteConfirmId(null);
+    } else {
+      setDeleteConfirmId(id);
+      setTimeout(() => setDeleteConfirmId(prev => prev === id ? null : prev), 3000);
+    }
+  };
 
   const handleClearChat = () => {
     if (!showClearConfirm) {
@@ -208,13 +228,21 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
                         <p className="text-gray-500 dark:text-gray-400 truncate">{preview || 'Empty'}</p>
                       </button>
                       <button
-                        onClick={() => deleteConversation(conv.id)}
-                        className="cursor-pointer absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200"
-                        aria-label="Delete conversation"
+                        onClick={() => handleDeleteConversation(conv.id)}
+                        className={`cursor-pointer absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 rounded transition-all duration-200 ${
+                          deleteConfirmId === conv.id
+                            ? 'bg-red-500 text-white'
+                            : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30'
+                        }`}
+                        aria-label={deleteConfirmId === conv.id ? 'Click again to confirm delete' : 'Delete conversation'}
                       >
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        {deleteConfirmId === conv.id ? (
+                          <span className="text-[10px] font-semibold px-1">Delete?</span>
+                        ) : (
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )}
                       </button>
                     </div>
                   );
@@ -253,8 +281,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
                 </svg>
               </button>
-              <button onClick={handleCopyChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Copy Chat">
-                <ClipboardIcon className="w-4 h-4" />
+              <button onClick={handleShareChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Share Chat">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                </svg>
               </button>
               <button 
                 onClick={handleClearChat} 
