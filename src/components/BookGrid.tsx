@@ -274,7 +274,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-gray-100 dark:border-white/5">
             {[
-              { label: 'Books Published', value: '76+' },
+              { label: 'Books Published', value: '77' },
               { label: 'Literary Categories', value: '9' },
               { label: 'Active Languages', value: '6' },
               { label: 'AI Assistance', value: '24/7' }

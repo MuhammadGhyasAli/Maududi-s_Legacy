@@ -4,6 +4,7 @@ export const metadata = {
     "A comprehensive digital archive preserving and providing intelligent access to the complete works of Sayyid Abul A'la Maududi (1903–1979), one of the most influential Islamic scholars of the 20th century. Browse 77+ books, read online, and chat with AI trained on his writings.",
 };
 
+import Link from 'next/link';
 import { CATEGORIES } from '@/constants';
 
 export default function AboutPage() {
@@ -125,11 +126,17 @@ export default function AboutPage() {
               'History': '📜',
               'Guidance': '🧭',
             };
+            const slug = cat.toLowerCase().replace(/\s+/g, '-');
             return (
-              <div key={cat} className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <Link
+                key={cat}
+                href={`/${slug}`}
+                className="block p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all duration-200"
+              >
                 <div className="text-2xl mb-2">{icons[cat] || '📖'}</div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{cat}</h3>
-              </div>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">Browse books →</p>
+              </Link>
             );
           })}
         </div>
