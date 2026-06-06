@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useDocumentMeta, emojiFavicon } from "../hooks/useDocumentMeta";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 import BookGrid from "../components/BookGrid";
 import BookDetail from "../components/BookDetail";
 import { apiService } from "../services/apiService";
@@ -95,7 +95,7 @@ function HomePageContent() {
   const pageTitle = selectedBook
     ? selectedBook.title
     : (searchTerm ? `Search: ${searchTerm}` : 'Home');
-  useDocumentMeta(pageTitle, selectedBook ? emojiFavicon('📚') : undefined);
+  useDocumentMeta(pageTitle);
 
   if (loading) {
     return <HomePageFallback />;

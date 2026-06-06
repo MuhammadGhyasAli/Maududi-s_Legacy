@@ -10,7 +10,7 @@ import BookDetail from "../../../components/BookDetail";
 import { BookDetailSkeleton } from "../../../components/Skeleton";
 import { useToast } from "../../../components/Toast";
 import { findBookBySlug, slugify } from "../../../utils/slugify";
-import { useDocumentMeta, emojiFavicon } from "../../../hooks/useDocumentMeta";
+import { useDocumentMeta } from "../../../hooks/useDocumentMeta";
 
 export default function BookPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function BookPage() {
   }, [books, bookSlug]);
 
   const bookTitle = book?.title || (bookSlug ? bookSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '');
-  useDocumentMeta(bookTitle, emojiFavicon('📚'));
+  useDocumentMeta(bookTitle);
 
   const relatedBooks = useMemo(() => {
     if (!book || !books.length) return [];

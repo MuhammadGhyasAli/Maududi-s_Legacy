@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  icons: { icon: '/favicon.ico' },
+  icons: { icon: '/logo.png' },
 };
 
 export const viewport: Viewport = {
