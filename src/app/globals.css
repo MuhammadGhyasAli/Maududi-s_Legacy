@@ -209,22 +209,7 @@ body {
   animation: pressPop 0.2s ease;
 }
 
-/* ═══════════════════════════════════════════
-   Staggered fade-in for grid items
-═══════════════════════════════════════════ */
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-.animate-fade-in-scale {
-  animation: fadeInScale 0.35s ease both;
-}
-.animate-fade-in-scale-delay-0 { animation-delay: 0s; }
-.animate-fade-in-scale-delay-1 { animation-delay: 0.03s; }
-.animate-fade-in-scale-delay-2 { animation-delay: 0.06s; }
-.animate-fade-in-scale-delay-3 { animation-delay: 0.09s; }
-.animate-fade-in-scale-delay-4 { animation-delay: 0.12s; }
-.animate-fade-in-scale-delay-5 { animation-delay: 0.15s; }
+
 
 /* ═══════════════════════════════════════════
    Pill / Badge base styles
@@ -268,16 +253,7 @@ body {
   }
 }
 
-/* ═══════════════════════════════════════════
-   Cookie Consent Animation
-═══════════════════════════════════════════ */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out;
-}
+
 
 /* ═══════════════════════════════════════════
    Mobile Safe Areas (iOS notch, etc.)

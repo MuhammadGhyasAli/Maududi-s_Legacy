@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+import MobileNav from "./MobileNav";
 import ScrollToTop from "./ScrollToTop";
 import { ToastProvider } from "./Toast";
 import OnboardingTour from "./OnboardingTour";
@@ -113,6 +114,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
           {!hideSidebar && !isAuthRoute && <Footer />}
         </div>
 
+        {!hideSidebar && !isChatRoute && !isAuthRoute && <MobileNav />}
         {!hideSidebar && !isAuthRoute && <ScrollToTop />}
       </div>
     </ToastProvider>

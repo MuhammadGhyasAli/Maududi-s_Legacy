@@ -178,7 +178,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                                px-6 py-4 rounded-xl font-bold text-sm
                                bg-white/50 dark:bg-black/30 text-gray-800 dark:text-gray-200
                                hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20
-                               border border-gray-250 dark:border-gray-800
+                               border border-gray-200 dark:border-gray-800
                                shadow-sm hover:shadow-md hover:border-brand-green/45 dark:hover:border-brand-green-dark/45
                                active:scale-[0.98]
                                transition-all duration-200 group"

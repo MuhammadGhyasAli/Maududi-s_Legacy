@@ -370,7 +370,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
               {[...Array(15)].map((_, i) => (
-                <div key={i} className={`animate-fade-in-scale-delay-${Math.min(i % 5, 5)}`}>
+                <div key={i} className={`animate-fade-in-scale-delay-${Math.min((i % 5) + 1, 5)}`}>
                   <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">
                     <div className="skeleton-shimmer rounded w-full aspect-[3/4] max-h-48" />
                     <div className="p-4 space-y-2.5">

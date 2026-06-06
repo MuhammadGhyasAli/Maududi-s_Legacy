@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useDocumentMeta } from "../hooks/useDocumentMeta";
 import BookGrid from "../components/BookGrid";
 import BookDetail from "../components/BookDetail";
+import { BookGridSkeleton } from "../components/Skeleton";
 import { apiService } from "../services/apiService";
 import { findBookBySlug, slugify } from "../utils/slugify";
 import type { Book } from "../types";
@@ -32,28 +33,7 @@ function HomePageFallback() {
         <div className="skeleton-shimmer mx-auto rounded h-14 w-3/4 mb-4" />
         <div className="skeleton-shimmer mx-auto rounded h-5 w-2/3" />
       </div>
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        {['Tafsir', 'Politics', 'Theology', 'Economics', 'Jurisprudence', 'History'].map(cat => (
-          <div key={cat} className="skeleton-shimmer rounded-full h-8 w-20" />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
-        {[...Array(15)].map((_, i) => (
-          <div key={i} className={`animate-fade-in-scale-delay-${Math.min((i % 5) + 1, 5)}`}>
-            <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">
-              <div className="skeleton-shimmer rounded w-full aspect-[3/4] max-h-48" />
-              <div className="p-4 space-y-2.5">
-                <div className="skeleton-shimmer rounded h-4 w-4/5" />
-                <div className="skeleton-shimmer rounded h-3 w-1/3" />
-                <div className="pt-1.5 space-y-1.5">
-                  <div className="skeleton-shimmer rounded h-2.5 w-full" />
-                  <div className="skeleton-shimmer rounded h-2.5 w-2/3" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <BookGridSkeleton />
     </main>
   );
 }
