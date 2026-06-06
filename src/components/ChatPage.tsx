@@ -51,7 +51,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [showHistory, setShowHistory] = useState(false);
   const [guestMessageCount, setGuestMessageCountState] = useState(getGuestMessageCount);
   const [limitReached, setLimitReached] = useState(false);
-  const availableLanguages = user ? ALL_LANGUAGES : GUEST_LANGUAGES;
+  const restrictedLanguages = !user ? ALL_LANGUAGES.filter(l => !GUEST_LANGUAGES.includes(l)) : [];
+  const displayLanguages = user ? ALL_LANGUAGES : ALL_LANGUAGES;
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
   const bookSlug = slugify(book.title);
 
@@ -398,7 +399,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
           isLoading={isLoading}
           error={error}
           selectedLanguage={selectedLanguage}
-          languages={availableLanguages}
+          languages={displayLanguages}
+          restrictedLanguages={restrictedLanguages}
+          onRestrictedLanguageClick={(lang) => {
+            toast(`Sign in to use ${lang}`, 'error');
+          }}
           onSelectLanguage={setSelectedLanguage}
           onSendMessage={handleSendMessage}
         />

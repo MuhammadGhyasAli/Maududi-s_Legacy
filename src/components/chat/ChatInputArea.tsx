@@ -24,6 +24,8 @@ interface ChatInputAreaProps {
   fileInputRef?: React.RefObject<HTMLInputElement | null>;
   placeholder?: string;
   footerText?: string;
+  restrictedLanguages?: string[];
+  onRestrictedLanguageClick?: (lang: string) => void;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -41,7 +43,9 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onRemoveImage,
   fileInputRef,
   placeholder = "Message AI...",
-  footerText = "AI can make mistakes. Verify important information."
+  footerText = "AI can make mistakes. Verify important information.",
+  restrictedLanguages,
+  onRestrictedLanguageClick,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -151,15 +155,30 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setLangOpen(false)} />
                   <div className="absolute bottom-full left-0 mb-1.5 w-28 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-20">
-                    {languages.map(lang => (
-                      <button
-                        key={lang}
-                        onClick={() => { onSelectLanguage(lang); setLangOpen(false); }}
-                        className={`cursor-pointer w-full text-left px-3 py-1.5 text-[11px] sm:text-xs transition-colors ${selectedLanguage === lang ? 'bg-brand-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                      >
-                        {lang}
-                      </button>
-                    ))}
+                    {languages.map(lang => {
+                      const isRestricted = restrictedLanguages?.includes(lang);
+                      return (
+                        <button
+                          key={lang}
+                          onClick={() => {
+                            if (isRestricted) {
+                              onRestrictedLanguageClick?.(lang);
+                            } else {
+                              onSelectLanguage(lang);
+                            }
+                            setLangOpen(false);
+                          }}
+                          className={`cursor-pointer w-full text-left px-3 py-1.5 text-[11px] sm:text-xs transition-colors flex items-center gap-2 ${selectedLanguage === lang ? 'bg-brand-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                        >
+                          <span className="flex-1">{lang}</span>
+                          {isRestricted && (
+                            <svg className="w-3 h-3 opacity-60 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}
