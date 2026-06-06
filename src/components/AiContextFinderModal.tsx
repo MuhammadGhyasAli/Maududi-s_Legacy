@@ -244,7 +244,7 @@ If the user's message includes an image, you MUST follow this two-step process w
             The AI Context Finder is available to signed-in users only. Please log in or create an account to access the full collection of Maududi's works.
           </p>
           <button
-            onClick={() => router.push('/account/login')}
+            onClick={() => router.push('/auth/login')}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-green hover:bg-brand-green-dark transition-colors duration-200"
           >
             Sign in
