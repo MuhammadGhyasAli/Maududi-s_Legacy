@@ -125,9 +125,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         await navigator.share({ title: `Chat about ${book.title}`, text: shareText });
         toast('Chat shared!');
         return;
-      } catch {
-        // user cancelled — don't fall through to clipboard
-        return;
+      } catch (err) {
+        // Only swallow user cancellation; let other errors fall through to clipboard
+        if (err instanceof DOMException && err.name === 'AbortError') return;
       }
     }
 
@@ -261,7 +261,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       )}
 
       {/* Main chat area */}
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex flex-col flex-1 min-w-0 pt-14">
         {/* Slim top bar */}
         <div className="fixed top-0 left-0 right-0 z-20 h-14 bg-white/90 dark:bg-brand-bg-dark/90 backdrop-blur-lg border-b border-emerald-100/40 dark:border-emerald-900/20">
           <div className="flex items-center justify-between h-full px-4 max-w-5xl mx-auto">

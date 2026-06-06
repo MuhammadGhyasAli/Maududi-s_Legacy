@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { ChatMessage } from "../types";
 
 const STORAGE_KEY = "ml_chat_histories";
@@ -36,9 +36,17 @@ function saveAll(conversations: SavedConversation[]) {
 
 const MAX_CONVERSATIONS_PER_BOOK = 5;
 
-export function useChatHistory(bookId: number, bookTitle: string, bookSlug: string, isAuthenticated: boolean = true) {
+export function useChatHistory(bookId: number, bookTitle: string, bookSlug: string, isAuthenticated: boolean = false) {
   const [conversations, setConversations] = useState<SavedConversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
+
+  // Ref for activeConvId to avoid stale closures in callbacks
+  const activeConvIdRef = useRef<string | null>(null);
+  useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
+
+  // Ref for conversations to avoid getConversation depending on state
+  const conversationsRef = useRef<SavedConversation[]>([]);
+  useEffect(() => { conversationsRef.current = conversations; }, [conversations]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -66,20 +74,23 @@ export function useChatHistory(bookId: number, bookTitle: string, bookSlug: stri
     if (messages.length <= 1) return;
 
     const now = new Date().toISOString();
+    const newId = `conv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    let isNew = false;
+
     setConversations(prev => {
-      const existing = prev.find(c => c.id === activeConvId);
+      const existing = prev.find(c => c.id === activeConvIdRef.current);
       let updated: SavedConversation[];
 
       if (existing) {
         updated = prev.map(c =>
-          c.id === activeConvId
+          c.id === activeConvIdRef.current
             ? { ...c, messages, updatedAt: now }
             : c
         );
       } else {
-        const id = `conv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        isNew = true;
         const newConv: SavedConversation = {
-          id,
+          id: newId,
           bookId,
           bookTitle,
           bookSlug,
@@ -88,14 +99,15 @@ export function useChatHistory(bookId: number, bookTitle: string, bookSlug: stri
           updatedAt: now,
         };
         updated = [newConv, ...prev];
-        setActiveConvId(id);
       }
 
       updated = trimToMax(updated);
       saveAll(updated);
       return updated;
     });
-  }, [isAuthenticated, activeConvId, bookId, bookTitle, bookSlug, trimToMax]);
+
+    if (isNew) setActiveConvId(newId);
+  }, [isAuthenticated, bookId, bookTitle, bookSlug, trimToMax]);
 
   const deleteConversation = useCallback((id: string) => {
     if (!isAuthenticated) return;
@@ -104,12 +116,12 @@ export function useChatHistory(bookId: number, bookTitle: string, bookSlug: stri
       saveAll(updated);
       return updated;
     });
-    if (activeConvId === id) setActiveConvId(null);
-  }, [isAuthenticated, activeConvId]);
+    if (activeConvIdRef.current === id) setActiveConvId(null);
+  }, [isAuthenticated]);
 
   const getConversation = useCallback((id: string): SavedConversation | undefined => {
-    return conversations.find(c => c.id === id);
-  }, [conversations]);
+    return conversationsRef.current.find(c => c.id === id);
+  }, []);
 
   const bookConversations = conversations.filter(c => c.bookId === bookId);
 
