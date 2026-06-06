@@ -261,7 +261,7 @@ body {
 /* ═══════════════════════════════════════════
    Header: hide desktop nav & AI Search on smaller screens
 ═══════════════════════════════════════════ */
-@media (max-width: 999px) {
+@media (max-width: 1023px) {
   .header-nav-links,
   .header-ai-search {
     display: none !important;

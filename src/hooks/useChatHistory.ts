@@ -36,19 +36,23 @@ function saveAll(conversations: SavedConversation[]) {
 
 const MAX_CONVERSATIONS_PER_BOOK = 5;
 
-export function useChatHistory(bookId: number, bookTitle: string, bookSlug: string) {
+export function useChatHistory(bookId: number, bookTitle: string, bookSlug: string, isAuthenticated: boolean = true) {
   const [conversations, setConversations] = useState<SavedConversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
 
   useEffect(() => {
-    setConversations(loadAll());
-  }, []);
+    if (isAuthenticated) {
+      setConversations(loadAll());
+    } else {
+      setConversations([]);
+      setActiveConvId(null);
+    }
+  }, [isAuthenticated]);
 
   const trimToMax = useCallback((all: SavedConversation[]): SavedConversation[] => {
     const bookConvs = all.filter(c => c.bookId === bookId);
     if (bookConvs.length <= MAX_CONVERSATIONS_PER_BOOK) return all;
 
-    // Sort by updatedAt ascending (oldest first), mark excess for removal
     const sorted = [...bookConvs].sort((a, b) =>
       new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
     );
@@ -58,7 +62,8 @@ export function useChatHistory(bookId: number, bookTitle: string, bookSlug: stri
   }, [bookId]);
 
   const saveConversation = useCallback((messages: ChatMessage[]) => {
-    if (messages.length <= 1) return; // don't save empty/greeting-only chats
+    if (!isAuthenticated) return;
+    if (messages.length <= 1) return;
 
     const now = new Date().toISOString();
     setConversations(prev => {
@@ -90,16 +95,17 @@ export function useChatHistory(bookId: number, bookTitle: string, bookSlug: stri
       saveAll(updated);
       return updated;
     });
-  }, [activeConvId, bookId, bookTitle, bookSlug, trimToMax]);
+  }, [isAuthenticated, activeConvId, bookId, bookTitle, bookSlug, trimToMax]);
 
   const deleteConversation = useCallback((id: string) => {
+    if (!isAuthenticated) return;
     setConversations(prev => {
       const updated = prev.filter(c => c.id !== id);
       saveAll(updated);
       return updated;
     });
     if (activeConvId === id) setActiveConvId(null);
-  }, [activeConvId]);
+  }, [isAuthenticated, activeConvId]);
 
   const getConversation = useCallback((id: string): SavedConversation | undefined => {
     return conversations.find(c => c.id === id);

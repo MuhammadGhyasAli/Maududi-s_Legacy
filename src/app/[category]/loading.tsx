@@ -5,7 +5,7 @@ export default function CategoryLoading() {
         <div className="skeleton-shimmer rounded h-4 w-20" />
         <div className="skeleton-shimmer rounded h-4 w-24" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
         {[...Array(10)].map((_, i) => (
           <div key={i}>
             <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">

@@ -361,7 +361,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
                 <div key={cat} className="skeleton-shimmer rounded-full h-8 w-20" />
               ))}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
               {[...Array(15)].map((_, i) => (
                 <div key={i} className={`animate-fade-in-scale-delay-${Math.min(i % 5, 5)}`}>
                   <div className="bg-white dark:bg-brand-card-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07] shadow-sm">
@@ -382,7 +382,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
         ) : paginatedBooks.length > 0 ? (
           <>
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
                 {paginatedBooks.map((book, idx) => (
                   <BookCard
                     key={book.id}

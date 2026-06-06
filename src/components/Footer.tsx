@@ -34,7 +34,7 @@ export default function Footer() {
       <div className="h-px bg-gradient-brand" />
 
       <div className="container mx-auto px-4 sm:px-6 py-14">
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-12 gap-8 md:gap-6">
           {/* Brand — 4 cols */}
           <div className="col-span-2 md:col-span-4 space-y-4">
             <h3 className="font-display font-bold text-lg text-brand-green dark:text-brand-green-dark">

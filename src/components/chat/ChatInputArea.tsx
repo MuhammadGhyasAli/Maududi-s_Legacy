@@ -65,7 +65,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
   return (
     <>
-      <div className="flex-none px-2 sm:px-4 pb-2 sm:pb-4 pt-2 sm:pt-4 bg-gradient-to-t from-brand-bg-light via-brand-bg-light to-transparent dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-transparent">
+      <div className="flex-none px-2 sm:px-4 lg:px-6 pb-2 sm:pb-4 lg:pb-5 pt-2 sm:pt-4 lg:pt-5 bg-gradient-to-t from-brand-bg-light via-brand-bg-light to-transparent dark:from-brand-bg-dark dark:via-brand-bg-dark dark:to-transparent">
         <div className="max-w-3xl mx-auto">
           {error && (
             <div className="mb-2 sm:mb-3 px-3 sm:px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 rounded-lg text-sm">

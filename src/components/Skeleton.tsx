@@ -49,7 +49,7 @@ export const BookCardSkeleton: React.FC = () => (
 );
 
 export const BookGridSkeleton: React.FC = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
     {[...Array(15)].map((_, i) => (
       <div key={i} className={`animate-fade-in-scale-delay-${Math.min(i % 5, 5)}`}>
         <BookCardSkeleton />
