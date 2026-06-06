@@ -38,38 +38,14 @@ const timeline = [
 ];
 
 const majorWorks = [
-  {
-    title: "Tafhim-ul-Quran (Towards Understanding the Quran)",
-    description: "6-volume thematic translation and commentary (1942–1972). His magnum opus presenting the Quran as a comprehensive guide for life.",
-  },
-  {
-    title: "Al-Jihad fil Islam (Jihad in Islam)",
-    description: "600-page treatise published at age 24. Allama Iqbal called it 'the best explication of jihad in any language'.",
-  },
-  {
-    title: "Khutabat (Addresses to the Jamaat)",
-    description: "Multi-volume collection of speeches and addresses to Jamaat-e-Islami members spanning decades.",
-  },
-  {
-    title: "Islamic Law and Constitution",
-    description: "Systematic presentation of Islamic constitutional theory and its application to modern governance.",
-  },
-  {
-    title: "The Islamic Way of Life",
-    description: "Comprehensive overview of Islam as a complete system covering belief, worship, ethics, and social order.",
-  },
-  {
-    title: "Human Rights in Islam",
-    description: "Articulation of Islamic human rights framework predating the UN Declaration by decades.",
-  },
-  {
-    title: "Four Basic Quranic Terms",
-    description: "Seminal work explaining Ilah, Rabb, Ibadah, and Deen — foundational concepts of Islamic theology.",
-  },
-  {
-    title: "Let Us Be Muslims",
-    description: "Collection of Friday sermons calling Muslims to live by the comprehensive demands of their faith.",
-  },
+  { title: "Tafhim-ul-Quran (Towards Understanding the Quran)", description: "6-volume thematic translation and commentary (1942–1972). His magnum opus presenting the Quran as a comprehensive guide for life." },
+  { title: "Al-Jihad fil Islam (Jihad in Islam)", description: "600-page treatise published at age 24. Allama Iqbal called it 'the best explication of jihad in any language'." },
+  { title: "Khutabat (Addresses to the Jamaat)", description: "Multi-volume collection of speeches and addresses to Jamaat-e-Islami members spanning decades." },
+  { title: "Islamic Law and Constitution", description: "Systematic presentation of Islamic constitutional theory and its application to modern governance." },
+  { title: "The Islamic Way of Life", description: "Comprehensive overview of Islam as a complete system covering belief, worship, ethics, and social order." },
+  { title: "Human Rights in Islam", description: "Articulation of Islamic human rights framework predating the UN Declaration by decades." },
+  { title: "Four Basic Quranic Terms", description: "Seminal work explaining Ilah, Rabb, Ibadah, and Deen — foundational concepts of Islamic theology." },
+  { title: "Let Us Be Muslims", description: "Collection of Friday sermons calling Muslims to live by the comprehensive demands of their faith." },
 ];
 
 const intellectualLegacy = [
@@ -81,56 +57,105 @@ const intellectualLegacy = [
   "Islamic Da'wah Methodology — Systematic approach to inviting others to Islam through education and example",
 ];
 
+const quickFacts = [
+  { label: "Born", value: "25 Sep 1903, Aurangabad" },
+  { label: "Died", value: "22 Sep 1979, Buffalo, NY" },
+  { label: "Resting Place", value: "Ichhra, Lahore" },
+  { label: "Era", value: "20th Century" },
+  { label: "Jurisprudence", value: "Hanafi" },
+  { label: "Movement", value: "Jamaat-e-Islami" },
+  { label: "Works", value: "73+ books" },
+  { label: "Magnum Opus", value: "Tafhim-ul-Quran" },
+];
+
 export default function BiographyPage() {
   return (
-    <main className="max-w-5xl mx-auto px-4 py-12 sm:py-16">
-      <header className="mb-12 text-center">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-          Biography of Sayyid Abul A'la Maududi
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-          1903–1979 | Islamic Scholar, Philosopher, Jurist, Journalist, Founder of Jamaat-e-Islami, Author of
-          <em className="italic">Tafhim-ul-Quran</em>
-        </p>
-      </header>
-
-      {/* Portrait */}
-      <div className="flex justify-center mb-12">
-        <div className="relative w-64 h-80 rounded-2xl overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
-          <Image
-            src="/maududi-portrait.jpg"
-            alt="Sayyid Abul A'la Maududi"
-            fill
-            className="object-cover"
-            priority
-          />
+    <main className="max-w-6xl mx-auto px-4">
+      {/* ── Hero Section ── */}
+      <section className="relative overflow-hidden rounded-b-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-gray-900 dark:from-black dark:via-emerald-950 dark:to-gray-950 pt-16 pb-12 sm:pt-20 sm:pb-16 px-6 sm:px-10 mb-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(5,150,105,0.15),_transparent_60%)] pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          {/* Portrait */}
+          <div className="flex-shrink-0">
+            <div className="relative w-48 h-60 sm:w-56 sm:h-72 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-emerald-500/30">
+              <Image
+                src="/maududi-portrait.jpg"
+                alt="Sayyid Abul A'la Maududi"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+          {/* Bio Info */}
+          <div className="text-center md:text-left">
+            <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wider uppercase mb-3">
+              Founder of Jamaat-e-Islami
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-3">
+              Sayyid Abul A&apos;la Maududi
+            </h1>
+            <p className="text-emerald-200/90 text-base sm:text-lg max-w-2xl leading-relaxed mb-4">
+              Islamic Scholar · Philosopher · Jurist · Journalist · Author of <em className="italic">Tafhim-ul-Quran</em>
+            </p>
+            <p className="text-gray-300 text-sm max-w-xl leading-relaxed">
+              Described by Wilfred Cantwell Smith as &ldquo;the most systematic thinker of modern Islam,&rdquo; 
+              his works covered Qur&rsquo;anic exegesis, hadith, law, philosophy, and history. 
+              Translated into English, Arabic, Hindi, Bengali, and many other languages.
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
+      {/* ── Quick Facts Bar ── */}
       <section className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Life Timeline</h2>
-        <div className="space-y-4">
-          {timeline.map((item) => (
-            <div
-              key={item.year}
-              className="relative pl-8 pb-8 border-l-2 border-emerald-200 dark:border-emerald-800 last:border-0"
-            >
-              <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white dark:border-gray-900" />
-              <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1">{item.year}</div>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{item.event}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {quickFacts.map((f) => (
+            <div key={f.label} className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80">
+              <div className="text-xs font-semibold tracking-wider uppercase text-gray-400 dark:text-gray-500 mb-1">{f.label}</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{f.value}</div>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ── Early Life & Education ── */}
       <section className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Major Works</h2>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+            <span className="w-8 h-0.5 bg-emerald-500 rounded-full" />
+            Life Timeline
+          </h2>
+          <div className="space-y-5">
+            {timeline.map((item) => (
+              <div
+                key={item.year}
+                className="relative pl-10 pb-6 border-l-2 border-emerald-200 dark:border-emerald-800 last:border-0 last:pb-0 group"
+              >
+                <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-gray-900 group-hover:ring-emerald-200 dark:group-hover:ring-emerald-800 transition-all" />
+                <div className="inline-block text-xs font-bold text-white bg-emerald-600 dark:bg-emerald-700 px-2.5 py-0.5 rounded-full mb-2">{item.year}</div>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">{item.event}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Major Works ── */}
+      <section className="mb-16">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+          <span className="w-8 h-0.5 bg-emerald-500 rounded-full" />
+          Major Works
+        </h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          {majorWorks.map((work) => (
+          {majorWorks.map((work, i) => (
             <div
               key={work.title}
-              className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+              className="relative p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all duration-200"
             >
+              <span className="absolute -top-2.5 -left-2.5 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-md">
+                {i + 1}
+              </span>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{work.title}</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">{work.description}</p>
             </div>
@@ -138,53 +163,89 @@ export default function BiographyPage() {
         </div>
       </section>
 
+      {/* ── Key Intellectual Contributions ── */}
       <section className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Key Intellectual Contributions</h2>
-        <ul className="space-y-3">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+          <span className="w-8 h-0.5 bg-emerald-500 rounded-full" />
+          Key Intellectual Contributions
+        </h2>
+        <div className="grid gap-3 sm:grid-cols-2">
           {intellectualLegacy.map((item, index) => (
-            <li
+            <div
               key={index}
               className="flex gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             >
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-sm">
+              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
                 {index + 1}
               </span>
-              <p className="text-gray-600 dark:text-gray-400">{item}</p>
-            </li>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
 
-      {/* Grave image */}
-      <div className="flex flex-col items-center mb-12">
-        <div className="relative w-72 h-96 rounded-2xl overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
-          <Image
-            src="/maududi-grave.jpg"
-            alt="Grave of Sayyid Abul A'la Maududi in Ichhra, Lahore"
-            fill
-            className="object-cover"
-          />
+      {/* ── Legacy & Final Resting Place ── */}
+      <section className="mb-16">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+            <span className="w-8 h-0.5 bg-emerald-500 rounded-full" />
+            Legacy &amp; Final Resting Place
+          </h2>
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex-1 space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
+              <p>
+                In April 1979, Maududi&apos;s long-time kidney ailment worsened and he also developed heart problems. 
+                He travelled to the United States for treatment and was hospitalised in Buffalo, New York, where his 
+                second son worked as a physician. Following several surgical operations, he passed away on 
+                22 September 1979 at age 75.
+              </p>
+              <p>
+                His funeral prayer was led by Yusuf al-Qaradawi in Buffalo, after which his body was flown to 
+                Lahore. A massive funeral procession through the city accompanied him to his final resting place. 
+                He was buried in an unmarked grave at his residence in Ichhra, Lahore — a humble resting place 
+                for a man whose ideas shaped Islamic thought across the globe.
+              </p>
+              <p>
+                Today, his legacy endures through 73+ books translated into dozens of languages, the global 
+                network of Jamaat-e-Islami, and the lasting impact of his Tafhim-ul-Quran, which remains one 
+                of the most widely-read Quranic commentaries of the modern era.
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <div className="relative w-64 h-80 sm:w-72 sm:h-96 rounded-2xl overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
+                <Image
+                  src="/maududi-grave.jpg"
+                  alt="Grave of Sayyid Abul A'la Maududi in Ichhra, Lahore"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+                Grave of Maududi at his residence in Ichhra, Lahore
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-          Grave of Maududi at his residence in Ichhra, Lahore
-        </p>
-      </div>
+      </section>
 
-      <section className="border-t border-gray-200 dark:border-gray-700 pt-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Sources & Further Reading</h2>
-        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 space-y-3">
-          <p>
-            Biographical information compiled from:
-          </p>
-          <ul>
+      {/* ── Sources ── */}
+      <section className="border-t border-gray-200 dark:border-gray-700 pt-8 pb-16">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+          <span className="w-8 h-0.5 bg-emerald-500 rounded-full" />
+          Sources &amp; Further Reading
+        </h2>
+        <div className="max-w-3xl text-gray-600 dark:text-gray-400 space-y-3 text-sm">
+          <p>Biographical information compiled from:</p>
+          <ul className="list-disc list-inside space-y-1">
             <li><a href="https://en.wikipedia.org/wiki/Abul_A%27la_Maududi" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-600">Wikipedia</a> (CC BY-SA 4.0)</li>
             <li><a href="https://www.encyclopedia.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-600">Encyclopedia.com</a></li>
             <li>Oxford Encyclopedia of Islam and the Muslim World</li>
             <li>Official Jamaat-e-Islami biographical records</li>
-            <li>Tafhim-ul-Quran introductions and author's prefaces</li>
+            <li>Tafhim-ul-Quran introductions and author&apos;s prefaces</li>
             <li>Khutabat (collected addresses) volumes</li>
           </ul>
-          <p className="text-sm">
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Images courtesy of Wikimedia Commons (CC BY-SA 3.0 / Public Domain).{'\n'}
             For deeper study, visit the <a href="https://jamaat.org/founder" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-600">official biography on Jamaat-e-Islami</a>.
           </p>
         </div>
