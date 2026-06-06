@@ -8,12 +8,12 @@ export async function POST(request: Request) {
     const { token, new_password } = await request.json();
 
     if (!token || !new_password || new_password.length < 6) {
-      return NextResponse.json({ error: 'Valid token and password (min 6 chars) are required' }, { status: 400 });
+      return NextResponse.json({ detail: 'Valid token and password (min 6 chars) are required' }, { status: 400 });
     }
 
     const db = await getDb();
     if (!db) {
-      return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+      return NextResponse.json({ detail: 'Database unavailable' }, { status: 503 });
     }
 
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     });
 
     if (!resetDoc) {
-      return NextResponse.json({ error: 'Invalid or expired reset token.' }, { status: 400 });
+      return NextResponse.json({ detail: 'Invalid or expired reset token.' }, { status: 400 });
     }
 
     const passwordHash = await bcrypt.hash(new_password, 12);
@@ -44,6 +44,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Password has been reset successfully.' });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Unknown error';
-    return NextResponse.json({ error: `Reset failed: ${message}` }, { status: 500 });
+    return NextResponse.json({ detail: `Reset failed: ${message}` }, { status: 500 });
   }
 }

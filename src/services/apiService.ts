@@ -384,8 +384,8 @@ export const apiService = {
       body: JSON.stringify({ email }),
     });
     if (!response.ok) {
-      const err = await response.json().catch(() => ({ error: 'Failed to send reset email' }));
-      throw new Error(err.error || 'Failed to send reset email');
+      const err = await response.json().catch(() => ({ detail: 'Failed to send reset email' }));
+      throw new Error(err.detail || 'Failed to send reset email');
     }
     return response.json();
   },
@@ -398,8 +398,8 @@ export const apiService = {
       body: JSON.stringify({ token, new_password }),
     });
     if (!response.ok) {
-      const err = await response.json().catch(() => ({ error: 'Failed to reset password' }));
-      throw new Error(err.error || 'Failed to reset password');
+      const err = await response.json().catch(() => ({ detail: 'Failed to reset password' }));
+      throw new Error(err.detail || 'Failed to reset password');
     }
     return response.json();
   },

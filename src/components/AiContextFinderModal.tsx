@@ -229,7 +229,7 @@ If the user's message includes an image, you MUST follow this two-step process w
   };
 
   return (
-    <div className="flex flex-col h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <div className="flex flex-col h-[100dvh] bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
       
       {/* Top header bar */}
       <div className="flex-none h-14 bg-white/90 dark:bg-brand-bg-dark/90 backdrop-blur-lg border-b border-emerald-100/40 dark:border-emerald-900/20">

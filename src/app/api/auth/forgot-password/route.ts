@@ -12,16 +12,16 @@ export async function POST(request: Request) {
     const { email } = await request.json();
 
     if (!email || !email.includes('@')) {
-      return NextResponse.json({ error: 'Valid email is required' }, { status: 400 });
+      return NextResponse.json({ detail: 'Valid email is required' }, { status: 400 });
     }
 
     if (!GMAIL_APP_PASSWORD) {
-      return NextResponse.json({ error: 'Email service not configured' }, { status: 500 });
+      return NextResponse.json({ detail: 'Email service not configured' }, { status: 500 });
     }
 
     const db = await getDb();
     if (!db) {
-      return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+      return NextResponse.json({ detail: 'Database unavailable' }, { status: 503 });
     }
 
     const user = await db.collection('users').findOne({ email: email.trim().toLowerCase() });
@@ -76,6 +76,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'If that email is registered, a reset link has been sent.' });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Unknown error';
-    return NextResponse.json({ error: `Failed to send email: ${message}` }, { status: 500 });
+    return NextResponse.json({ detail: `Failed to send email: ${message}` }, { status: 500 });
   }
 }

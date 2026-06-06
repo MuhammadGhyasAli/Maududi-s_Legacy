@@ -1,22 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import { getDb } from '@/lib/mongodb';
-import { getJwtSecret } from '@/lib/jwt';
-
-function getUserId(request: NextRequest): number | null {
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader?.startsWith('Bearer ')) return null;
-  try {
-    const payload = jwt.verify(authHeader.slice(7), getJwtSecret()) as { sub: string };
-    return parseInt(payload.sub, 10);
-  } catch {
-    return null;
-  }
-}
+import { getUserIdFromRequest } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
     }
@@ -55,7 +43,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
     }

@@ -43,7 +43,7 @@ export default function GoogleCallbackPage() {
 
     const exchangeGoogleToken = async () => {
       try {
-        const response = await fetch('/api/v1/auth/google', {
+        const response = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id_token: idToken }),
@@ -60,7 +60,6 @@ export default function GoogleCallbackPage() {
           window.opener.postMessage({ type: 'GOOGLE_AUTH', token: data.access_token }, window.location.origin);
           window.close();
         } else {
-          localStorage.setItem('auth_token', data.access_token);
           router.push('/');
         }
       } catch (err) {

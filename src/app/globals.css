@@ -278,3 +278,109 @@ body {
 .animate-slide-up {
   animation: slideUp 0.3s ease-out;
 }
+
+/* ═══════════════════════════════════════════
+   Mobile Safe Areas (iOS notch, etc.)
+═══════════════════════════════════════════ */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Mobile bottom padding to account for nav bar
+═══════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  .has-mobile-nav {
+    padding-bottom: 4rem;
+  }
+  .has-mobile-nav-safe {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Minimum touch target (44x44)
+═══════════════════════════════════════════ */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════
+   Tap highlight color for mobile
+═══════════════════════════════════════════ */
+* {
+  -webkit-tap-highlight-color: rgba(5, 150, 105, 0.15);
+}
+
+/* ═══════════════════════════════════════════
+   Prevent zoom on input focus (iOS)
+═══════════════════════════════════════════ */
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Fluid typography helpers
+═══════════════════════════════════════════ */
+.text-fluid-hero {
+  font-size: clamp(1.75rem, 5vw, 3.5rem);
+  line-height: 1.15;
+}
+.text-fluid-section {
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+}
+.text-fluid-body {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+/* ═══════════════════════════════════════════
+   Smooth scroll-snap for horizontal scrolls
+═══════════════════════════════════════════ */
+.snap-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+}
+.snap-scroll > * {
+  scroll-snap-align: start;
+}
+
+/* ═══════════════════════════════════════════
+   Hide scrollbar for horizontal scroll containers
+═══════════════════════════════════════════ */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════
+   Better list view on mobile
+═══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .card-list-mobile {
+    flex-direction: column !important;
+  }
+  .card-list-mobile > * {
+    width: 100%;
+  }
+}

@@ -164,22 +164,22 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto relative" role="log" aria-live="polite" aria-label="Chat messages">
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8 mt-12">
+      <div className="max-w-3xl mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8 mt-2 sm:mt-0">
         {messages.map((msg, index) => {
           const { dir, className } = getLangProps(msg.text, selectedLanguage);
           const isUser = msg.sender === MessageSender.USER;
           const timestamp = msg.timestamp || new Date();
 
           return (
-            <div key={index} className="flex gap-4 w-full">
+            <div key={index} className="flex gap-2 sm:gap-4 w-full">
               <div className="flex-none mt-0.5">
                 {isUser ? (
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-semibold text-sm">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-semibold text-xs sm:text-sm">
                      {userDisplayName ? userDisplayName[0].toUpperCase() : 'U'}
                   </div>
                 ) : (
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
-                    <svg className="w-4 h-4 text-brand-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
                     </svg>
                   </div>
@@ -187,30 +187,30 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
               </div>
               <div className="flex-1 min-w-0 pt-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
                     {isUser ? 'You' : 'AI Assistant'}
                   </span>
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+                  <span className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-medium">
                     {formatTime(timestamp)}
                   </span>
                 </div>
                 
                 {isUser ? (
-                  <div className={`whitespace-pre-wrap leading-relaxed text-[15px] text-gray-850 dark:text-gray-250 p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 shadow-sm ${className}`} dir={dir}>
-                    {msg.image && <Image src={msg.image} alt="User upload" width={320} height={240} className="max-w-xs rounded-xl mb-3 shadow-sm border border-white/20" />}
+                  <div className={`whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px] text-gray-850 dark:text-gray-250 p-3 sm:p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 shadow-sm ${className}`} dir={dir}>
+                    {msg.image && <Image src={msg.image} alt="User upload" width={320} height={240} className="max-w-[200px] sm:max-w-xs rounded-xl mb-3 shadow-sm border border-white/20" />}
                     {msg.text}
                   </div>
                 ) : (() => {
                   const structuredDetails = parseStructuredResponse ? parseStructuredResponse(msg.text) : null;
                   return (
-                    <div className="w-full bg-white/60 dark:bg-brand-card-dark/40 border border-gray-100 dark:border-white/[0.06] p-4 sm:p-5 rounded-2xl shadow-sm">
+                    <div className="w-full bg-white/60 dark:bg-brand-card-dark/40 border border-gray-100 dark:border-white/[0.06] p-3 sm:p-5 rounded-2xl shadow-sm">
                       {structuredDetails ? (
-                        <div className="space-y-4" dir={dir}>
-                          <div className="bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-brand-green dark:text-brand-green-dark mb-2.5 flex items-center gap-2">
+                        <div className="space-y-3 sm:space-y-4" dir={dir}>
+                          <div className="bg-emerald-500/5 p-3 sm:p-4 rounded-xl border border-emerald-500/10">
+                            <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-green dark:text-brand-green-dark mb-2 sm:mb-2.5 flex items-center gap-1.5 sm:gap-2">
                               <span className="text-xs" aria-hidden="true">📚</span> Context Reference
                             </p>
-                            <div className="space-y-1.5 text-[13px] font-medium">
+                            <div className="space-y-1.5 text-[12px] sm:text-[13px] font-medium">
                               {structuredDetails.bookTitle && (
                                 <div className="text-gray-650 dark:text-gray-350">
                                   <strong className="text-gray-900 dark:text-gray-100">Book:</strong>{' '}
@@ -231,19 +231,19 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                               )}
                             </div>
                             {structuredDetails.context && (
-                              <blockquote className={`mt-3 pl-3.5 border-l-2 border-brand-green/35 dark:border-brand-green-dark/35 text-gray-600 dark:text-gray-400 text-xs italic ${className}`}>
+                              <blockquote className={`mt-2.5 sm:mt-3 pl-2.5 sm:pl-3.5 border-l-2 border-brand-green/35 dark:border-brand-green-dark/35 text-gray-600 dark:text-gray-400 text-[11px] sm:text-xs italic ${className}`}>
                                 {renderFormattedMessage(structuredDetails.context, onNavigateToBook, books)}
                               </blockquote>
                             )}
                           </div>
                           {structuredDetails.remainingText && (
-                            <div className={`whitespace-pre-wrap leading-relaxed text-[15px] text-gray-800 dark:text-gray-200 ${className}`}>
+                            <div className={`whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px] text-gray-800 dark:text-gray-200 ${className}`}>
                               {renderFormattedMessage(structuredDetails.remainingText, onNavigateToBook, books)}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className={`whitespace-pre-wrap leading-relaxed text-[15px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
+                        <div className={`whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
                           {renderFormattedMessage(msg.text, onNavigateToBook, books)}
                         </div>
                       )}

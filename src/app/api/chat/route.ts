@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
+import { getUserIdFromRequest } from '@/lib/auth';
 import { callGroq } from '@/lib/groq';
 
 export async function POST(request: Request) {
   try {
+    if (!getUserIdFromRequest(request)) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
     const { aiContext, messages } = await request.json();
 
     if (!aiContext || !messages || !Array.isArray(messages)) {

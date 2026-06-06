@@ -49,7 +49,7 @@ export default function GoogleSignInButton({ mode = 'signin', className = '' }: 
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/v1/auth/google', {
+      const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_token: response.credential }),

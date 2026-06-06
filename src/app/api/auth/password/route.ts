@@ -1,23 +1,12 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { getDb } from '@/lib/mongodb';
-import { getJwtSecret } from '@/lib/jwt';
+import { getUserIdFromRequest } from '@/lib/auth';
 
 export async function PUT(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
-    }
-
-    let userId: number;
-    try {
-      const payload = jwt.verify(authHeader.slice(7), getJwtSecret()) as { sub: string };
-      userId = parseInt(payload.sub, 10);
-    } catch {
-      return NextResponse.json({ detail: 'Invalid or expired token' }, { status: 401 });
-    }
+    const userId = getUserIdFromRequest(request);
+    if (!userId) return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
 
     const { current_password, new_password } = await request.json();
 

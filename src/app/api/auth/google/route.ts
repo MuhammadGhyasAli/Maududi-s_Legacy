@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { getDb, getNextId } from '@/lib/mongodb';
 import { getJwtSecret, getJwtExpirationSeconds } from '@/lib/jwt';
+import { setAuthCookie } from '@/lib/auth';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID || '';
 
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -97,7 +98,9 @@ export async function POST(request: Request) {
       { expiresIn },
     );
 
-    return NextResponse.json({ access_token: accessToken, token_type: 'bearer', expires_in: expiresIn });
+    const res = NextResponse.json({ access_token: accessToken, token_type: 'bearer', expires_in: expiresIn });
+    setAuthCookie(res, accessToken);
+    return res;
   } catch {
     return NextResponse.json({ detail: 'Server error' }, { status: 500 });
   }

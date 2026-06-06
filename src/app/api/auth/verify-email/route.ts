@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { getDb } from '@/lib/mongodb';
 import { getJwtSecret, getJwtExpirationSeconds } from '@/lib/jwt';
+import { setAuthCookie } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
@@ -50,7 +51,9 @@ export async function POST(request: Request) {
       { expiresIn },
     );
 
-    return NextResponse.json({ access_token: accessToken, token_type: 'bearer', expires_in: expiresIn });
+    const res = NextResponse.json({ access_token: accessToken, token_type: 'bearer', expires_in: expiresIn });
+    setAuthCookie(res, accessToken);
+    return res;
   } catch {
     return NextResponse.json({ detail: 'Server error' }, { status: 500 });
   }
