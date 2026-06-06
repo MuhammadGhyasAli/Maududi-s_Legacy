@@ -214,13 +214,13 @@ export const apiService = {
   },
 
   // Chat with AI about a book
-  chat: async (bookId: number, aiContext: string, messages: ApiChatMessage[], signal?: AbortSignal, guestMessageCount?: number): Promise<{ response: string }> => {
+  chat: async (bookId: number, aiContext: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string; guestMessageCount?: number }> => {
     const response = await apiFetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ bookId, aiContext, messages, ...(guestMessageCount !== undefined ? { guestMessageCount } : {}) }),
+      body: JSON.stringify({ bookId, aiContext, messages }),
       signal: getAbortSignal(signal),
     });
     if (!response.ok) {

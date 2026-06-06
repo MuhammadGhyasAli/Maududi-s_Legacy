@@ -13,19 +13,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { useChatHistory } from '../hooks/useChatHistory';
 import { slugify } from '../utils/slugify';
 
-const GUEST_MSG_KEY = 'maududi_guest_msg_count';
 const MAX_FREE_MESSAGES = 10;
 
-function getGuestMessageCount(): number {
-  if (typeof window === 'undefined') return 0;
-  try {
-    return parseInt(localStorage.getItem(GUEST_MSG_KEY) || '0', 10);
-  } catch { return 0; }
-}
-
-function setGuestMessageCount(count: number): void {
-  if (typeof window === 'undefined') return;
-  try { localStorage.setItem(GUEST_MSG_KEY, String(count)); } catch { /* ignore */ }
+function getGuestCountFromCookie(): number {
+  if (typeof document === 'undefined') return 0;
+  const match = document.cookie.match(/(?:^|;\s*)guest_msg_count=(\d+)/);
+  return match ? parseInt(match[1], 10) : 0;
 }
 
 const ALL_LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
@@ -49,7 +42,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [showHistory, setShowHistory] = useState(false);
-  const [guestMessageCount, setGuestMessageCountState] = useState(getGuestMessageCount);
+  const [guestMessageCount, setGuestMessageCountState] = useState(getGuestCountFromCookie);
   const [limitReached, setLimitReached] = useState(false);
   const restrictedLanguages = !user ? ALL_LANGUAGES.filter(l => !GUEST_LANGUAGES.includes(l)) : [];
   const displayLanguages = user ? ALL_LANGUAGES : ALL_LANGUAGES;
@@ -113,8 +106,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
             { role: 'user', content: `Provide a precise, well-researched answer based strictly on the book's content. Accuracy is critical — only state what you are certain of. If you are unsure about any detail, explicitly say so rather than speculating. Your entire response must be in ${selectedLanguage}. When citing, provide full exact book titles and specific context references.\n\nMy question: "${textToSend}"` }
         ];
         
-        const currentGuestCount = !user ? guestMessageCount : undefined;
-        const response = await apiService.chat(book.id, book.aiContext, newApiMessages, undefined, currentGuestCount);
+        const response = await apiService.chat(book.id, book.aiContext, newApiMessages);
         const aiMessage: ChatMessage = { sender: MessageSender.AI, text: response.response, timestamp: new Date() };
         const finalMessages = [...updatedMessages, aiMessage];
         setMessages(finalMessages);
@@ -126,10 +118,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
 
         saveConversation(finalMessages);
 
-        if (!user) {
-          const newCount = guestMessageCount + 1;
-          setGuestMessageCountState(newCount);
-          setGuestMessageCount(newCount);
+        if (!user && typeof response.guestMessageCount === 'number') {
+          setGuestMessageCountState(response.guestMessageCount);
         }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
@@ -145,7 +135,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       setLoadingStatus('');
       setIsLoading(false);
     }
-  }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation, guestMessageCount, user]);
+  }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation, user]);
 
   const handleShareChat = async () => {
     if (!user) {

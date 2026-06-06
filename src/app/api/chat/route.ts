@@ -2,15 +2,32 @@ import { NextResponse } from 'next/server';
 import { getUserIdFromRequest } from '@/lib/auth';
 import { callGroq } from '@/lib/groq';
 
+const COOKIE_NAME = 'guest_msg_count';
+const MAX_GUEST_MSGS = 10;
+
+function getGuestCount(request: Request): number {
+  const cookieHeader = request.headers.get('cookie') || '';
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=(\\d+)`));
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+function setGuestCountCookie(res: NextResponse, count: number): void {
+  const secure = process.env.VERCEL === '1';
+  res.headers.set(
+    'Set-Cookie',
+    `${COOKIE_NAME}=${count}; Path=/; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}; Max-Age=${30 * 24 * 60 * 60}`,
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const userId = getUserIdFromRequest(request);
     const body = await request.json();
-    const { aiContext, messages, guestMessageCount } = body;
+    const { aiContext, messages } = body;
 
     if (!userId) {
-      const count = typeof guestMessageCount === 'number' ? guestMessageCount : 0;
-      if (count >= 10) {
+      const count = getGuestCount(request);
+      if (count >= MAX_GUEST_MSGS) {
         return NextResponse.json({
           error: 'Free limit reached. Please log in to continue chatting.',
           limitReached: true,
@@ -44,6 +61,16 @@ export async function POST(request: Request) {
       max_tokens: 4096,
       top_p: 0.9,
     });
+
+    if (!userId) {
+      const newCount = getGuestCount(request) + 1;
+      const res = NextResponse.json({
+        response: result.response,
+        guestMessageCount: newCount,
+      });
+      setGuestCountCookie(res, newCount);
+      return res;
+    }
 
     return NextResponse.json({ response: result.response });
   } catch (e) {
