@@ -36,7 +36,7 @@ export async function generateMetadata({
     return { title: "Book Not Found" };
   }
 
-  const title = `${book.title} | Maududi's Legacy`;
+  const title = book.title;
   const description =
     book.description?.length > 160
       ? book.description.slice(0, 157) + "..."

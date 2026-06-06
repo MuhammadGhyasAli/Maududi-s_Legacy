@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function ErrorPage({
@@ -9,6 +10,7 @@ export default function ErrorPage({
   _error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => { document.title = "Something Went Wrong | Maududi's Legacy"; }, []);
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 bg-brand-bg-light dark:bg-brand-bg-dark">
       <div className="text-center max-w-md">

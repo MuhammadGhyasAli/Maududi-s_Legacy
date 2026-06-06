@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, FormEvent, Suspense, useEffect } from 'react';
+import { useState, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { apiService } from '../../../../services/apiService';
+import { useDocumentMeta } from '../../../../hooks/useDocumentMeta';
 
 function ResetPasswordForm() {
-  useEffect(() => { document.title = "Reset Password | Maududi's Legacy"; }, []);
+  useDocumentMeta('Reset Password');
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 

@@ -7,6 +7,7 @@ import { BookGridSkeleton } from "../../components/Skeleton";
 import type { Book } from "../../types";
 import { apiService } from "../../services/apiService";
 import { deslugifyCategory } from "../../utils/slugify";
+import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -16,6 +17,8 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showingRelated, setShowingRelated] = useState(false);
+
+  useDocumentMeta(category ? deslugifyCategory(category) : 'All Books');
 
   useEffect(() => {
     (async () => {

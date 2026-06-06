@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useDocumentMeta } from '@/hooks/useDocumentMeta';
 
 type Tab = 'profile' | 'password' | 'danger';
 
@@ -27,6 +28,7 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
 ];
 
 export default function SettingsPage() {
+  useDocumentMeta('Account Settings');
   const { user, updateProfile, changePassword, deleteAccount, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('profile');

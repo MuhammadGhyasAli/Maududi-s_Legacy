@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useToast } from '../../../../components/Toast';
 import GoogleSignInButton from '../../../../components/GoogleSignInButton';
+import { useDocumentMeta } from '../../../../hooks/useDocumentMeta';
 
 export default function RegisterPage() {
-  useEffect(() => { document.title = "Create Account | Maududi's Legacy"; }, []);
+  useDocumentMeta('Create Account');
   const { register, verifyEmail } = useAuth();
   const router = useRouter();
   const { toast } = useToast();

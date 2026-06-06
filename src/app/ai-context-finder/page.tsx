@@ -3,6 +3,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 import type { Book } from "../../types";
 import { slugify } from "../../utils/slugify";
 
@@ -15,6 +16,7 @@ const AiContextFinderPage = dynamic(() => import("../../components/AiContextFind
 });
 
 export default function AiContextFinderRoute() {
+  useDocumentMeta('AI Context Finder');
   const router = useRouter();
 
   const onNavigateToBook = (book: Book) => {

@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useDocumentMeta } from '../../../../../hooks/useDocumentMeta';
 
 export default function GoogleCallbackPage() {
+  useDocumentMeta('Signing in...');
   const router = useRouter();
   const [error, setError] = useState('');
 

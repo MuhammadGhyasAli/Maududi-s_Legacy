@@ -1,3 +1,5 @@
+export const metadata = { title: "Health Check" };
+
 export default function HealthPage() {
   return (
     <main className="min-h-[80vh] flex items-center justify-center px-4">

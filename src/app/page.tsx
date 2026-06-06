@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Suspense, useEffect, useState, useRef } from "react";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 import BookGrid from "../components/BookGrid";
 import { apiService } from "../services/apiService";
 import type { Book } from "../types";
@@ -106,6 +107,7 @@ function HomePageContent() {
 }
 
 export default function HomePage() {
+  useDocumentMeta('Home');
   return (
     <Suspense fallback={<HomePageFallback />}>
       <HomePageContent />

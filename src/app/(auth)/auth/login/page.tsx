@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import GoogleSignInButton from '../../../../components/GoogleSignInButton';
+import { useDocumentMeta } from '../../../../hooks/useDocumentMeta';
 
 export default function LoginPage() {
-  useEffect(() => { document.title = "Sign In | Maududi's Legacy"; }, []);
+  useDocumentMeta('Sign In');
   const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');

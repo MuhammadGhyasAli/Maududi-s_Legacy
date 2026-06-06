@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { apiService } from '../../../../services/apiService';
+import { useDocumentMeta } from '../../../../hooks/useDocumentMeta';
 
 export default function ForgotPasswordPage() {
-  useEffect(() => { document.title = "Forgot Password | Maududi's Legacy"; }, []);
+  useDocumentMeta('Forgot Password');
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
