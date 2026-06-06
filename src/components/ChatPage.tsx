@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Book, type ChatMessage, MessageSender } from '../types';
 import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
@@ -12,6 +13,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { useChatHistory } from '../hooks/useChatHistory';
 import { slugify } from '../utils/slugify';
 
+const GUEST_MSG_KEY = 'maududi_guest_msg_count';
+const MAX_FREE_MESSAGES = 10;
+
+function getGuestMessageCount(): number {
+  if (typeof window === 'undefined') return 0;
+  try {
+    return parseInt(localStorage.getItem(GUEST_MSG_KEY) || '0', 10);
+  } catch { return 0; }
+}
+
+function setGuestMessageCount(count: number): void {
+  if (typeof window === 'undefined') return;
+  try { localStorage.setItem(GUEST_MSG_KEY, String(count)); } catch { /* ignore */ }
+}
+
 const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 
 interface ChatPageProps {
@@ -22,6 +38,7 @@ interface ChatPageProps {
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigateToBook }) => {
+  const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -31,6 +48,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [showHistory, setShowHistory] = useState(false);
+  const [guestMessageCount, setGuestMessageCountState] = useState(getGuestMessageCount);
+  const [limitReached, setLimitReached] = useState(false);
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
   const bookSlug = slugify(book.title);
 
@@ -85,7 +104,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
             { role: 'user', content: `Provide a precise, well-researched answer based strictly on the book's content. Accuracy is critical — only state what you are certain of. If you are unsure about any detail, explicitly say so rather than speculating. Your entire response must be in ${selectedLanguage}. When citing, provide full exact book titles and specific context references.\n\nMy question: "${textToSend}"` }
         ];
         
-        const response = await apiService.chat(book.id, book.aiContext, newApiMessages);
+        const currentGuestCount = !user ? guestMessageCount : undefined;
+        const response = await apiService.chat(book.id, book.aiContext, newApiMessages, undefined, currentGuestCount);
         const aiMessage: ChatMessage = { sender: MessageSender.AI, text: response.response, timestamp: new Date() };
         const finalMessages = [...updatedMessages, aiMessage];
         setMessages(finalMessages);
@@ -96,8 +116,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         ];
 
         saveConversation(finalMessages);
+
+        if (!user) {
+          const newCount = guestMessageCount + 1;
+          setGuestMessageCountState(newCount);
+          setGuestMessageCount(newCount);
+        }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
+      const isLimitReached = errorMessage.toLowerCase().includes('free limit reached') || errorMessage.toLowerCase().includes('limit reached');
+      if (isLimitReached) {
+        setLimitReached(true);
+      }
       setError(`Sorry, I couldn't get a response. ${errorMessage}`);
       setMessages(prev => prev.slice(0, prev.length -1));
       setInput(textToSend);
@@ -106,7 +136,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       setLoadingStatus('');
       setIsLoading(false);
     }
-  }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation]);
+  }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation, guestMessageCount, user]);
 
   const handleShareChat = async () => {
     if (!user) {
@@ -188,6 +218,30 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setShowClearConfirm(false);
     setActiveConvId(null);
   };
+
+  if (!user && (limitReached || guestMessageCount >= MAX_FREE_MESSAGES)) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300 px-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Free Limit Reached</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            You&apos;ve used all {MAX_FREE_MESSAGES} free messages. Sign in to continue chatting with unlimited access.
+          </p>
+          <button
+            onClick={() => router.push('/account/login')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-green hover:bg-brand-green-dark transition-colors duration-200"
+          >
+            Sign in
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
@@ -323,6 +377,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
           userDisplayName={user?.display_name || user?.email}
         />
 
+        {!user && !limitReached && (
+          <div className="flex-none px-4 py-1.5 text-center">
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              Free messages remaining: {MAX_FREE_MESSAGES - guestMessageCount} / {MAX_FREE_MESSAGES}
+            </span>
+          </div>
+        )}
         <ChatInputArea 
           input={input}
           setInput={setInput}

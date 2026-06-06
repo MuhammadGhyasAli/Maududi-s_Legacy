@@ -4,10 +4,19 @@ import { callGroq } from '@/lib/groq';
 
 export async function POST(request: Request) {
   try {
-    if (!getUserIdFromRequest(request)) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    const userId = getUserIdFromRequest(request);
+    const body = await request.json();
+    const { aiContext, messages, guestMessageCount } = body;
+
+    if (!userId) {
+      const count = typeof guestMessageCount === 'number' ? guestMessageCount : 0;
+      if (count >= 10) {
+        return NextResponse.json({
+          error: 'Free limit reached. Please log in to continue chatting.',
+          limitReached: true,
+        }, { status: 403 });
+      }
     }
-    const { aiContext, messages } = await request.json();
 
     if (!aiContext || !messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'aiContext and messages are required' }, { status: 400 });
