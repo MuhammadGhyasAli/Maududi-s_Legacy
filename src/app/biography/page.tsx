@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export const metadata = {
   title: "Biography of Sayyid Abul A'la Maududi (1903–1979)",
@@ -93,6 +94,19 @@ export default function BiographyPage() {
         </p>
       </header>
 
+      {/* Portrait */}
+      <div className="flex justify-center mb-12">
+        <div className="relative w-64 h-80 rounded-2xl overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
+          <Image
+            src="/maududi-portrait.jpg"
+            alt="Sayyid Abul A'la Maududi"
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+      </div>
+
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Life Timeline</h2>
         <div className="space-y-4">
@@ -140,6 +154,21 @@ export default function BiographyPage() {
           ))}
         </ul>
       </section>
+
+      {/* Grave image */}
+      <div className="flex flex-col items-center mb-12">
+        <div className="relative w-72 h-96 rounded-2xl overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
+          <Image
+            src="/maududi-grave.jpg"
+            alt="Grave of Sayyid Abul A'la Maududi in Ichhra, Lahore"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+          Grave of Maududi at his residence in Ichhra, Lahore
+        </p>
+      </div>
 
       <section className="border-t border-gray-200 dark:border-gray-700 pt-8">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Sources & Further Reading</h2>
