@@ -113,18 +113,21 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       toast('Please log in to share chats', 'error');
       return;
     }
+    if (!messages.length) return;
     const transcript = messages.map(msg => {
         const sender = msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1);
         return `${sender}: ${msg.text}`;
     }).join('\n\n');
     const shareText = `Chat about "${book.title}"\n\n${transcript}\n\n— Maududi's Legacy`;
 
-    if (navigator.share && window.innerWidth < 768) {
+    if (navigator.share) {
       try {
         await navigator.share({ title: `Chat about ${book.title}`, text: shareText });
+        toast('Chat shared!');
         return;
       } catch {
-        // user cancelled or fallback needed
+        // user cancelled — don't fall through to clipboard
+        return;
       }
     }
 
@@ -287,11 +290,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
                   </svg>
                 </button>
               )}
-              <button onClick={handleShareChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Share Chat">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-                </svg>
-              </button>
+              {user && (
+                <button onClick={handleShareChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Share Chat">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                  </svg>
+                </button>
+              )}
               <button 
                 onClick={handleClearChat} 
                 className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
