@@ -82,7 +82,7 @@ export default function BookChatPage() {
       book={book}
       books={books}
       onBack={() => router.back()}
-      onNavigateToBook={(b) => { const cat = (b.category || "").toLowerCase().replace(/\s+/g, "-"); router.push(`/${cat}/${slugify(b.title || "")}`); }}
+      onNavigateToBook={(b) => { router.push(`/${slugify(b.category || "")}/${slugify(b.title || "")}`); }}
     />
   );
 }

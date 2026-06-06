@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { CATEGORIES } from '../constants';
+import { slugify } from '../utils/slugify';
 import { apiService } from '../services/apiService';
 import { Book } from '../types';
 import CloseIcon from './icons/CloseIcon';
@@ -168,7 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
 
   const firstSegment = pathname.split('/').filter(Boolean)[0] || '';
   const categorySlugs = new Set(
-    CATEGORIES.slice(1).map((cat) => cat.toLowerCase().replace(/\s+/g, '-'))
+    CATEGORIES.slice(1).map((cat) => slugify(cat))
   );
   const category = categorySlugs.has(firstSegment) ? firstSegment : undefined;
 
@@ -354,7 +355,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
 
           {/* Category links */}
           {CATEGORIES.slice(1).map((cat) => {
-            const slug = cat.toLowerCase().replace(/\s+/g, '-');
+            const slug = slugify(cat);
             return (
               <NavLink
                 key={cat}

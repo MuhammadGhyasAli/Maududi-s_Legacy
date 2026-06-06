@@ -3,6 +3,13 @@ import type { Config } from "tailwindcss";
 export default {
   content: ["./src/**/*.{ts,tsx}"],
   darkMode: "class",
+  safelist: [
+    "animate-fade-in-scale-delay-1",
+    "animate-fade-in-scale-delay-2",
+    "animate-fade-in-scale-delay-3",
+    "animate-fade-in-scale-delay-4",
+    "animate-fade-in-scale-delay-5",
+  ],
   theme: {
     extend: {
       colors: {
@@ -50,6 +57,22 @@ export default {
           from: { opacity: "0", transform: "translateY(16px)" },
           to:   { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in-scale-delay": {
+          "0%":   { opacity: "0", transform: "scale(0.9)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "float-slow": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%":      { transform: "translateY(-20px)" },
+        },
+        "float-slow-reverse": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%":      { transform: "translateY(20px)" },
+        },
+        "slide-up": {
+          from: { transform: "translateY(100%)", opacity: "0" },
+          to:   { transform: "translateY(0)", opacity: "1" },
+        },
         "shimmer": {
           "0%":   { backgroundPosition: "-200% center" },
           "100%": { backgroundPosition:  "200% center" },
@@ -62,8 +85,16 @@ export default {
       animation: {
         "typing-bubble": "typing-bubble 1.4s infinite ease-in-out both",
         "fade-in-up":    "fade-in-up 0.45s ease both",
-        "shimmer":       "shimmer 1.6s infinite",
-        "pulse-soft":    "pulse-soft 2s ease-in-out infinite",
+        "fade-in-scale-delay-1": "fade-in-scale-delay 0.3s ease both 0.1s",
+        "fade-in-scale-delay-2": "fade-in-scale-delay 0.3s ease both 0.2s",
+        "fade-in-scale-delay-3": "fade-in-scale-delay 0.3s ease both 0.3s",
+        "fade-in-scale-delay-4": "fade-in-scale-delay 0.3s ease both 0.4s",
+        "fade-in-scale-delay-5": "fade-in-scale-delay 0.3s ease both 0.5s",
+        "float-slow":         "float-slow 6s ease-in-out infinite",
+        "float-slow-reverse": "float-slow-reverse 7s ease-in-out infinite",
+        "slide-up":           "slide-up 0.3s ease-out",
+        "shimmer":            "shimmer 1.6s infinite",
+        "pulse-soft":         "pulse-soft 2s ease-in-out infinite",
       },
       borderRadius: {
         "xl":  "0.875rem",

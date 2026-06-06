@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import booksData from '@/data/books.json';
+import { slugify } from '@/utils/slugify';
 
 const { books, categories } = booksData;
 const slugMap = Object.fromEntries(
-  categories.map((c: string) => [c.toLowerCase().replace(/\s+/g, '-'), c]),
+  categories.map((c: string) => [slugify(c), c]),
 );
 
 export async function GET(request: NextRequest) {

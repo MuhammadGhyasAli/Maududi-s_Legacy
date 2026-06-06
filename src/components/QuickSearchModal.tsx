@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from '../types';
 import { apiService } from '../services/apiService';
+import { slugify } from '../utils/slugify';
 
 const QuickSearchModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,8 +60,8 @@ const QuickSearchModal: React.FC = () => {
 
   const navigate = useCallback((book: Book) => {
     setIsOpen(false);
-    const catSlug = book.category?.toLowerCase().replace(/\s+/g, '-') || 'all';
-    const bookSlug = book.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+    const catSlug = book.category ? slugify(book.category) : 'all';
+    const bookSlug = slugify(book.title);
     router.push(`/${catSlug}/${bookSlug}`);
   }, [router]);
 

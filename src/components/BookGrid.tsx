@@ -8,7 +8,7 @@ import BookCard from './BookCard';
 import Pagination from './Pagination';
 import SortFilterControls from './SortFilterControls';
 import SearchBar from './SearchBar';
-import { deslugifyCategory } from '../utils/slugify';
+import { deslugifyCategory, slugify } from '../utils/slugify';
 import { useDebounce } from '../hooks/useDebounce';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
@@ -44,7 +44,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
       .then(history => {
         const slugs = history.slice(0, 8).map((h: { slug: string }) => h.slug);
         const matched = books.filter(b => {
-          const slug = b.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+          const slug = slugify(b.title);
           return slugs.includes(slug);
         });
         setRecentBooks(matched);
@@ -196,7 +196,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
       router.push(`?${params.toString()}`);
       return;
     }
-    const categorySlug = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
+    const categorySlug = category ? slugify(category) : 'all';
     router.push(`/${categorySlug}/${bookSlug}`);
   }, [category, router, searchParams]);
 
@@ -228,13 +228,9 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
 
   // Prefetch book detail pages for instant navigation
   useEffect(() => {
-    const cat = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
+    const cat = category ? slugify(category) : 'all';
     paginatedBooks.slice(0, 6).forEach(book => {
-      const slug = book.title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .trim()
-        .replace(/\s+/g, '-');
+      const slug = slugify(book.title);
       router.prefetch(`/${cat}/${slug}`);
     });
   }, [paginatedBooks, category, router]);
@@ -473,7 +469,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
             {!debouncedSearch && !category && (
               <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
                 {['Tafsir', 'Politics', 'Theology', 'History'].map(cat => {
-                  const slug = cat.toLowerCase().replace(/\s+/g, '-');
+                  const slug = slugify(cat);
                   return (
                     <button
                       key={cat}

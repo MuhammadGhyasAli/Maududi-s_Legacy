@@ -6,6 +6,7 @@ export const metadata = {
 
 import Link from 'next/link';
 import { CATEGORIES } from '@/constants';
+import { slugify } from '@/utils/slugify';
 
 export default function AboutPage() {
   return (
@@ -126,7 +127,7 @@ export default function AboutPage() {
               'History': '📜',
               'Guidance': '🧭',
             };
-            const slug = cat.toLowerCase().replace(/\s+/g, '-');
+            const slug = slugify(cat);
             return (
               <Link
                 key={cat}

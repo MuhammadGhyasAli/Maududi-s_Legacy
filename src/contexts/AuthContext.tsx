@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     apiService.getMe()
       .then(u => {
         setUser(u);
-        setToken('authenticated');
+        setToken('cookie');
         setLoading(false);
       })
       .catch(() => {
@@ -44,8 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string, _remember?: boolean) => {
-    await apiService.login(email, password);
-    setToken('authenticated');
+    const result = await apiService.login(email, password);
+    setToken(result.access_token);
     const u = await apiService.getMe();
     setUser(u);
     return u;
@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const verifyEmail = useCallback(async (code: string, email: string) => {
-    await apiService.verifyEmail(code, email);
-    setToken('authenticated');
+    const result = await apiService.verifyEmail(code, email);
+    setToken(result.access_token);
     const u = await apiService.getMe();
     setUser(u);
     return u;
@@ -65,8 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     apiService.logout();
-    localStorage.removeItem('auth_token');
-    sessionStorage.removeItem('auth_token');
     setUser(null);
     setToken(null);
   }, []);
@@ -81,8 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await apiService.changePassword(current_password, new_password);
   }, []);
 
-  const googleSignIn = useCallback(async (_token: string) => {
-    setToken('authenticated');
+  const googleSignIn = useCallback(async (jwtToken: string) => {
+    setToken(jwtToken);
     const u = await apiService.getMe();
     setUser(u);
     return u;

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Book } from '../types';
+import { slugify } from '../utils/slugify';
 
 interface BookCardProps {
   book: Book;
@@ -112,8 +113,8 @@ function BookCardInner({ book, onClick, priority }: BookCardProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              const bookSlug = book.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-              const categorySlug = book.category.toLowerCase().replace(/\s+/g, '-');
+              const bookSlug = slugify(book.title);
+              const categorySlug = slugify(book.category);
               window.location.href = `/${categorySlug}/${bookSlug}/chat`;
             }}
             className="p-2.5 rounded-xl bg-white text-gray-900 hover:bg-brand-green hover:text-white transition-all duration-200 transform translate-y-3 group-hover:translate-y-0 shadow-lg cursor-pointer"

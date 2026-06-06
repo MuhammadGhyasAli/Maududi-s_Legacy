@@ -124,7 +124,7 @@ function HomePageContent() {
   }
 
   if (selectedBook) {
-    const catSlug = selectedBook.category.toLowerCase().replace(/\s+/g, '-');
+    const catSlug = slugify(selectedBook.category);
     const bookSlugified = slugify(selectedBook.title);
     const backHref = searchTerm ? `/?q=${encodeURIComponent(searchTerm)}` : '/';
     return (

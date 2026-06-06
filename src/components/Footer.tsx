@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiService } from '../services/apiService';
 import { CATEGORIES } from '../constants';
+import { slugify } from '../utils/slugify';
 
 const categoryLinks = CATEGORIES.filter(c => c !== 'All').map(name => ({
   name,
-  href: `/${name.toLowerCase().replace(/\s+/g, '-')}`,
+  href: `/${slugify(name)}`,
 }));
 
 export default function Footer() {

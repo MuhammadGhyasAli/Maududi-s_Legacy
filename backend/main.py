@@ -7,7 +7,7 @@ load_dotenv(os.path.abspath(_env_path))
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
+
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -75,8 +75,8 @@ async def limit_body_size(request: Request, call_next):
         return JSONResponse(status_code=413, content={"detail": "Request body too large (max 10 MB)"})
     return await call_next(request)
 
-# Custom middleware
-app.add_middleware(BaseHTTPMiddleware, dispatch=logging_middleware)
+# Custom middleware (registered as ASGI middleware to avoid BaseHTTPMiddleware caveats)
+app.middleware("http")(logging_middleware)
 
 # Security headers middleware
 @app.middleware("http")
