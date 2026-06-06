@@ -126,16 +126,17 @@ function HomePageContent() {
   if (selectedBook) {
     const catSlug = selectedBook.category.toLowerCase().replace(/\s+/g, '-');
     const bookSlugified = slugify(selectedBook.title);
+    const backHref = searchTerm ? `/?q=${encodeURIComponent(searchTerm)}` : '/';
     return (
       <>
         <BookDetail
           book={selectedBook}
-          onBack={() => router.back()}
+          onBack={() => router.push(backHref)}
           onStartChat={() => router.push(`/${catSlug}/${bookSlugified}/chat`)}
         />
         <div className="container mx-auto px-4 max-w-5xl pb-8 text-center">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push(backHref)}
             className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 transition-all duration-200"
           >
             ← Back to search results

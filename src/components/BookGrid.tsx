@@ -217,6 +217,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
     setSortBy(sort);
     setCurrentPage(1);
     const params = new URLSearchParams(searchParams.toString());
+    params.set('sort', sort);
     params.delete('page');
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);

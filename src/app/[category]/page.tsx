@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import BookGrid from "../../components/BookGrid";
 import { BookGridSkeleton } from "../../components/Skeleton";
@@ -105,7 +105,9 @@ export default function CategoryPage() {
           </p>
         </div>
       )}
-      <BookGrid books={books} />
+      <Suspense fallback={<BookGridSkeleton />}>
+        <BookGrid books={books} />
+      </Suspense>
     </>
   );
 }

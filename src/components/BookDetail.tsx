@@ -37,6 +37,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !pdfOpen) {
+        e.stopPropagation();
         onBack();
       }
     };
