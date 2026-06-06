@@ -1,9 +1,12 @@
 'use client';
 
-import React, { Suspense, useEffect, useState, useRef } from "react";
-import { useDocumentMeta } from "../hooks/useDocumentMeta";
+import React, { Suspense, useEffect, useState, useRef, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useDocumentMeta, emojiFavicon } from "../hooks/useDocumentMeta";
 import BookGrid from "../components/BookGrid";
+import BookDetail from "../components/BookDetail";
 import { apiService } from "../services/apiService";
+import { findBookBySlug, slugify } from "../utils/slugify";
 import type { Book } from "../types";
 
 function HomePageFallback() {
@@ -60,6 +63,8 @@ function HomePageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const fetchedRef = useRef(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -76,6 +81,21 @@ function HomePageContent() {
       }
     })();
   }, []);
+
+  const rawQ = searchParams.get('q') || '';
+  const hasSelectedBook = rawQ.includes('/');
+  const searchTerm = hasSelectedBook ? rawQ.split('/')[0] : rawQ;
+  const bookSlug = hasSelectedBook ? rawQ.split('/').slice(1).join('/') : '';
+
+  const selectedBook = useMemo(() => {
+    if (!bookSlug || !books.length) return null;
+    return findBookBySlug(books, bookSlug) ?? null;
+  }, [books, bookSlug]);
+
+  const pageTitle = selectedBook
+    ? selectedBook.title
+    : (searchTerm ? `Search: ${searchTerm}` : 'Home');
+  useDocumentMeta(pageTitle, selectedBook ? emojiFavicon('📚') : undefined);
 
   if (loading) {
     return <HomePageFallback />;
@@ -103,11 +123,32 @@ function HomePageContent() {
     );
   }
 
+  if (selectedBook) {
+    const catSlug = selectedBook.category.toLowerCase().replace(/\s+/g, '-');
+    const bookSlugified = slugify(selectedBook.title);
+    return (
+      <>
+        <BookDetail
+          book={selectedBook}
+          onBack={() => router.back()}
+          onStartChat={() => router.push(`/${catSlug}/${bookSlugified}/chat`)}
+        />
+        <div className="container mx-auto px-4 max-w-5xl pb-8 text-center">
+          <button
+            onClick={() => router.back()}
+            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 transition-all duration-200"
+          >
+            ← Back to search results
+          </button>
+        </div>
+      </>
+    );
+  }
+
   return <BookGrid books={books} />;
 }
 
 export default function HomePage() {
-  useDocumentMeta('Home');
   return (
     <Suspense fallback={<HomePageFallback />}>
       <HomePageContent />

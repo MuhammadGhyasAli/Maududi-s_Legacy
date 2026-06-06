@@ -27,7 +27,10 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
   const searchParams = useSearchParams();
   const category = (params?.category as string | undefined) || undefined;
   const categoryName = category ? deslugifyCategory(category) : 'All';
-  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') || '');
+  const [searchTerm, setSearchTerm] = useState(() => {
+    const q = searchParams.get('q') || '';
+    return q.includes('/') ? q.split('/')[0] : q;
+  });
   const debouncedSearch = useDebounce(searchTerm, 300);
   const [sortBy, setSortBy] = useState(() => searchParams.get('sort') || 'default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -186,9 +189,16 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
       .replace(/[^a-z0-9\s-]/g, '')
       .trim()
       .replace(/\s+/g, '-');
+    const currentQ = searchParams.get('q');
+    if (currentQ && !category) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('q', `${currentQ}/${bookSlug}`);
+      router.push(`?${params.toString()}`);
+      return;
+    }
     const categorySlug = category ? category.toLowerCase().replace(/\s+/g, '-') : 'all';
     router.push(`/${categorySlug}/${bookSlug}`);
-  }, [category, router]);
+  }, [category, router, searchParams]);
 
   const handleSearchChange = useCallback((term: string) => {
     setSearchTerm(term);
