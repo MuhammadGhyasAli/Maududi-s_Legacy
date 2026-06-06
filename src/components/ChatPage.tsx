@@ -28,7 +28,8 @@ function setGuestMessageCount(count: number): void {
   try { localStorage.setItem(GUEST_MSG_KEY, String(count)); } catch { /* ignore */ }
 }
 
-const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
+const ALL_LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
+const GUEST_LANGUAGES = ['English', 'Urdu'];
 
 interface ChatPageProps {
   book: Book;
@@ -50,6 +51,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [showHistory, setShowHistory] = useState(false);
   const [guestMessageCount, setGuestMessageCountState] = useState(getGuestMessageCount);
   const [limitReached, setLimitReached] = useState(false);
+  const availableLanguages = user ? ALL_LANGUAGES : GUEST_LANGUAGES;
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
   const bookSlug = slugify(book.title);
 
@@ -61,6 +63,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     deleteConversation,
     getConversation,
   } = useChatHistory(book.id, book.title, bookSlug, !!user);
+
+  useEffect(() => {
+    if (!user && !GUEST_LANGUAGES.includes(selectedLanguage)) {
+      setSelectedLanguage('English');
+    }
+  }, [user, selectedLanguage]);
 
   useEffect(() => {
     if (activeConvId) {
@@ -390,7 +398,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
           isLoading={isLoading}
           error={error}
           selectedLanguage={selectedLanguage}
-          languages={LANGUAGES}
+          languages={availableLanguages}
           onSelectLanguage={setSelectedLanguage}
           onSendMessage={handleSendMessage}
         />
