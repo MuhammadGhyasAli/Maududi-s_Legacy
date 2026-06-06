@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useRouter, useParams } from 'next/navigation';
 import { Book } from '../types';
 import BookOpenIcon from './icons/BookOpenIcon';
 import ChatIcon from './icons/ChatIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import PdfReaderPanel from './PdfReaderPanel';
+
 
 interface BookDetailProps {
   book: Book;
@@ -16,8 +18,21 @@ interface BookDetailProps {
 }
 
 const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) => {
+  const router = useRouter();
+  const params = useParams();
+  const category = (params?.category as string | undefined) || 'all';
+  
   const [imageError, setImageError] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    if (query) {
+      router.push(`/${category}?q=${encodeURIComponent(query)}`);
+    }
+  }, [router, category, searchQuery]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -45,7 +60,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
           </div>
         )}
 
-        <div className="container mx-auto px-4 py-8 max-w-5xl relative z-10">
+        <div className="container mx-auto px-4 py-8 max-w-5xl relative z-10 min-h-[calc(100vh-4rem)]">
           {/* Back nav */}
           <motion.button
             initial={{ opacity: 0, x: -8 }}
@@ -174,6 +189,40 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
               </motion.div>
             </div>
           </div>
+
+          {/* Search for other books */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="mt-8 pt-6 border-t border-gray-200/50 dark:border-white/[0.04]"
+          >
+            <form onSubmit={handleSearch} className="relative max-w-md mx-auto">
+              <label htmlFor="book-detail-search" className="sr-only">Search for other books</label>
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-gray-500">
+                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+                </svg>
+              </div>
+              <input
+                id="book-detail-search"
+                type="search"
+                placeholder="Search other books..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-black/20
+                           border border-gray-200 dark:border-white/10
+                           rounded-xl text-sm text-gray-900 dark:text-gray-100
+                           placeholder-gray-400 dark:placeholder-gray-500
+                           focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green
+                           transition-all duration-200"
+                autoComplete="off"
+              />
+            </form>
+            <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Search across all categories
+            </p>
+          </motion.div>
 
           {/* Disclaimer */}
           <motion.div

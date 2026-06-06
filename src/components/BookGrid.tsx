@@ -27,9 +27,9 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
   const searchParams = useSearchParams();
   const category = (params?.category as string | undefined) || undefined;
   const categoryName = category ? deslugifyCategory(category) : 'All';
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') || '');
   const debouncedSearch = useDebounce(searchTerm, 300);
-  const [sortBy, setSortBy] = useState('default');
+  const [sortBy, setSortBy] = useState(() => searchParams.get('sort') || 'default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { user } = useAuth();
   const [readingPrefCategories, setReadingPrefCategories] = useState<string[] | null>(null);
@@ -195,6 +195,11 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
     setCurrentPage(1);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('page');
+    if (term) {
+      params.set('q', term);
+    } else {
+      params.delete('q');
+    }
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
