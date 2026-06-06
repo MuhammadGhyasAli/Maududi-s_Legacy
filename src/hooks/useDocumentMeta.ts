@@ -12,14 +12,14 @@ function emojiFavicon(emoji: string): string {
 export { emojiFavicon };
 
 export function useDocumentMeta(title: string, favicon?: string) {
-  const prevTitle = useRef(document.title);
+  const prevTitle = useRef("");
 
   useEffect(() => {
+    prevTitle.current = document.title;
     const full = `${title} | Maududi's Legacy`;
-    const prev = prevTitle.current;
     document.title = full;
     return () => {
-      document.title = prev;
+      document.title = prevTitle.current;
     };
   }, [title]);
 
