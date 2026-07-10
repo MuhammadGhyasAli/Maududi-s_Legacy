@@ -7,7 +7,7 @@ import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import { useToast } from './Toast';
-import ChatMessageList, { DEFAULT_SUGGESTIONS } from './chat/ChatMessageList';
+import ChatMessageList from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
 import { useAuth } from '../contexts/AuthContext';
 import { useChatHistory } from '../hooks/useChatHistory';
@@ -60,7 +60,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const displayLanguages = user ? ALL_LANGUAGES : ALL_LANGUAGES;
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
   const bookSlug = slugify(book.title);
-  const followUpCountersRef = useRef<Record<number, number>>({});
 
   const {
     conversations,
