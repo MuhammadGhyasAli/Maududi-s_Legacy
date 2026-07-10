@@ -13,7 +13,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
 import Breadcrumbs from './Breadcrumbs';
-import { CATEGORIES, CATEGORY_DESCRIPTIONS } from '../constants';
+import { CATEGORY_DESCRIPTIONS } from '../constants';
 
 interface BookGridProps {
   books: Book[];
@@ -172,14 +172,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
       });
   }, [books]);
 
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    books.forEach(b => {
-      counts[b.category] = (counts[b.category] || 0) + 1;
-    });
-    return counts;
-  }, [books]);
-
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     const params = new URLSearchParams(searchParams.toString());
@@ -257,7 +249,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
         ]} />
 
         {/* Hero section — dynamic per category */}
-        <div className="relative text-center max-w-4xl mx-auto mb-12 mt-4 p-8 rounded-3xl overflow-hidden bg-white/40 dark:bg-brand-card-dark/40 border border-white/40 dark:border-white/5 backdrop-blur-md shadow-xl">
+        <div className={`relative text-center max-w-4xl mx-auto mt-4 rounded-3xl overflow-hidden bg-white/40 dark:bg-brand-card-dark/40 border border-white/40 dark:border-white/5 backdrop-blur-md shadow-xl ${category ? 'mb-6 p-6' : 'mb-12 p-8'}`}>
           <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
             <svg className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-[0.03] dark:opacity-[0.05]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="0.5" />
@@ -270,7 +262,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
 
           {category ? (
             <>
-              <div className="inline-flex items-center gap-1.5 mb-6 px-4 py-1.5 rounded-full text-xs font-semibold
+              <div className="inline-flex items-center gap-1.5 mb-4 px-4 py-1.5 rounded-full text-xs font-semibold
                               bg-brand-green/10 dark:bg-brand-green/5
                               text-brand-green dark:text-brand-green-dark
                               border border-brand-green/20 dark:border-brand-green/10
@@ -278,30 +270,12 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
                 <span className="w-2 h-2 rounded-full bg-brand-green dark:bg-brand-green-dark animate-pulse-soft" />
                 {categoryName}
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 dark:text-gray-100 mb-5 leading-[1.15] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight tracking-tight">
                 {categoryName}
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-8 font-medium">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-6 font-medium">
                 {CATEGORY_DESCRIPTIONS[categoryName] || `Explore Maududi's works on ${categoryName}`}
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-gray-100 dark:border-white/5">
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{categoryCounts[categoryName] || 0}</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Books in Category</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{books.length}</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Total Library</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">6</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Languages</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">24/7</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">AI Assistance</p>
-                </div>
-              </div>
             </>
           ) : (
             <>
@@ -340,37 +314,6 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
               </div>
             </>
           )}
-        </div>
-
-        {/* Category Navigation Pills */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
-          <button
-            onClick={() => router.push('/')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-              !category
-                ? 'bg-brand-green dark:bg-brand-green-dark text-white shadow-md'
-                : 'bg-white dark:bg-brand-card-dark text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:text-brand-green dark:hover:text-brand-green-dark hover:shadow-sm'
-            }`}
-          >
-            All
-          </button>
-          {CATEGORIES.filter(c => c !== 'All').map(cat => {
-            const slug = slugify(cat);
-            const isCurrent = categoryName === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => router.push(`/${slug}`)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isCurrent
-                    ? 'bg-brand-green dark:bg-brand-green-dark text-white shadow-md'
-                    : 'bg-white dark:bg-brand-card-dark text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:text-brand-green dark:hover:text-brand-green-dark hover:shadow-sm'
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
         </div>
 
         {/* Featured Works / Last Read Books */}
