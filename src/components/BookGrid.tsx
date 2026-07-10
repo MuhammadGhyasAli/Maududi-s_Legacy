@@ -13,7 +13,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
 import Breadcrumbs from './Breadcrumbs';
-import { CATEGORY_DESCRIPTIONS } from '../constants';
+
 
 interface BookGridProps {
   books: Book[];
@@ -240,81 +240,56 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
     <>
       <main className="flex-1 container mx-auto px-4 py-8">
 
-        {/* Breadcrumbs */}
-        <Breadcrumbs crumbs={[
-          { label: 'Home', href: '/' },
-          ...(category && category !== 'all'
-            ? [{ label: categoryName, href: `/${category}` }]
-            : []),
-        ]} />
+        {!category && (
+          <Breadcrumbs crumbs={[{ label: 'Home', href: '/' }]} />
+        )}
 
-        {/* Hero section — dynamic per category */}
-        <div className={`relative text-center max-w-4xl mx-auto mt-4 rounded-3xl overflow-hidden bg-white/40 dark:bg-brand-card-dark/40 border border-white/40 dark:border-white/5 backdrop-blur-md shadow-xl ${category ? 'mb-6 p-6' : 'mb-12 p-8'}`}>
-          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
-            <svg className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-[0.03] dark:opacity-[0.05]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="0.5" />
-              <circle cx="300" cy="300" r="220" stroke="currentColor" strokeWidth="0.5" />
-              <circle cx="300" cy="300" r="160" stroke="currentColor" strokeWidth="0.5" />
-              <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="0.3" />
-              <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="0.3" />
-            </svg>
+        {!category && (
+          <div className="relative text-center max-w-4xl mx-auto mt-4 mb-12 p-8 rounded-3xl overflow-hidden bg-white/40 dark:bg-brand-card-dark/40 border border-white/40 dark:border-white/5 backdrop-blur-md shadow-xl">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+              <svg className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-[0.03] dark:opacity-[0.05]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="0.5" />
+                <circle cx="300" cy="300" r="220" stroke="currentColor" strokeWidth="0.5" />
+                <circle cx="300" cy="300" r="160" stroke="currentColor" strokeWidth="0.5" />
+                <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="0.3" />
+                <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="0.3" />
+              </svg>
+            </div>
+            <div className="inline-flex items-center gap-1.5 mb-6 px-4 py-1.5 rounded-full text-xs font-semibold
+                            bg-emerald-500/10 dark:bg-emerald-500/5
+                            text-emerald-700 dark:text-emerald-400
+                            border border-emerald-500/20 dark:border-emerald-500/10
+                            shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse-soft" />
+              Preserving Knowledge · Empowering Exploration
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 dark:text-gray-100 mb-5 leading-[1.15] tracking-tight">
+              Explore the Digital <br/>
+              <span className="gradient-text">Legacy of Sayyid Abul A&apos;la Maududi</span>
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-8 font-medium">
+              Discover a comprehensive archive of profound scholarship. Engage with his complete works, search key concepts, and chat with custom AI contexts across multiple languages.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-gray-100 dark:border-white/5">
+              <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{books.length}</p>
+                <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Total Books</p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">8</p>
+                <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Categories</p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">6</p>
+                <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Languages</p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">24/7</p>
+                <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">AI Assistance</p>
+              </div>
+            </div>
           </div>
-
-          {category ? (
-            <>
-              <div className="inline-flex items-center gap-1.5 mb-4 px-4 py-1.5 rounded-full text-xs font-semibold
-                              bg-brand-green/10 dark:bg-brand-green/5
-                              text-brand-green dark:text-brand-green-dark
-                              border border-brand-green/20 dark:border-brand-green/10
-                              shadow-inner">
-                <span className="w-2 h-2 rounded-full bg-brand-green dark:bg-brand-green-dark animate-pulse-soft" />
-                {categoryName}
-              </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-gray-100 mb-3 leading-tight tracking-tight">
-                {categoryName}
-              </h1>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-6 font-medium">
-                {CATEGORY_DESCRIPTIONS[categoryName] || `Explore Maududi's works on ${categoryName}`}
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="inline-flex items-center gap-1.5 mb-6 px-4 py-1.5 rounded-full text-xs font-semibold
-                              bg-emerald-500/10 dark:bg-emerald-500/5
-                              text-emerald-700 dark:text-emerald-400
-                              border border-emerald-500/20 dark:border-emerald-500/10
-                              shadow-inner">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse-soft" />
-                Preserving Knowledge · Empowering Exploration
-              </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 dark:text-gray-100 mb-5 leading-[1.15] tracking-tight">
-                Explore the Digital <br/>
-                <span className="gradient-text">Legacy of Sayyid Abul A&apos;la Maududi</span>
-              </h1>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-8 font-medium">
-                Discover a comprehensive archive of profound scholarship. Engage with his complete works, search key concepts, and chat with custom AI contexts across multiple languages.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-6 border-t border-gray-100 dark:border-white/5">
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{books.length}</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Total Books</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">8</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Categories</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">6</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Languages</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                  <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">24/7</p>
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">AI Assistance</p>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+        )}
 
         {/* Featured Works / Last Read Books */}
         {((user && recentBooks.length > 0) || (!user && featuredBooks.length > 0)) && !category && !debouncedSearch && !loading && (
