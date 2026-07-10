@@ -1,4 +1,4 @@
-import type { Book } from '../types';
+import type { Book, SavedConversation, ConversationDetail, BookSuggestion, ChatResponse } from '../types';
 import { handleApiResponse } from './apiEvents';
 
 export interface ApiChatMessage {
@@ -214,13 +214,13 @@ export const apiService = {
   },
 
   // Chat with AI about a book
-  chat: async (bookId: number, aiContext: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string; guestMessageCount?: number }> => {
+  chat: async (bookId: number, aiContext: string, messages: ApiChatMessage[], signal?: AbortSignal, conversationId?: number, language?: string): Promise<ChatResponse> => {
     const response = await apiFetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ bookId, aiContext, messages }),
+      body: JSON.stringify({ bookId, aiContext, messages, conversationId, language }),
       signal: getAbortSignal(signal),
     });
     if (!response.ok) {
@@ -239,13 +239,13 @@ export const apiService = {
   },
 
   // Global Chat (e.g., AiContextFinder)
-  globalChat: async (systemInstruction: string, messages: ApiChatMessage[], signal?: AbortSignal): Promise<{ response: string }> => {
+  globalChat: async (systemInstruction: string, messages: ApiChatMessage[], signal?: AbortSignal, conversationId?: number, language?: string): Promise<ChatResponse> => {
     const response = await apiFetch('/api/chat/global', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ systemInstruction, messages }),
+      body: JSON.stringify({ systemInstruction, messages, conversationId, language }),
       signal: getAbortSignal(signal),
     });
     if (!response.ok) {
@@ -260,6 +260,44 @@ export const apiService = {
       }
       throw new Error(errMessage);
     }
+    return response.json();
+  },
+
+  // Get conversations for current user
+  getConversations: async (bookId?: number, limit?: number): Promise<SavedConversation[]> => {
+    const params = new URLSearchParams();
+    if (bookId) params.set('book_id', String(bookId));
+    if (limit) params.set('limit', String(limit));
+    const qs = params.toString();
+    const response = await apiFetch(`/api/chat/conversations${qs ? `?${qs}` : ''}`);
+    if (!response.ok) return [];
+    return response.json();
+  },
+
+  // Get a single conversation with messages
+  getConversation: async (conversationId: number): Promise<ConversationDetail> => {
+    const response = await apiFetch(`/api/chat/conversations/${conversationId}`);
+    if (!response.ok) throw new Error('Failed to load conversation');
+    return response.json();
+  },
+
+  // Delete a conversation
+  deleteConversation: async (conversationId: number): Promise<void> => {
+    await apiFetch(`/api/chat/conversations/${conversationId}`, { method: 'DELETE' });
+  },
+
+  // Share a conversation
+  shareConversation: async (conversationId: number): Promise<{ shareId: string; url: string }> => {
+    const response = await apiFetch(`/api/chat/conversations/${conversationId}/share`, { method: 'POST' });
+    if (!response.ok) throw new Error('Failed to share conversation');
+    return response.json();
+  },
+
+  // Get book suggestions by topic
+  getBookSuggestions: async (topics: string[]): Promise<BookSuggestion[]> => {
+    if (!topics.length) return [];
+    const response = await apiFetch(`/api/chat/suggestions?topics=${encodeURIComponent(topics.join(','))}`);
+    if (!response.ok) return [];
     return response.json();
   },
 

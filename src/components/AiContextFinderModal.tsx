@@ -65,6 +65,8 @@ const AiContextFinderPage: React.FC<AiContextFinderPageProps> = ({ onNavigateToB
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [fetchedBooks, setFetchedBooks] = useState<Book[]>([]);
+  const [conversationId, setConversationId] = useState<number | undefined>(undefined);
+  const [followUps, setFollowUps] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -131,6 +133,7 @@ If the user's message includes an image, you MUST follow this two-step process w
     const userMessage: ConversationPart = { sender: MessageSender.USER, text: inputText.trim() };
     if (imagePreview) userMessage.image = imagePreview;
     setConversation(prev => [...prev, userMessage]);
+    setFollowUps([]);
 
     const textToSend = inputText;
     const imageToSend = imageFile;
@@ -167,8 +170,15 @@ If the user's message includes an image, you MUST follow this two-step process w
 
         messagesToBackend.push({ role: 'user', content: currentMessageContent });
 
-        const response = await apiService.globalChat(systemInstruction.current, messagesToBackend);
+        const response = await apiService.globalChat(systemInstruction.current, messagesToBackend, undefined, conversationId, selectedLanguage);
         setConversation(prev => [...prev, { sender: MessageSender.AI, text: response.response }]);
+
+        if (response.conversationId) {
+          setConversationId(response.conversationId);
+        }
+        if (response.followUpQuestions && response.followUpQuestions.length > 0) {
+          setFollowUps(response.followUpQuestions);
+        }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
       setError(`Sorry, something went wrong. ${errorMessage}`);
@@ -181,7 +191,7 @@ If the user's message includes an image, you MUST follow this two-step process w
     } finally {
       setIsLoading(false);
     }
-  }, [inputText, imageFile, isLoading, imagePreview, selectedLanguage, conversation]);
+  }, [inputText, imageFile, isLoading, imagePreview, selectedLanguage, conversation, conversationId]);
 
   const handleCopyChat = async () => {
     const transcript = conversation.map(msg => `${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}: ${msg.text}`).join('\n\n');
@@ -228,6 +238,12 @@ If the user's message includes an image, you MUST follow this two-step process w
     }]);
     setError(null);
     setShowClearConfirm(false);
+    setConversationId(undefined);
+    setFollowUps([]);
+  };
+
+  const handleFollowUpClick = (question: string) => {
+    setInputText(question);
   };
 
   if (!user) {
@@ -294,6 +310,8 @@ If the user's message includes an image, you MUST follow this two-step process w
         onNavigateToBook={onNavigateToBook}
         parseStructuredResponse={parseStructuredResponse}
         books={fetchedBooks}
+        followUpQuestions={followUps}
+        onFollowUpClick={handleFollowUpClick}
       />
 
       <ChatInputArea 

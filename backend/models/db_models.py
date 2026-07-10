@@ -30,3 +30,7 @@ class MessageModel(ModelBase):
 
 class ConversationMemberModel(ModelBase):
     pass
+
+
+class TopicModel(ModelBase):
+    pass

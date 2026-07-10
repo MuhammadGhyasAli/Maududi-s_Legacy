@@ -1,7 +1,8 @@
 from pymongo.database import Database
 from typing import Optional, List
+from datetime import datetime, timezone
 
-from models.db_models import ConversationModel, ConversationMemberModel, MessageModel
+from models.db_models import ConversationModel, MessageModel
 from database import get_next_id
 
 
@@ -14,109 +15,111 @@ class ConversationRepository:
             return None
         return ConversationModel(**doc)
 
-    def _member_from_doc(self, doc: dict) -> Optional[ConversationMemberModel]:
-        if not doc:
-            return None
-        return ConversationMemberModel(**doc)
-
     def _msg_from_doc(self, doc: dict) -> Optional[MessageModel]:
         if not doc:
             return None
         return MessageModel(**doc)
 
-    def get_conversation_if_member(self, conversation_id: int, user_id: int) -> Optional[ConversationModel]:
-        convo = self.db.conversations.find_one({"id": conversation_id})
-        if not convo:
-            return None
-        member = self.db.conversation_members.find_one(
-            {"conversation_id": conversation_id, "user_id": user_id}
-        )
-        if not member:
-            return None
-        return self._convo_from_doc(convo)
-
-    def get_member(self, conversation_id: int, user_id: int) -> Optional[ConversationMemberModel]:
-        doc = self.db.conversation_members.find_one(
-            {"conversation_id": conversation_id, "user_id": user_id}
-        )
-        return self._member_from_doc(doc)
-
-    def get_or_create_dm(self, user_id_a: int, user_id_b: int) -> ConversationModel:
-        existing = self.db.conversations.aggregate([
-            {"$match": {"type": "dm"}},
-            {"$lookup": {
-                "from": "conversation_members",
-                "localField": "id",
-                "foreignField": "conversation_id",
-                "as": "members",
-            }},
-            {"$match": {
-                "members.user_id": {"$all": [user_id_a, user_id_b]},
-            }},
-            {"$addFields": {"member_count": {"$size": "$members"}}},
-            {"$match": {"member_count": 2}},
-            {"$limit": 1},
-        ])
-        for convo in existing:
-            return self._convo_from_doc(convo)
-
+    def create_conversation(
+        self,
+        user_id: int,
+        book_id: int,
+        book_title: str,
+        book_slug: str,
+        conv_type: str = "book_chat",
+    ) -> ConversationModel:
         convo_id = get_next_id("conversations")
-        convo_doc = {"id": convo_id, "type": "dm"}
-        self.db.conversations.insert_one(convo_doc)
+        now = datetime.now(timezone.utc)
+        doc = {
+            "id": convo_id,
+            "user_id": user_id,
+            "book_id": book_id,
+            "book_title": book_title,
+            "book_slug": book_slug,
+            "type": conv_type,
+            "topics": [],
+            "message_count": 0,
+            "created_at": now,
+            "updated_at": now,
+        }
+        self.db.conversations.insert_one(doc)
+        return self._convo_from_doc(doc)
 
-        self.db.conversation_members.insert_many([
-            {"conversation_id": convo_id, "user_id": user_id_a, "role": "member"},
-            {"conversation_id": convo_id, "user_id": user_id_b, "role": "member"},
-        ])
+    def get_conversation(self, conversation_id: int) -> Optional[ConversationModel]:
+        doc = self.db.conversations.find_one({"id": conversation_id})
+        return self._convo_from_doc(doc)
 
-        return self._convo_from_doc(convo_doc)
+    def list_conversations_for_user(
+        self, user_id: int, book_id: Optional[int] = None, limit: int = 20
+    ) -> List[ConversationModel]:
+        query: dict = {"user_id": user_id}
+        if book_id is not None:
+            query["book_id"] = book_id
+        docs = list(
+            self.db.conversations.find(query)
+            .sort("updated_at", -1)
+            .limit(limit)
+        )
+        return [self._convo_from_doc(d) for d in docs]
 
-    def list_conversations_for_user(self, user_id: int) -> List[ConversationModel]:
-        pipeline = [
-            {"$match": {"user_id": user_id}},
-            {"$sort": {"conversation_id": -1}},
-            {"$lookup": {
-                "from": "conversations",
-                "localField": "conversation_id",
-                "foreignField": "id",
-                "as": "conversation",
-            }},
-            {"$unwind": "$conversation"},
-            {"$replaceRoot": {"newRoot": "$conversation"}},
-        ]
-        convos = list(self.db.conversation_members.aggregate(pipeline))
-        return [self._convo_from_doc(c) for c in convos]
+    def update_conversation_topics(
+        self, conversation_id: int, topics: list
+    ) -> None:
+        self.db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"topics": topics, "updated_at": datetime.now(timezone.utc)}},
+        )
 
-    def list_members(self, conversation_id: int) -> List[ConversationMemberModel]:
-        docs = list(self.db.conversation_members.find(
-            {"conversation_id": conversation_id}
-        ))
-        return [self._member_from_doc(d) for d in docs]
+    def update_conversation_message_count(
+        self, conversation_id: int, count: int
+    ) -> None:
+        self.db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"message_count": count, "updated_at": datetime.now(timezone.utc)}},
+        )
 
-    def create_message(self, conversation_id: int, sender_id: int, body: str) -> MessageModel:
+    def delete_conversation(self, conversation_id: int, user_id: int) -> bool:
+        result = self.db.conversations.delete_one(
+            {"id": conversation_id, "user_id": user_id}
+        )
+        self.db.messages.delete_many({"conversation_id": conversation_id})
+        return result.deleted_count > 0
+
+    def create_message(
+        self, conversation_id: int, role: str, content: str
+    ) -> MessageModel:
         msg_id = get_next_id("messages")
+        now = datetime.now(timezone.utc)
         msg = {
             "id": msg_id,
             "conversation_id": conversation_id,
-            "sender_id": sender_id,
-            "body": body,
+            "role": role,
+            "content": content,
+            "created_at": now,
         }
         self.db.messages.insert_one(msg)
         return self._msg_from_doc(msg)
 
-    def list_messages(self, conversation_id: int, limit: int = 50, before_id: Optional[int] = None) -> List[MessageModel]:
+    def list_messages(
+        self, conversation_id: int, limit: int = 100, before_id: Optional[int] = None
+    ) -> List[MessageModel]:
         query = {"conversation_id": conversation_id}
         if before_id:
             query["id"] = {"$lt": before_id}
-        docs = list(self.db.messages.find(query).sort("id", -1).limit(limit))
-        docs.reverse()
+        docs = list(
+            self.db.messages.find(query).sort("id", 1).limit(limit)
+        )
         return [self._msg_from_doc(d) for d in docs]
 
-    def mark_read(self, conversation_id: int, user_id: int, last_read_message_id: int):
-        result = self.db.conversation_members.update_one(
-            {"conversation_id": conversation_id, "user_id": user_id},
-            {"$set": {"last_read_message_id": last_read_message_id, "last_read_at": None}},
+    def create_shared_conversation(self, conversation_id: int) -> str:
+        import secrets
+        share_id = secrets.token_urlsafe(12)
+        self.db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"share_id": share_id, "shared_at": datetime.now(timezone.utc)}},
         )
-        if result.matched_count == 0:
-            return None
-        return self.get_member(conversation_id, user_id)
+        return share_id
+
+    def get_conversation_by_share_id(self, share_id: str) -> Optional[ConversationModel]:
+        doc = self.db.conversations.find_one({"share_id": share_id})
+        return self._convo_from_doc(doc)

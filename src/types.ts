@@ -1,4 +1,3 @@
-
 export interface Book {
   id: number;
   title: string;
@@ -9,7 +8,7 @@ export interface Book {
   aiContext: string;
   publicationYear: number;
   category: string;
-  slug?: string; // Will be computed
+  slug?: string;
 }
 
 export enum MessageSender {
@@ -22,4 +21,34 @@ export interface ChatMessage {
   text: string;
   image?: string;
   timestamp?: Date;
+}
+
+export interface SavedConversation {
+  id: number;
+  bookId: number;
+  bookTitle: string;
+  bookSlug: string;
+  topics: string[];
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationDetail extends SavedConversation {
+  messages: { id: number; role: string; content: string }[];
+}
+
+export interface BookSuggestion {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  imageUrl: string;
+  reason: string;
+}
+
+export interface ChatResponse {
+  response: string;
+  followUpQuestions?: string[];
+  conversationId?: number;
 }

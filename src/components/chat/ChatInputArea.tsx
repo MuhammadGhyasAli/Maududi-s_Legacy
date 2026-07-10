@@ -99,7 +99,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 <input type="file" ref={fileInputRef} onChange={onImageChange} accept="image/*" className="hidden" />
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="cursor-pointer p-1.5 sm:p-2 rounded-full text-gray-400 hover:text-brand-green hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  className="cursor-pointer p-2 sm:p-2.5 rounded-full text-gray-400 hover:text-brand-green hover:bg-gray-50 dark:hover:bg-white/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Attach image"
                 >
                   <PaperclipIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -118,9 +118,9 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 }
               }}
               placeholder={placeholder}
-              className={`flex-1 bg-transparent px-3 sm:px-6 py-3 sm:py-4 max-h-[150px] sm:max-h-[200px] min-h-[44px] sm:min-h-[56px] text-[14px] sm:text-[15px]
+              className={`flex-1 bg-transparent px-3 sm:px-6 py-3 sm:py-4 max-h-[120px] sm:max-h-[200px] min-h-[48px] sm:min-h-[56px] text-[15px] sm:text-[15px]
                          text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 
-                         focus:outline-none resize-none overflow-y-auto scrollbar-thin ${inputClassName}
+                         focus:outline-none resize-none overflow-y-auto scrollbar-thin leading-relaxed ${inputClassName}
                          ${onImageChange ? 'px-2' : ''}`}
               rows={1}
               dir={inputDir}
@@ -130,9 +130,9 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
               <button 
                 onClick={onSendMessage} 
                 disabled={isLoading || (!input.trim() && !imageFile)}
-                className={`cursor-pointer p-2 sm:p-2.5 rounded-full transition-all duration-200 flex items-center justify-center
+                className={`cursor-pointer p-2.5 sm:p-3 rounded-full transition-all duration-200 flex items-center justify-center min-w-[44px] min-h-[44px]
                            ${(input.trim() || imageFile) && !isLoading 
-                             ? 'bg-brand-green text-white hover:bg-brand-green-light shadow-md' 
+                             ? 'bg-brand-green text-white hover:bg-brand-green-light shadow-md active:scale-95' 
                              : 'bg-transparent text-gray-400 dark:text-gray-500 cursor-not-allowed'}`}
                 aria-label="Send message"
               >

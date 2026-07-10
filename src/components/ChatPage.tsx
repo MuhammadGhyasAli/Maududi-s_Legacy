@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Book, type ChatMessage, MessageSender } from '../types';
+import { Book, type ChatMessage, MessageSender, type BookSuggestion } from '../types';
 import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
 import { useToast } from './Toast';
-import ChatMessageList from './chat/ChatMessageList';
+import ChatMessageList, { DEFAULT_SUGGESTIONS } from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
 import { useAuth } from '../contexts/AuthContext';
 import { useChatHistory } from '../hooks/useChatHistory';
@@ -23,6 +23,13 @@ function getGuestCountFromCookie(): number {
 
 const ALL_LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 const GUEST_LANGUAGES = ['English', 'Urdu'];
+
+const TOPIC_CATEGORIES = ['Tafsir', 'Politics', 'Theology', 'Economics', 'Jurisprudence', 'Social Issues', 'History', 'Guidance'];
+
+const TOPIC_EMOJI: Record<string, string> = {
+  Tafsir: '📖', Politics: '🏛️', Theology: '☪️', Economics: '💰',
+  Jurisprudence: '⚖️', 'Social Issues': '🤝', History: '📜', Guidance: '💡',
+};
 
 interface ChatPageProps {
   book: Book;
@@ -44,10 +51,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [showHistory, setShowHistory] = useState(false);
   const [guestMessageCount, setGuestMessageCountState] = useState(getGuestCountFromCookie);
   const [limitReached, setLimitReached] = useState(false);
+  const [conversationId, setConversationId] = useState<number | undefined>(undefined);
+  const [followUps, setFollowUps] = useState<string[]>([]);
+  const [currentTopics, setCurrentTopics] = useState<string[]>([]);
+  const [bookSuggestions, setBookSuggestions] = useState<BookSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const restrictedLanguages = !user ? ALL_LANGUAGES.filter(l => !GUEST_LANGUAGES.includes(l)) : [];
   const displayLanguages = user ? ALL_LANGUAGES : ALL_LANGUAGES;
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
   const bookSlug = slugify(book.title);
+  const followUpCountersRef = useRef<Record<number, number>>({});
 
   const {
     conversations,
@@ -83,7 +96,27 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       { sender: MessageSender.AI, text: `Hello! I am an AI assistant trained on "${book.title}". How can I help you?`, timestamp: new Date() }
     ]);
     apiMessagesRef.current = [];
+    setConversationId(undefined);
+    setCurrentTopics([]);
+    setBookSuggestions([]);
+    setFollowUps([]);
   }, [book, activeConvId, getConversation]);
+
+  const updateTopicsAndSuggestions = useCallback(async (newTopics: string[]) => {
+    if (newTopics.length === 0) return;
+    setCurrentTopics(prev => {
+      const merged = [...new Set([...prev, ...newTopics])];
+      return merged;
+    });
+    const suggestions = await apiService.getBookSuggestions(newTopics);
+    if (suggestions.length > 0) {
+      setBookSuggestions(prev => {
+        const existingIds = new Set(prev.map(s => s.id));
+        const newOnes = suggestions.filter(s => !existingIds.has(s.id));
+        return [...prev, ...newOnes].slice(0, 5);
+      });
+    }
+  }, []);
 
   const handleSendMessage = useCallback(async () => {
     if (!input.trim() || isLoading) return;
@@ -91,6 +124,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     const userMessage: ChatMessage = { sender: MessageSender.USER, text: input.trim(), timestamp: new Date() };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
+    setFollowUps([]);
 
     const textToSend = input.trim();
     setInput('');
@@ -106,7 +140,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
             { role: 'user', content: `Provide a precise, well-researched answer based strictly on the book's content. Accuracy is critical — only state what you are certain of. If you are unsure about any detail, explicitly say so rather than speculating. Your entire response must be in ${selectedLanguage}. When citing, provide full exact book titles and specific context references.\n\nMy question: "${textToSend}"` }
         ];
         
-        const response = await apiService.chat(book.id, book.aiContext, newApiMessages);
+        const response = await apiService.chat(book.id, book.aiContext, newApiMessages, undefined, conversationId, selectedLanguage);
         const aiMessage: ChatMessage = { sender: MessageSender.AI, text: response.response, timestamp: new Date() };
         const finalMessages = [...updatedMessages, aiMessage];
         setMessages(finalMessages);
@@ -116,10 +150,28 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
             { role: 'assistant', content: response.response }
         ];
 
+        if (response.conversationId) {
+          setConversationId(response.conversationId);
+        }
+
+        if (response.followUpQuestions && response.followUpQuestions.length > 0) {
+          setFollowUps(response.followUpQuestions);
+        }
+
         saveConversation(finalMessages);
 
-        if (!user && typeof response.guestMessageCount === 'number') {
-          setGuestMessageCountState(response.guestMessageCount);
+        if (textToSend) {
+          const topicsFromMsg = TOPIC_CATEGORIES.filter(t =>
+            textToSend.toLowerCase().includes(t.toLowerCase()) ||
+            textToSend.toLowerCase().includes(t.toLowerCase().slice(0, 4))
+          );
+          if (topicsFromMsg.length > 0) {
+            updateTopicsAndSuggestions(topicsFromMsg);
+          }
+        }
+
+        if (!user && typeof (response as any).guestMessageCount === 'number') {
+          setGuestMessageCountState((response as any).guestMessageCount);
         }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
@@ -135,7 +187,28 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       setLoadingStatus('');
       setIsLoading(false);
     }
-  }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation, user]);
+  }, [input, isLoading, selectedLanguage, book.id, book.aiContext, messages, saveConversation, user, conversationId, updateTopicsAndSuggestions]);
+
+  const handleFollowUpClick = useCallback((question: string) => {
+    setInput(question);
+  }, []);
+
+  const handleSuggestionClick = useCallback((question: string) => {
+    setInput(question);
+  }, []);
+
+  const handleBranchFromMessage = useCallback((messageIndex: number) => {
+    const branchMsgs = messages.slice(0, messageIndex + 1);
+    const apiBranchMsgs = branchMsgs
+      .filter(m => m.sender === MessageSender.USER || m.sender === MessageSender.AI)
+      .map(m => ({ role: m.sender === MessageSender.USER ? 'user' as const : 'assistant' as const, content: m.text }));
+    
+    setMessages(branchMsgs);
+    apiMessagesRef.current = apiBranchMsgs;
+    setConversationId(undefined);
+    setFollowUps([]);
+    toast('Conversation branched from this message');
+  }, [messages, toast]);
 
   const handleShareChat = async () => {
     if (!user) {
@@ -143,6 +216,22 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       return;
     }
     if (!messages.length) return;
+
+    if (conversationId) {
+      try {
+        const { url } = await apiService.shareConversation(conversationId);
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+          toast('Share link copied to clipboard!');
+          return;
+        }
+        toast(`Share link: ${url}`);
+        return;
+      } catch {
+        // fallback to text copy
+      }
+    }
+
     const transcript = messages.map(msg => {
         const sender = msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1);
         return `${sender}: ${msg.text}`;
@@ -155,7 +244,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         toast('Chat shared!');
         return;
       } catch (err) {
-        // Only swallow user cancellation; let other errors fall through to clipboard
         if (err instanceof DOMException && err.name === 'AbortError') return;
       }
     }
@@ -216,6 +304,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setError(null);
     setShowClearConfirm(false);
     setActiveConvId(null);
+    setConversationId(undefined);
+    setCurrentTopics([]);
+    setBookSuggestions([]);
+    setFollowUps([]);
   };
 
   if (!user && (limitReached || guestMessageCount >= MAX_FREE_MESSAGES)) {
@@ -313,6 +405,48 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         </>
       )}
 
+      {/* Book suggestions drawer */}
+      {showSuggestions && bookSuggestions.length > 0 && (
+        <>
+          <div className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm lg:hidden" onClick={() => setShowSuggestions(false)} />
+          <aside className="fixed right-0 top-0 z-40 w-72 h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-xl lg:shadow-none lg:relative lg:z-auto flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+              <h2 className="text-sm font-bold text-gray-800 dark:text-gray-200">Related Books</h2>
+              <button
+                onClick={() => setShowSuggestions(false)}
+                className="cursor-pointer p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+              {currentTopics.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {currentTopics.map(t => (
+                    <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-brand-green/10 text-brand-green border border-brand-green/20">
+                      {TOPIC_EMOJI[t] || ''} {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {bookSuggestions.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => onNavigateToBook(s as unknown as Book)}
+                  className="cursor-pointer w-full text-left p-3 rounded-xl text-xs hover:bg-gray-50 dark:hover:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all"
+                >
+                  <div className="font-semibold text-gray-800 dark:text-gray-200 mb-1 line-clamp-2">{s.title}</div>
+                  <div className="text-[10px] text-gray-400 mb-1">{s.category}</div>
+                  <div className="text-[10px] text-brand-green/70">{s.reason}</div>
+                </button>
+              ))}
+            </div>
+          </aside>
+        </>
+      )}
+
       {/* Main chat area */}
       <div className="flex flex-col flex-1 min-w-0 pt-14">
         {/* Slim top bar */}
@@ -326,8 +460,35 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[200px] sm:max-w-[400px]">
                 {book.title}
               </span>
+              {currentTopics.length > 0 && (
+                <div className="hidden md:flex items-center gap-1 ml-2">
+                  {currentTopics.slice(0, 2).map(t => (
+                    <span key={t} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-brand-green/8 text-brand-green/60 border border-brand-green/15">
+                      {t}
+                    </span>
+                  ))}
+                  {currentTopics.length > 2 && (
+                    <span className="text-[9px] text-gray-400">+{currentTopics.length - 2}</span>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
+              {user && bookSuggestions.length > 0 && (
+                <button
+                  onClick={() => setShowSuggestions(!showSuggestions)}
+                  className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
+                    showSuggestions
+                      ? 'bg-brand-green/10 text-brand-green'
+                      : 'text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5'
+                  }`}
+                  title="Related books"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                </button>
+              )}
               {user && (
                 <button
                   onClick={() => setShowHistory(!showHistory)}
@@ -374,6 +535,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
           onNavigateToBook={onNavigateToBook}
           books={books}
           userDisplayName={user?.display_name || user?.email}
+          followUpQuestions={followUps}
+          onFollowUpClick={handleFollowUpClick}
+          onBranchFromMessage={handleBranchFromMessage}
+          showSuggestions={messages.length <= 1 && !isLoading}
+          onSuggestionClick={handleSuggestionClick}
         />
 
         {!user && !limitReached && (

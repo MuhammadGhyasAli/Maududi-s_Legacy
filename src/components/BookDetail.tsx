@@ -245,6 +245,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
         onClose={() => setPdfOpen(false)}
         pdfUrl={book.pdfUrl}
         title={book.title}
+        bookId={book.id}
+        onAskAI={onStartChat}
       />
     </>
   );

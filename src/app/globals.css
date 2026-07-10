@@ -360,3 +360,46 @@ body {
     width: 100%;
   }
 }
+
+/* ═══════════════════════════════════════════
+   Dark mode scrollbars
+═══════════════════════════════════════════ */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════
+   Better dark mode selection
+═══════════════════════════════════════════ */
+.dark ::selection {
+  background: rgba(5, 150, 105, 0.3);
+  color: inherit;
+}
+
+/* ═══════════════════════════════════════════
+   Loading skeleton shimmer
+═══════════════════════════════════════════ */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.05) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

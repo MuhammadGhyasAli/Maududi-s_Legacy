@@ -119,6 +119,7 @@ def init_db():
             {"_id": "conversations", "seq": 0},
             {"_id": "messages", "seq": 0},
             {"_id": "password_reset_tokens", "seq": 0},
+            {"_id": "topics", "seq": 0},
         ])
 
     logger.info("Database initialized")

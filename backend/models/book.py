@@ -126,6 +126,8 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     bookId: int
     messages: List[ChatMessage]
+    conversationId: Optional[int] = None
+    language: str = "English"
     
     @field_validator('bookId')
     @classmethod
@@ -146,6 +148,8 @@ class ChatRequest(BaseModel):
 class GlobalChatRequest(BaseModel):
     systemInstruction: str
     messages: List[ChatMessage]
+    conversationId: Optional[int] = None
+    language: str = "English"
     
     @field_validator('systemInstruction')
     @classmethod

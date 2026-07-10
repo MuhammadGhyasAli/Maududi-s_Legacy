@@ -10,6 +10,18 @@ export const CATEGORIES: string[] = [
   "Guidance",
 ];
 
+export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "All": "Discover the complete works of Sayyid Abul A'la Maududi across all categories",
+  "Tafsir": "Quranic exegesis and commentary — exploring the deeper meanings of the Quran through Maududi's seminal Tafheem ul Quran",
+  "Politics": "Islamic political thought, governance, statecraft, and the principles of an Islamic polity",
+  "Theology": "Islamic creed, faith, belief in Allah, prophethood, and the fundamentals of the Islamic worldview",
+  "Economics": "Islamic economics, riba (interest), wealth distribution, and economic justice from an Islamic perspective",
+  "Jurisprudence": "Islamic law and jurisprudence — Fiqh, Shariah, rulings, and legal principles",
+  "Social Issues": "Social reform, women's rights, family, education, and moral development in Islamic society",
+  "History": "Islamic history, civilization, and the lessons of the Muslim ummah's past",
+  "Guidance": "Spiritual guidance, worship, character development, and personal purification",
+};
+
 export const CATEGORY_SLUGS: string[] = [
   "tafsir",
   "politics",
