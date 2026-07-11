@@ -20,6 +20,7 @@ const navShortcuts = [
   { key: 'g h', description: 'Go to home' },
   { key: 'g b', description: 'Go to books' },
   { key: 'g s', description: 'Go to AI search' },
+  { key: 'g m', description: 'Go to Smart Assistant' },
   { key: 'g a', description: 'Go to about' },
   { key: 'g i', description: 'Go to biography' },
 ];

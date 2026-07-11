@@ -9,6 +9,7 @@ import MoonIcon from './icons/MoonIcon';
 import SystemIcon from './icons/SystemIcon';
 import SparklesIcon from './icons/SparklesIcon';
 import SearchIcon from './icons/SearchIcon';
+import ChatIcon from './icons/ChatIcon';
 import { Theme } from '../types/theme';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -151,6 +152,20 @@ const Header = React.memo(function Header({
             >
               <SparklesIcon className="w-4 h-4" />
               <span>AI Search</span>
+            </button>
+
+            {/* Smart Assistant */}
+            <button
+              onClick={() => router.push('/smart-assistant')}
+              className="header-smart-assistant flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium
+                         text-gray-600 dark:text-gray-300
+                         hover:text-brand-green dark:hover:text-brand-green-dark
+                         hover:bg-emerald-50 dark:hover:bg-emerald-950/40
+                         transition-all duration-200 cursor-pointer"
+              aria-label="Open Smart Assistant"
+            >
+              <ChatIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Assistant</span>
             </button>
 
             {/* Auth */}

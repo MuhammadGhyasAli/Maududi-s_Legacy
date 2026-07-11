@@ -103,6 +103,9 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
             case 's': // Go to AI search
               router.push('/ai-context-finder');
               break;
+            case 'm': // Go to Smart Assistant
+              router.push('/smart-assistant');
+              break;
             case 'c': // Go to AI chat
               router.push('/ai-context-finder');
               break;
@@ -152,7 +155,7 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
     }
   }, [theme]);
 
-  const isChatRoute = pathname?.includes('/chat') || pathname?.includes('/ai-context-finder');
+  const isChatRoute = pathname?.includes('/chat') || pathname?.includes('/ai-context-finder') || pathname?.includes('/smart-assistant');
   const isAuthRoute = pathname?.startsWith('/auth');
   const segments = pathname?.split('/').filter(Boolean) || [];
   const isBookDetail = segments.length === 2 && CATEGORY_SLUGS.includes(segments[0]);

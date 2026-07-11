@@ -69,6 +69,7 @@ export default function Footer() {
               {[
                 { href: '/', label: 'All Books' },
                 { href: '/ai-context-finder', label: 'AI Search' },
+                { href: '/smart-assistant', label: 'Smart Assistant' },
                 { href: '/biography', label: 'Biography' },
                 { href: '/about', label: 'About' },
               ].map(link => (

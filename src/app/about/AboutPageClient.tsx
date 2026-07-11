@@ -89,7 +89,7 @@ const dataSources = [
   { name: "Internet Archive / Archive.org", url: "https://archive.org" },
 ];
 
-function FeatureCard({ feature, _index }: { feature: typeof featureCards[0]; _index: number }) {
+function FeatureCard({ feature }: { feature: typeof featureCards[0] }) {
   const colorClasses = {
     emerald: "border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 bg-emerald-50/30 dark:bg-emerald-950/20",
     blue: "border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 bg-blue-50/30 dark:bg-blue-950/20",
@@ -122,7 +122,7 @@ function FeatureCard({ feature, _index }: { feature: typeof featureCards[0]; _in
   );
 }
 
-function CategoryCard({ category, _index }: { category: string; _index: number }) {
+function CategoryCard({ category }: { category: string }) {
   const icons: Record<string, string> = {
     'Tafsir': '📜',
     'Politics': '🏛️',
@@ -321,8 +321,8 @@ export default function AboutPageClient() {
           variants={containerVariants}
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {featureCards.map((feature, index) => (
-            <FeatureCard key={feature.title} feature={feature} index={index} />
+          {featureCards.map((feature) => (
+            <FeatureCard key={feature.title} feature={feature} />
           ))}
         </motion.div>
       </section>
@@ -348,8 +348,8 @@ export default function AboutPageClient() {
           variants={containerVariants}
           className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-          {CATEGORIES.filter(c => c !== 'All').map((cat, index) => (
-            <CategoryCard key={cat} category={cat} index={index} />
+          {CATEGORIES.filter(c => c !== 'All').map((cat) => (
+            <CategoryCard key={cat} category={cat} />
           ))}
         </motion.div>
       </section>
@@ -438,7 +438,7 @@ export default function AboutPageClient() {
               <p><strong>Primary sources include:</strong></p>
               <ul className="space-y-2">
                 {dataSources.map((source, _index) => (
-                  <li key={index} className="flex items-center gap-2">
+                  <li key={_index} className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
                     {source.url ? (
                       <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">

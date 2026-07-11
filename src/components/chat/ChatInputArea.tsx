@@ -14,8 +14,8 @@ interface ChatInputAreaProps {
   isLoading: boolean;
   error: string | null;
   selectedLanguage: string;
-  languages: string[];
-  onSelectLanguage: (lang: string) => void;
+  languages?: string[];
+  onSelectLanguage?: (lang: string) => void;
   onSendMessage: () => void;
   imageFile?: File | null;
   imagePreview?: string | null;
@@ -26,6 +26,7 @@ interface ChatInputAreaProps {
   footerText?: string;
   restrictedLanguages?: string[];
   onRestrictedLanguageClick?: (lang: string) => void;
+  hideLanguageSelector?: boolean;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -45,6 +46,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   footerText = "Responses are AI-generated and may contain errors.",
   restrictedLanguages,
   onRestrictedLanguageClick,
+  hideLanguageSelector = false,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -151,18 +153,20 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
         <div className="flex items-center justify-between mt-2 px-1">
           <div className="relative" ref={langRef}>
-            <button
-              onClick={() => setLangOpen(!langOpen)}
-              className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark transition-all"
-            >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.78.147 2.653.255" />
-              </svg>
-              {selectedLanguage}
-            </button>
-            {langOpen && (
+            {!hideLanguageSelector && (
+              <button
+                onClick={() => setLangOpen(!langOpen)}
+                className="cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark transition-all"
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.78.147 2.653.255" />
+                </svg>
+                {selectedLanguage}
+              </button>
+            )}
+            {!hideLanguageSelector && langOpen && (
               <div className="absolute bottom-full left-0 mb-1.5 w-28 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-20">
-                {languages.map(lang => {
+                {(languages || []).map(lang => {
                   const isRestricted = restrictedLanguages?.includes(lang);
                   return (
                     <button
@@ -171,7 +175,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                         if (isRestricted) {
                           onRestrictedLanguageClick?.(lang);
                         } else {
-                          onSelectLanguage(lang);
+                          onSelectLanguage?.(lang);
                         }
                         setLangOpen(false);
                       }}

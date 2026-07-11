@@ -292,6 +292,31 @@ export const apiService = {
     return response.json();
   },
 
+  // Smart Assistant (auto language detection, authenticated users only)
+  smartChat: async (messages: ApiChatMessage[], languageMode?: string, signal?: AbortSignal): Promise<ChatResponse> => {
+    const response = await apiFetch('/api/chat/smart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messages, languageMode }),
+      signal: getAbortSignal(signal),
+    });
+    if (!response.ok) {
+      let errMessage = `Failed to send message: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData.error) {
+          errMessage = errData.error;
+        }
+      } catch {
+        // ignore parse error; fall back to status text
+      }
+      throw new Error(errMessage);
+    }
+    return response.json();
+  },
+
   // Get book suggestions by topic
   getBookSuggestions: async (topics: string[]): Promise<BookSuggestion[]> => {
     if (!topics.length) return [];

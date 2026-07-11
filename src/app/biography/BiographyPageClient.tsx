@@ -83,7 +83,7 @@ const galleryImages = [
   { src: "/maududi-grave.jpg", alt: "Maududi's grave in Ichhra, Lahore", caption: "Final resting place in Ichhra, Lahore" },
 ];
 
-function TimelineItem({ item, _index, _isLast }: { item: typeof timeline[0]; _index: number; _isLast: boolean }) {
+function TimelineItem({ item }: { item: typeof timeline[0] }) {
   return (
     <motion.div
       key={item.year}
@@ -360,8 +360,8 @@ export default function BiographyPageClient() {
             viewport={{ once: true, margin: "-100px" }}
             className="relative pl-8"
           >
-            {timeline.map((item, index) => (
-              <TimelineItem key={item.year} item={item} index={index} isLast={index === timeline.length - 1} />
+            {timeline.map((item) => (
+              <TimelineItem key={item.year} item={item} />
             ))}
           </motion.div>
         </div>
