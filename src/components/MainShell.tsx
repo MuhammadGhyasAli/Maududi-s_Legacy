@@ -32,6 +32,24 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(true);
 
+  // Global 't' shortcut to cycle theme
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      if (e.key === 't') {
+        e.preventDefault();
+        setTheme(prev => {
+          const themes: Theme[] = ['light', 'dark', 'system'];
+          const nextIndex = (themes.indexOf(prev) + 1) % themes.length;
+          return themes[nextIndex];
+        });
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [setTheme]);
+
   // Prefetch book data in background as soon as shell mounts
   useEffect(() => {
     apiService.getBooks().catch(() => {}); // silent prefetch

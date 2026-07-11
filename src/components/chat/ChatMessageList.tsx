@@ -151,19 +151,19 @@ function renderStructuredView(
         </p>
         <div className="space-y-1.5 text-[12px] sm:text-[13px] font-medium">
           {sd.bookTitle && (
-            <div className="text-gray-650 dark:text-gray-350">
+            <div className="text-gray-600 dark:text-gray-400">
               <strong className="text-gray-900 dark:text-gray-100">Book:</strong>{' '}
               <span className={className}>{renderFormattedMessage(sd.bookTitle, onNavigateToBook, books)}</span>
             </div>
           )}
           {sd.chapter && (
-            <div className="text-gray-650 dark:text-gray-350">
+            <div className="text-gray-600 dark:text-gray-400">
               <strong className="text-gray-900 dark:text-gray-100">Chapter:</strong>{' '}
               <span className={className}>{renderFormattedMessage(sd.chapter, onNavigateToBook, books)}</span>
             </div>
           )}
           {sd.page && (
-            <div className="text-gray-650 dark:text-gray-350">
+            <div className="text-gray-600 dark:text-gray-400">
               <strong className="text-gray-900 dark:text-gray-100">Page:</strong>{' '}
               <span className={className}>{renderFormattedMessage(sd.page, onNavigateToBook, books)}</span>
             </div>

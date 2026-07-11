@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TOUR_KEY = 'ml_onboarded';
@@ -47,6 +47,7 @@ const steps = [
 const OnboardingTour: React.FC = () => {
   const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const done = localStorage.getItem(TOUR_KEY);
@@ -55,6 +56,19 @@ const OnboardingTour: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Esc to dismiss
+  useEffect(() => {
+    if (!active) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        dismiss();
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [active]);
 
   const dismiss = () => {
     localStorage.setItem(TOUR_KEY, '1');
@@ -69,6 +83,13 @@ const OnboardingTour: React.FC = () => {
     }
   };
 
+  // Focus first button when modal opens
+  useEffect(() => {
+    if (active) {
+      modalRef.current?.focus();
+    }
+  }, [active]);
+
   return (
     <AnimatePresence>
       {active && (
@@ -82,12 +103,17 @@ const OnboardingTour: React.FC = () => {
           />
           <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none p-4">
             <motion.div
+              ref={modalRef}
               key={step}
               initial={{ opacity: 0, scale: 0.92, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: -10 }}
               transition={{ duration: 0.25 }}
               className="pointer-events-auto bg-white dark:bg-brand-card-dark rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 p-6 max-w-sm w-full"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="tour-title"
+              tabIndex={-1}
             >
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 mx-auto">
                 {steps[step].icon}

@@ -79,7 +79,13 @@ export default function BookPage() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Failed to Load Book</h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{error}</p>
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push('/');
+              }
+            }}
             className="cursor-pointer px-6 py-3 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition-colors font-medium"
           >
             Go Back
@@ -97,7 +103,13 @@ export default function BookPage() {
             The book you're looking for doesn't exist or may have been moved.
           </p>
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push('/');
+              }
+            }}
             className="cursor-pointer px-6 py-3 bg-brand-green text-white rounded-lg hover:bg-brand-green/90 transition-colors font-medium"
           >
             Go Back
@@ -111,7 +123,13 @@ export default function BookPage() {
     <>
       <BookDetail
         book={book}
-        onBack={() => router.back()}
+        onBack={() => {
+          if (window.history.length > 1) {
+            router.back();
+          } else {
+            router.push('/');
+          }
+        }}
         onStartChat={() => router.push(`/${category}/${bookSlug}/chat`)}
       />
 

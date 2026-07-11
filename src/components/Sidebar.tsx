@@ -252,7 +252,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
       {/* Sidebar panel */}
       <div
         ref={sidebarRef}
-        role="dialog"
+        role={isOpen ? 'dialog' : undefined}
         aria-modal={isOpen ? 'true' : undefined}
         aria-label="Navigation sidebar"
         className={

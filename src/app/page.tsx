@@ -91,12 +91,12 @@ function HomePageContent() {
             <span className="text-3xl">⚠️</span>
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Backend Unreachable
+            Unable to Load Books
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 leading-relaxed">{error}</p>
           <p className="text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-900/20
                         rounded-lg px-3 py-2 border border-amber-200/60 dark:border-amber-700/40">
-            Books are loaded directly from the server — no external backend needed
+            Please check your connection and try again.
           </p>
         </div>
       </main>

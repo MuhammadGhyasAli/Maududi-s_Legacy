@@ -22,6 +22,7 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
   const [scale, setScale] = useState(1);
   const [loading, setLoading] = useState(true);
   const [pageInput, setPageInput] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const errorHandledRef = useRef(false);
 
   useEffect(() => {
@@ -55,8 +56,7 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
     if (errorHandledRef.current) return;
     errorHandledRef.current = true;
     setLoading(false);
-    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
-    onClose();
+    setError('Failed to load the PDF document. The file may be unavailable or blocked by browser policy.');
   };
 
   const goToPrevPage = () => setPageNumber(p => Math.max(1, p - 1));
@@ -156,7 +156,40 @@ const PdfReaderPanel: React.FC<PdfReaderPanelProps> = ({ isOpen, onClose, pdfUrl
               </div>
             )}
 
-            <div className={`flex flex-col items-center py-8 sm:py-12 px-4 ${loading ? 'hidden' : ''}`}>
+            {error && (
+              <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Unable to Load PDF</h3>
+                <p className="text-sm text-white/60 mb-6 max-w-md">{error}</p>
+                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+                  <button
+                    onClick={() => {
+                      window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+                      onClose();
+                    }}
+                    className="flex-1 px-4 py-2.5 rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+                  >
+                    Open in New Tab
+                  </button>
+                  <button
+                    onClick={() => {
+                      setError(null);
+                      setLoading(true);
+                      errorHandledRef.current = false;
+                    }}
+                    className="flex-1 px-4 py-2.5 rounded-lg font-medium text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className={`flex flex-col items-center py-8 sm:py-12 px-4 ${loading || error ? 'hidden' : ''}`}>
               <div className="w-full max-w-4xl">
                 <PdfViewer
                   pdfUrl={pdfUrl}

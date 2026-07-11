@@ -7,8 +7,6 @@ import CloseIcon from './icons/CloseIcon';
 const shortcuts = [
   { key: '/', description: 'Focus search bar' },
   { key: '⌘K', description: 'Quick search all books' },
-  { key: 'n', description: 'Next page' },
-  { key: 'p', description: 'Previous page' },
   { key: 't', description: 'Toggle theme' },
   { key: '?', description: 'Open shortcuts' },
   { key: 'Esc', description: 'Close sidebar / modal' },

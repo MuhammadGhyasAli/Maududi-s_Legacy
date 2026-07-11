@@ -28,8 +28,13 @@ const QuickSearchModal: React.FC = () => {
         setIsOpen(o => !o);
       }
     };
+    const handleCustomOpen = () => setIsOpen(true);
     window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    window.addEventListener('open-quick-search', handleCustomOpen);
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      window.removeEventListener('open-quick-search', handleCustomOpen);
+    };
   }, []);
 
   useEffect(() => {

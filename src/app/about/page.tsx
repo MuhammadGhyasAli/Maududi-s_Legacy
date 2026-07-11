@@ -1,7 +1,7 @@
 export const metadata = {
   title: "About Maududi's Legacy",
   description:
-    "A comprehensive digital archive preserving and providing intelligent access to the complete works of Sayyid Abul A'la Maududi (1903–1979), one of the most influential Islamic scholars of the 20th century. Browse 77+ books, read online, and chat with AI trained on his writings.",
+    "A comprehensive digital archive preserving and providing intelligent access to the complete works of Sayyid Abul A'la Maududi (1903–1979), one of the most influential Islamic scholars of the 20th century. Browse books, read online, and chat with AI trained on his writings.",
 };
 
 import Link from 'next/link';
@@ -44,7 +44,7 @@ export default function AboutPage() {
             <strong>Maududi&rsquo;s Legacy</strong> was built to solve this. Our mission is threefold:
           </p>
           <ul>
-            <li><strong>Preserve</strong> — Digitally archive the complete corpus of Maududi&rsquo;s 73+ books, 120+ booklets, and 1,000+ speeches in high-quality, readable formats.</li>
+            <li><strong>Preserve</strong> — Digitally archive the complete corpus of Maududi&rsquo;s books, booklets, and speeches in high-quality, readable formats.</li>
             <li><strong>Organize</strong> — Structure the library by category (Tafsir, Hadith, Fiqh, Politics, Economics, Philosophy, Biography, Social Reform), language, and theme for intuitive discovery.</li>
             <li><strong>Empower</strong> — Provide AI-powered tools that let anyone — students, researchers, or general readers — read, search, and converse with Maududi&rsquo;s ideas in their own language.</li>
           </ul>
@@ -73,7 +73,7 @@ export default function AboutPage() {
           <FeatureCard
             icon="📚"
             title="Browse the Complete Library"
-            description={`Explore 77+ books across ${CATEGORIES.length - 1} categories: ${CATEGORIES.filter(c => c !== 'All').join(', ')}.`}
+            description={`Explore books across ${CATEGORIES.length - 1} categories: ${CATEGORIES.filter(c => c !== 'All').join(', ')}.`}
           />
           <FeatureCard
             icon="📖"
@@ -197,7 +197,7 @@ export default function AboutPage() {
             { name: "Styling", tech: "Tailwind CSS 4, Custom Design System" },
             { name: "Database", tech: "MongoDB (Books, Users, Chat History)" },
             { name: "AI/ML", tech: "Groq (Llama 3, Mixtral), Vector Embeddings" },
-            { name: "Authentication", tech: "NextAuth.js (Email, Google, GitHub)" },
+            { name: "Authentication", tech: "Custom JWT + Google OAuth" },
             { name: "PDF Rendering", tech: "React-PDF, PDF.js" },
             { name: "Image Processing", tech: "Tesseract.js (OCR), Sharp" },
             { name: "Deployment", tech: "Vercel (Edge Functions), Docker" },

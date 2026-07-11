@@ -8,6 +8,7 @@ import SunIcon from './icons/SunIcon';
 import MoonIcon from './icons/MoonIcon';
 import SystemIcon from './icons/SystemIcon';
 import SparklesIcon from './icons/SparklesIcon';
+import SearchIcon from './icons/SearchIcon';
 import { Theme } from '../types/theme';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -122,6 +123,23 @@ const Header = React.memo(function Header({
 
           {/* Right — actions */}
           <div className="flex items-center gap-1.5">
+            {/* Command Palette trigger */}
+            <button
+              onClick={() => window.dispatchEvent(new Event('open-quick-search'))}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium
+                         text-gray-500 dark:text-gray-400
+                         hover:text-brand-green dark:hover:text-brand-green-dark
+                         hover:bg-gray-50 dark:hover:bg-white/5
+                         transition-all duration-200 cursor-pointer"
+              aria-label="Open command palette (⌘K)"
+            >
+              <SearchIcon className="w-4 h-4" />
+              <span className="hidden md:inline">Search</span>
+              <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shrink-0">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* AI Context Finder */}
             <button
               onClick={() => router.push('/ai-context-finder')}

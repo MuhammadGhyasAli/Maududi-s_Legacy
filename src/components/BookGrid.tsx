@@ -13,6 +13,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
 import Breadcrumbs from './Breadcrumbs';
+import { CATEGORIES, LANGUAGES } from '../constants';
 
 
 interface BookGridProps {
@@ -276,11 +277,11 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
                 <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Total Books</p>
               </div>
               <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">8</p>
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{CATEGORIES.length - 1}</p>
                 <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Categories</p>
               </div>
               <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
-                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">6</p>
+                <p className="text-2xl font-bold text-brand-green dark:text-brand-green-dark">{LANGUAGES.length}</p>
                 <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">Languages</p>
               </div>
               <div className="p-3.5 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/60 dark:border-white/5 shadow-sm">
@@ -402,6 +403,10 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
                   <div
                     key={book.id}
                     onClick={() => handleSelectBook(book)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectBook(book); } }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${book.title}`}
                     className="
                       flex gap-4 items-start cursor-pointer group
                       bg-white dark:bg-brand-card-dark

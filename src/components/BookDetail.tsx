@@ -38,7 +38,11 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !pdfOpen) {
         e.stopPropagation();
-        onBack();
+        if (window.history.length > 1) {
+          onBack();
+        } else {
+          window.location.href = '/';
+        }
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -148,9 +152,9 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                     </span>
                   </div>
 
-                  {/* Description */}
+{/* Description */}
                   <div className="relative mb-8 pl-5 border-l-2 border-brand-green/30 dark:border-brand-green-dark/30">
-                    <p className="text-gray-750 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                       {book.description}
                     </p>
                   </div>
