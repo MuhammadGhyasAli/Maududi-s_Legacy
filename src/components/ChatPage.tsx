@@ -11,6 +11,7 @@ import ChatMessageList from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
 import { useAuth } from '../contexts/AuthContext';
 import { useChatHistory } from '../hooks/useChatHistory';
+import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis';
 import { slugify } from '../utils/slugify';
 
 const MAX_FREE_MESSAGES = 10;
@@ -56,6 +57,20 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   const [currentTopics, setCurrentTopics] = useState<string[]>([]);
   const [bookSuggestions, setBookSuggestions] = useState<BookSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [voiceAssistant, setVoiceAssistant] = useState(false);
+  const { speak: autoSpeak, stop: stopAutoSpeak, isSpeaking: isAutoSpeaking } = useSpeechSynthesis();
+  const prevAiCountRef = useRef(0);
+
+  useEffect(() => {
+    if (!voiceAssistant || isLoading) return;
+    const aiMsgs = messages.filter(m => m.sender === MessageSender.AI);
+    if (aiMsgs.length > 0 && aiMsgs.length > prevAiCountRef.current) {
+      const latest = aiMsgs[aiMsgs.length - 1];
+      autoSpeak(latest.text).catch(() => {});
+    }
+    prevAiCountRef.current = aiMsgs.length;
+  }, [messages, voiceAssistant, isLoading, autoSpeak]);
+
   const restrictedLanguages = !user ? ALL_LANGUAGES.filter(l => !GUEST_LANGUAGES.includes(l)) : [];
   const displayLanguages = user ? ALL_LANGUAGES : ALL_LANGUAGES;
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
@@ -486,6 +501,28 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
                 </svg>
               </button>
             )}
+            <button
+              onClick={() => {
+                if (voiceAssistant && isAutoSpeaking) stopAutoSpeak();
+                setVoiceAssistant(!voiceAssistant);
+              }}
+              className={`cursor-pointer p-1.5 rounded-lg transition-all duration-200 ${
+                voiceAssistant
+                  ? 'bg-brand-green/10 text-brand-green'
+                  : 'text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5'
+              }`}
+              title={voiceAssistant ? 'Voice assistant on' : 'Voice assistant off'}
+            >
+              {isAutoSpeaking ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                </svg>
+              )}
+            </button>
             {user && (
               <button
                 onClick={() => setShowHistory(!showHistory)}

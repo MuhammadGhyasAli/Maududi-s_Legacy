@@ -68,6 +68,12 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const onResultRef = useRef(onResult);
+  const onErrorRef = useRef(onError);
+  const onEndRef = useRef(onEnd);
+  useEffect(() => { onResultRef.current = onResult; });
+  useEffect(() => { onErrorRef.current = onError; });
+  useEffect(() => { onEndRef.current = onEnd; });
 
   useEffect(() => {
     const SpeechRecognitionAPI =
@@ -90,22 +96,29 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
           const result = results[i];
           const transcript = result[0]?.transcript || '';
           const isFinal = result.isFinal;
-          onResult?.({ transcript, isFinal });
+          onResultRef.current?.({ transcript, isFinal });
         }
       };
 
       recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        onError?.(event.error);
+        onErrorRef.current?.(event.error);
       };
 
       recognition.onend = () => {
         setIsListening(false);
-        onEnd?.();
+        onEndRef.current?.();
       };
 
       recognitionRef.current = recognition;
     }
-  }, [language, continuous, interimResults, onResult, onError, onEnd]);
+
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch { /* ignore */ }
+        recognitionRef.current = null;
+      }
+    };
+  }, [language, continuous, interimResults]);
 
   const startListening = useCallback(() => {
     const recognition = recognitionRef.current;

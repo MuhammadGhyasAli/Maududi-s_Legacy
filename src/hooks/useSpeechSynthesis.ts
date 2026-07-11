@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-type SynthesisStatus = 'idle' | 'loading' | 'playing' | 'error';
+export type SynthesisStatus = 'idle' | 'loading' | 'playing' | 'error';
 
 interface UseSpeechSynthesisOptions {
   onStart?: () => void;
@@ -15,16 +15,34 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
   const [status, setStatus] = useState<SynthesisStatus>('idle');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const abortRef = useRef(false);
+  const onStartRef = useRef(onStart);
+  const onEndRef = useRef(onEnd);
+  const onErrorRef = useRef(onError);
+  useEffect(() => { onStartRef.current = onStart; });
+  useEffect(() => { onEndRef.current = onEnd; });
+  useEffect(() => { onErrorRef.current = onError; });
+
+  const stop = useCallback(() => {
+    abortRef.current = true;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    setStatus('idle');
+    onEndRef.current?.();
+  }, []);
 
   const speak = useCallback(
     async (text: string) => {
       if (!text) return;
 
+      stop();
       abortRef.current = false;
 
       try {
         setStatus('loading');
-        onStart?.();
+        onStartRef.current?.();
 
         const response = await fetch('/api/tts', {
           method: 'POST',
@@ -46,15 +64,11 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
           const audio = new Audio(url);
           audioRef.current = audio;
 
-          audio.oncanplaythrough = () => {
-            setStatus('playing');
-          };
-
           audio.onended = () => {
             URL.revokeObjectURL(url);
             audioRef.current = null;
             setStatus('idle');
-            onEnd?.();
+            onEndRef.current?.();
             resolve();
           };
 
@@ -63,16 +77,21 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
             audioRef.current = null;
             setStatus('error');
             const msg = 'Audio playback failed';
-            onError?.(msg);
+            onErrorRef.current?.(msg);
             reject(new Error(msg));
           };
 
-          audio.play().catch((err) => {
+          audio.play().then(() => {
+            if (!abortRef.current) {
+              setStatus('playing');
+              onStartRef.current?.();
+            }
+          }).catch((err) => {
             URL.revokeObjectURL(url);
             audioRef.current = null;
             setStatus('error');
             const msg = err instanceof Error ? err.message : 'Playback failed';
-            onError?.(msg);
+            onErrorRef.current?.(msg);
             reject(new Error(msg));
           });
         });
@@ -80,28 +99,18 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
         if (abortRef.current) return;
         setStatus('error');
         const msg = error instanceof Error ? error.message : 'Synthesis failed';
-        onError?.(msg);
+        onErrorRef.current?.(msg);
         throw error;
       }
     },
-    [onStart, onEnd, onError]
+    [stop]
   );
-
-  const stop = useCallback(() => {
-    abortRef.current = true;
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current = null;
-    }
-    setStatus('idle');
-    onEnd?.();
-  }, [onEnd]);
 
   return {
     status,
     speak,
     stop,
     isSpeaking: status === 'loading' || status === 'playing',
+    isIdle: status === 'idle',
   };
 }

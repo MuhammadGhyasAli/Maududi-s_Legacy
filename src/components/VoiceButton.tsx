@@ -27,6 +27,7 @@ const VoiceButton: React.FC<VoiceButtonProps> = ({
   const transcriptRef = useRef('');
   const onTranscriptRef = useRef(onTranscript);
   useEffect(() => { onTranscriptRef.current = onTranscript; });
+  const pointerDownRef = useRef(false);
 
   const handleResult = useCallback(
     ({ transcript, isFinal }: { transcript: string; isFinal: boolean }) => {
@@ -45,6 +46,7 @@ const VoiceButton: React.FC<VoiceButtonProps> = ({
   }, []);
 
   const handleEnd = useCallback(() => {
+    pointerDownRef.current = false;
   }, []);
 
   const bcp47 = LANGUAGE_MAP[language] || 'en-US';
@@ -63,6 +65,7 @@ const VoiceButton: React.FC<VoiceButtonProps> = ({
     (e: React.PointerEvent) => {
       e.preventDefault();
       if (disabled || !isSupported) return;
+      pointerDownRef.current = true;
       setError(null);
       transcriptRef.current = '';
       startListening();
@@ -73,26 +76,13 @@ const VoiceButton: React.FC<VoiceButtonProps> = ({
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
+      if (!pointerDownRef.current) return;
+      pointerDownRef.current = false;
       if (!isListening) return;
       stopListening();
     },
     [isListening, stopListening]
   );
-
-  const handleClick = useCallback(() => {
-    if (disabled || !isSupported) return;
-    setError(null);
-    if (isListening) {
-      stopListening();
-      if (transcriptRef.current) {
-        onTranscript(transcriptRef.current);
-        transcriptRef.current = '';
-      }
-    } else {
-      transcriptRef.current = '';
-      startListening();
-    }
-  }, [disabled, isSupported, isListening, startListening, stopListening, onTranscript]);
 
   if (!isSupported) {
     return null;
@@ -104,8 +94,7 @@ const VoiceButton: React.FC<VoiceButtonProps> = ({
         type="button"
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        onClick={handleClick}
+        onPointerCancel={handlePointerUp}
         disabled={disabled}
         aria-label={isListening ? 'Stop recording' : 'Start voice input'}
         className={`cursor-pointer p-1.5 rounded-full transition-all duration-200 flex items-center justify-center shrink-0 min-w-[36px] min-h-[36px] relative
