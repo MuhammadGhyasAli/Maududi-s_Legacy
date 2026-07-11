@@ -3,10 +3,11 @@ import bcrypt from 'bcryptjs';
 import { getDb } from '@/lib/mongodb';
 import { getUserIdFromRequest, clearAuthCookie } from '@/lib/auth';
 
-async function getAuthenticatedUser(request: Request, db: any) {
+async function getAuthenticatedUser(request: Request, db: any, includePassword?: boolean) {
   const userId = getUserIdFromRequest(request);
   if (!userId) return null;
-  return db.collection('users').findOne({ id: userId }, { projection: { password_hash: 0 } });
+  const projection = includePassword ? {} : { password_hash: 0 };
+  return db.collection('users').findOne({ id: userId }, { projection });
 }
 
 export async function GET(request: Request) {
@@ -21,6 +22,7 @@ export async function GET(request: Request) {
       email: user.email,
       display_name: user.display_name || user.username,
       is_active: user.is_active,
+      isGoogleUser: !!user.google_id,
     });
   } catch {
     return NextResponse.json({ detail: 'Server error' }, { status: 500 });
@@ -66,6 +68,7 @@ export async function PUT(request: Request) {
       email: user!.email,
       display_name: user!.display_name || user!.username,
       is_active: user!.is_active,
+      isGoogleUser: !!user!.google_id,
     });
   } catch {
     return NextResponse.json({ detail: 'Server error' }, { status: 500 });
@@ -78,19 +81,31 @@ export async function DELETE(request: Request) {
     if (!db) return NextResponse.json({ detail: 'Service unavailable' }, { status: 503 });
     const userId = getUserIdFromRequest(request);
     if (!userId) return NextResponse.json({ detail: 'Not authenticated' }, { status: 401 });
-    const { password } = await request.json();
-    if (!password) {
-      return NextResponse.json({ detail: 'Password is required to delete account' }, { status: 400 });
+
+    const user = await getAuthenticatedUser(request, db, true);
+    if (!user) return NextResponse.json({ detail: 'User not found' }, { status: 404 });
+
+    const isGoogleUser = !!user.google_id;
+
+    if (!isGoogleUser) {
+      const { password } = await request.json().catch(() => ({}));
+      if (!password) {
+        return NextResponse.json({ detail: 'Password is required to delete account' }, { status: 400 });
+      }
+      const valid = await bcrypt.compare(password, user.password_hash);
+      if (!valid) {
+        return NextResponse.json({ detail: 'Incorrect password' }, { status: 401 });
+      }
     }
-    const user = await db.collection('users').findOne({ id: userId });
-    if (!user) {
-      return NextResponse.json({ detail: 'User not found' }, { status: 404 });
-    }
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) {
-      return NextResponse.json({ detail: 'Incorrect password' }, { status: 401 });
-    }
-    await db.collection('users').deleteOne({ id: userId });
+
+    await Promise.all([
+      db.collection('conversations').deleteMany({ user_id: userId }),
+      db.collection('messages').deleteMany({ user_id: userId }),
+      db.collection('reading_history').deleteMany({ user_id: userId }),
+      db.collection('password_reset_tokens').deleteMany({ user_id: userId }),
+      db.collection('users').deleteOne({ id: userId }),
+    ]);
+
     const res = NextResponse.json({ message: 'Account deleted successfully' });
     clearAuthCookie(res);
     return res;

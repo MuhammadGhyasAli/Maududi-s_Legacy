@@ -8,6 +8,7 @@ export interface User {
   email: string;
   display_name: string;
   is_active: boolean;
+  isGoogleUser: boolean;
 }
 
 interface AuthContextValue {
@@ -20,7 +21,7 @@ interface AuthContextValue {
   logout: () => void;
   updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
-  deleteAccount: (password: string) => Promise<void>;
+  deleteAccount: (password?: string) => Promise<void>;
   googleSignIn: (token: string) => Promise<User>;
 }
 
@@ -86,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return u;
   }, []);
 
-  const deleteAccount = useCallback(async (password: string) => {
+  const deleteAccount = useCallback(async (password?: string) => {
     await apiService.deleteAccount(password);
     setUser(null);
     setToken(null);

@@ -33,9 +33,9 @@ const featureCards = [
   },
   {
     icon: Search,
-    title: "AI Context Finder (Global Search)",
+    title: "AI Assistant (Global Search)",
     description: "Search across all books simultaneously. Find which book, chapter, or page discusses a specific topic, quote, Quranic verse, or concept.",
-    href: "/ai-context-finder",
+    href: "/assistant",
     color: "blue"
   },
   {
@@ -209,7 +209,7 @@ export default function AboutPageClient() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link
-                href="/ai-context-finder"
+                href="/assistant"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors shadow-lg hover:shadow-emerald-500/30"
               >
                 <Search className="w-5 h-5" aria-hidden="true" />
@@ -492,7 +492,7 @@ export default function AboutPageClient() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link
-              href="/ai-context-finder"
+              href="/assistant"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-emerald-600 font-semibold hover:bg-emerald-50 transition-colors shadow-lg"
             >
               <Search className="w-5 h-5" aria-hidden="true" />

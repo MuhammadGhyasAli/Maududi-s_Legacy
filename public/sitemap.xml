@@ -16,7 +16,7 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://maududi-legacy.vercel.app/ai-context-finder</loc>
+    <loc>https://maududi-legacy.vercel.app/assistant</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useDocumentMeta } from '@/hooks/useDocumentMeta';
+import DeleteAccountSection from '@/components/DeleteAccountSection';
 
 type Tab = 'profile' | 'password' | 'danger';
 
@@ -29,7 +30,7 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
 
 export default function SettingsPage() {
   useDocumentMeta('Account Settings');
-  const { user, updateProfile, changePassword, deleteAccount, logout } = useAuth();
+  const { user, updateProfile, changePassword, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
 
@@ -49,12 +50,6 @@ export default function SettingsPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Delete account
-  const [deletePassword, setDeletePassword] = useState('');
-  const [deleteError, setDeleteError] = useState('');
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,20 +88,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setDeleteError('');
-    setDeleteLoading(true);
-    try {
-      await deleteAccount(deletePassword);
-      router.push('/');
-    } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Failed to delete account');
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
   const userInitials = user ? getInitials(user.display_name, user.email) : '?';
 
   return (
@@ -140,10 +121,7 @@ export default function SettingsPage() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      if (tab.id === 'danger') setShowDeleteConfirm(false);
-                    }}
+                    onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-left cursor-pointer ${
                       isActive
                         ? isDanger
@@ -412,88 +390,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Delete Account */}
-              <div className="bg-white dark:bg-brand-card-dark rounded-2xl border border-red-200 dark:border-red-900/50 overflow-hidden">
-                <div className="px-6 pt-6 pb-4 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/20">
-                  <h2 className="text-lg font-bold text-red-600 dark:text-red-400">Delete Account</h2>
-                  <p className="text-sm text-red-500/70 dark:text-red-400/70 mt-1">Permanently delete your account and all associated data</p>
-                </div>
-
-                <div className="p-6">
-                  {!showDeleteConfirm ? (
-                    <div>
-                      <div className="flex items-start gap-3 p-4 mb-5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60">
-                        <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                        </svg>
-                        <div className="text-sm text-red-600 dark:text-red-400">
-                          <p className="font-medium mb-1">This action cannot be undone.</p>
-                          <p>Your reading history, preferences, and all account data will be permanently removed.</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors duration-200 cursor-pointer"
-                      >
-                        Delete my account
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleDeleteAccount} className="space-y-5">
-                      {deleteError && (
-                        <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60" role="alert">
-                          <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <div className="text-sm text-red-600 dark:text-red-400">{deleteError}</div>
-                        </div>
-                      )}
-
-                      <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60">
-                        <p className="text-sm text-red-600 dark:text-red-400">
-                          <span className="font-semibold">Are you sure?</span> Please enter your password to confirm permanent deletion.
-                        </p>
-                      </div>
-
-                      <div>
-                        <label htmlFor="settings-deletePassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                          Enter your password to confirm
-                        </label>
-                        <input
-                          id="settings-deletePassword"
-                          type="password"
-                          value={deletePassword}
-                          onChange={e => setDeletePassword(e.target.value)}
-                          placeholder="Your current password"
-                          autoComplete="current-password"
-                          className="w-full px-4 py-2.5 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-500/40 focus:border-red-500 text-sm transition-all duration-200"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-3 pt-2">
-                        <button
-                          type="submit"
-                          disabled={deleteLoading || !deletePassword}
-                          className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
-                        >
-                          {deleteLoading ? (
-                            <span className="flex items-center gap-2"><Spinner />Deleting...</span>
-                          ) : (
-                            'Permanently delete account'
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setShowDeleteConfirm(false); setDeleteError(''); setDeletePassword(''); }}
-                          className="px-6 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
-              </div>
+              <DeleteAccountSection />
             </div>
           )}
         </div>

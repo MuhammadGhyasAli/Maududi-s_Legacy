@@ -356,14 +356,14 @@ export const apiService = {
   },
 
   // Get current user
-  getMe: async (): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
+  getMe: async (): Promise<{ id: number; email: string; display_name: string; is_active: boolean; isGoogleUser: boolean }> => {
     const response = await apiFetch('/api/auth/me');
     if (!response.ok) throw new Error('Failed to get user info');
     return response.json();
   },
 
   // Update profile (display_name, email)
-  updateProfile: async (data: { display_name?: string; email?: string }): Promise<{ id: number; email: string; display_name: string; is_active: boolean }> => {
+  updateProfile: async (data: { display_name?: string; email?: string }): Promise<{ id: number; email: string; display_name: string; is_active: boolean; isGoogleUser: boolean }> => {
     const response = await apiFetch('/api/auth/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -391,11 +391,11 @@ export const apiService = {
   },
 
   // Delete account
-  deleteAccount: async (password: string): Promise<{ message: string }> => {
+  deleteAccount: async (password?: string): Promise<{ message: string }> => {
     const response = await apiFetch('/api/auth/me', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ password: password || '' }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: 'Failed to delete account' }));

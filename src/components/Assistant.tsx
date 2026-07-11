@@ -11,8 +11,13 @@ import { useToast } from './Toast';
 import ChatMessageList, { StructuredResponse } from './chat/ChatMessageList';
 import ChatInputArea from './chat/ChatInputArea';
 import { useAuth } from '../contexts/AuthContext';
+import { detectLanguage } from '../utils/language';
+import ChevronDownIcon from './icons/ChevronDownIcon';
+import CheckIcon from './icons/CheckIcon';
 
-interface AiContextFinderPageProps {
+type AssistantMode = 'search' | 'chat';
+
+interface AssistantProps {
   onNavigateToBook: (book: Book) => void;
 }
 
@@ -22,7 +27,24 @@ interface ConversationPart {
   image?: string;
 }
 
-const LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
+const SEARCH_LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
+const CHAT_LANGUAGE_OPTIONS = ['Auto', 'English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
+
+const _CHAT_SYSTEM_PROMPT = `You are "Maududi AI Assistant", a friendly, conversational AI assistant specializing in the life, thought, and literary works of Sayyid Abul A'la Maududi.
+
+Your role:
+- Help users understand Maududi's books, philosophy, biography, and teachings in a clear, ChatGPT-like manner.
+- Be accurate. Base answers on Maududi's established works and well-documented biography. Never fabricate quotes, page numbers, book titles, or historical claims. If you are unsure, say so honestly.
+- When relevant, reference specific books by their exact titles.
+- Structure longer answers with headings, lists, or bold emphasis for readability. Use markdown.
+
+Language policy:
+- Detect the language of the user's latest message and reply in that SAME language, matching its script and tone.
+- Supported languages include English, Urdu, Arabic, Persian, Turkish, and Bengali.
+- If the user writes in a mix, reply in the dominant language.`;
+
+const SEARCH_WELCOME = `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`;
+const CHAT_WELCOME = `Hello! I'm your Maududi AI Assistant. Ask me anything about Sayyid Abul A'la Maududi's life, books, or ideas — I'll reply in the same language you use.`;
 
 const parseStructuredResponse = (text: string): StructuredResponse | null => {
     const bookTitleRegex = /^(?:\*\*|)?(?:Book(?: Title)?|Source)(?:\*\*|)?\s*:\s*(.*)/im;
@@ -42,7 +64,7 @@ const parseStructuredResponse = (text: string): StructuredResponse | null => {
     if (chapterMatch) remainingText = remainingText.replace(chapterMatch[0], '');
     if (pageMatch) remainingText = remainingText.replace(pageMatch[0], '');
     if (contextMatch) remainingText = remainingText.replace(contextMatch[0], '');
-    
+
     return {
         bookTitle: bookTitleMatch[1].trim(),
         chapter: chapterMatch ? chapterMatch[1].trim() : undefined,
@@ -52,31 +74,38 @@ const parseStructuredResponse = (text: string): StructuredResponse | null => {
     };
 };
 
-const AiContextFinderPage: React.FC<AiContextFinderPageProps> = ({ onNavigateToBook }) => {
+const Assistant: React.FC<AssistantProps> = ({ onNavigateToBook }) => {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const [mode, setMode] = useState<AssistantMode>('search');
   const [inputText, setInputText] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [conversation, setConversation] = useState<ConversationPart[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [chatLanguageMode, setChatLanguageMode] = useState('Auto');
+  const [detectedLanguage, setDetectedLanguage] = useState('English');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [fetchedBooks, setFetchedBooks] = useState<Book[]>([]);
   const [conversationId, setConversationId] = useState<number | undefined>(undefined);
   const [followUps, setFollowUps] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const systemInstruction = useRef('');
+
+  const resolvedLanguage = mode === 'chat'
+    ? (chatLanguageMode === 'Auto' ? detectedLanguage : chatLanguageMode)
+    : selectedLanguage;
 
   useEffect(() => {
     apiService.getBooks().then(fetchedBooks => {
       setFetchedBooks(fetchedBooks as any);
       const bookListForPrompt = fetchedBooks.map(b => `- "${b.title}"`).join('\n');
-    systemInstruction.current = `You are an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. Your knowledge base consists of the following books:\n---\n${bookListForPrompt}\n---\nYour function is two-fold:
+      systemInstruction.current = `You are an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. Your knowledge base consists of the following books:\n---\n${bookListForPrompt}\n---\nYour function is two-fold:
 1.  **Locate & Cite:** First, when a user provides a quote or topic, your primary goal is to locate the most relevant source within these books. If you find a direct match or a highly relevant passage, you MUST present this information clearly at the beginning of your response, formatted like this:
     **Book Title:** [Full Book Title]
     **Chapter/Section:** [Chapter or Section Name]
@@ -96,20 +125,31 @@ const AiContextFinderPage: React.FC<AiContextFinderPageProps> = ({ onNavigateToB
 If the user's message includes an image, you MUST follow this two-step process without exception:
 1.  **Step 1: Identification & Confirmation.** Your FIRST response must ONLY identify the book the image is from and ask for confirmation to proceed. DO NOT provide any other details, context, or explanation. Your response should be brief and direct, like this: "This image appears to be from [Book Title]. Would you like a detailed analysis and context?"
 2.  **Step 2: Detailed Analysis (On User Confirmation).** Only after the user confirms (e.g., they say "yes"), you will then provide the full, two-part response (citation + explanation) as described in the rules above. This is the only time you should provide a deep analysis for an image query.`;
-      
+
       systemInstruction.current = systemInstruction.current.replace('---\n---', '---');
       setConversation([{
           sender: MessageSender.AI,
-          text: `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`,
+          text: SEARCH_WELCOME,
       }]);
     }).catch(() => {
       setConversation([{
           sender: MessageSender.AI,
-          text: `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`,
+          text: SEARCH_WELCOME,
       }]);
     });
   }, []);
-  
+
+  useEffect(() => {
+    if (!user) return;
+    setConversation([{
+      sender: MessageSender.AI,
+      text: mode === 'search' ? SEARCH_WELCOME : CHAT_WELCOME,
+    }]);
+    setConversationId(undefined);
+    setFollowUps([]);
+    setError(null);
+  }, [user, mode]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -124,14 +164,20 @@ If the user's message includes an image, you MUST follow this two-step process w
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    if(fileInputRef.current) fileInputRef.current.value = "";
-  }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSendMessage = useCallback(async () => {
     if ((!inputText.trim() && !imageFile) || isLoading) return;
 
-    const userMessage: ConversationPart = { sender: MessageSender.USER, text: inputText.trim() };
+    const userText = inputText.trim();
+    const userMessage: ConversationPart = { sender: MessageSender.USER, text: userText };
     if (imagePreview) userMessage.image = imagePreview;
+
+    if (mode === 'chat' && userText) {
+      setDetectedLanguage(detectLanguage(userText));
+    }
+
     setConversation(prev => [...prev, userMessage]);
     setFollowUps([]);
 
@@ -141,36 +187,38 @@ If the user's message includes an image, you MUST follow this two-step process w
     setInputText('');
     handleRemoveImage();
     setIsLoading(true);
+    setLoadingStatus(mode === 'chat' ? 'Thinking…' : undefined);
     setError(null);
 
     try {
-        let prompt = `Please provide a comprehensive answer in the ${selectedLanguage} language. Your entire response must be in ${selectedLanguage}. If you mention any book titles from the provided context, please state their full exact titles clearly.`;
-        
-        if(textToSend.trim()) {
-            prompt += `\n\nMy question is: "${textToSend}"`;
-        } else if (imageToSend) {
-            prompt += `\n\nMy question is based on the attached image.`;
-        }
+      const messagesToBackend: ApiChatMessage[] = conversation.map(msg => ({
+        role: msg.sender === MessageSender.USER ? 'user' : 'assistant',
+        content: msg.image ? [
+          { type: 'image_url', image_url: { url: msg.image } },
+          { type: 'text', text: msg.text || ' ' },
+        ] : msg.text,
+      }));
 
-        const messagesToBackend: ApiChatMessage[] = conversation.map(msg => ({
-          role: msg.sender === MessageSender.USER ? 'user' : 'assistant',
-          content: msg.image ? [
-            { type: 'image_url', image_url: { url: msg.image } },
-            { type: 'text', text: msg.text || ' ' }
-          ] : msg.text
-        }));
+      if (mode === 'search') {
+        let prompt = `Please provide a comprehensive answer in the ${resolvedLanguage} language. Your entire response must be in ${resolvedLanguage}. If you mention any book titles from the provided context, please state their full exact titles clearly.`;
+
+        if (textToSend.trim()) {
+          prompt += `\n\nMy question is: "${textToSend}"`;
+        } else if (imageToSend) {
+          prompt += `\n\nMy question is based on the attached image.`;
+        }
 
         let currentMessageContent: string | any[] = prompt;
         if (imageToSend && currentImagePreview) {
-            currentMessageContent = [
-                { type: 'image_url', image_url: { url: currentImagePreview } },
-                { type: 'text', text: prompt }
-            ];
+          currentMessageContent = [
+            { type: 'image_url', image_url: { url: currentImagePreview } },
+            { type: 'text', text: prompt },
+          ];
         }
 
         messagesToBackend.push({ role: 'user', content: currentMessageContent });
 
-        const response = await apiService.globalChat(systemInstruction.current, messagesToBackend, undefined, conversationId, selectedLanguage);
+        const response = await apiService.globalChat(systemInstruction.current, messagesToBackend, undefined, conversationId, resolvedLanguage);
         setConversation(prev => [...prev, { sender: MessageSender.AI, text: response.response }]);
 
         if (response.conversationId) {
@@ -179,23 +227,42 @@ If the user's message includes an image, you MUST follow this two-step process w
         if (response.followUpQuestions && response.followUpQuestions.length > 0) {
           setFollowUps(response.followUpQuestions);
         }
+      } else {
+        let currentMessageContent: string | any[] = textToSend || ' ';
+        if (imageToSend && currentImagePreview) {
+          currentMessageContent = [
+            { type: 'image_url', image_url: { url: currentImagePreview } },
+            { type: 'text', text: textToSend || ' ' },
+          ];
+        }
+        messagesToBackend.push({ role: 'user', content: currentMessageContent });
+
+        const response = await apiService.smartChat(messagesToBackend, chatLanguageMode);
+        const aiText = response.response;
+        setDetectedLanguage(detectLanguage(aiText));
+        setConversation(prev => [...prev, { sender: MessageSender.AI, text: aiText }]);
+
+        if (response.followUpQuestions && response.followUpQuestions.length > 0) {
+          setFollowUps(response.followUpQuestions);
+        }
+      }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
       setError(`Sorry, something went wrong. ${errorMessage}`);
       setConversation(prev => prev.slice(0, -1));
       setInputText(textToSend);
-      if(imageToSend && currentImagePreview) {
+      if (imageToSend && currentImagePreview) {
         setImageFile(imageToSend);
         setImagePreview(currentImagePreview);
       }
     } finally {
       setIsLoading(false);
+      setLoadingStatus(undefined);
     }
-  }, [inputText, imageFile, isLoading, imagePreview, selectedLanguage, conversation, conversationId]);
+  }, [inputText, imageFile, isLoading, imagePreview, mode, resolvedLanguage, conversation, conversationId, chatLanguageMode]);
 
   const handleCopyChat = async () => {
     const transcript = conversation.map(msg => `${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}: ${msg.text}`).join('\n\n');
-    
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(transcript);
@@ -228,13 +295,13 @@ If the user's message includes an image, you MUST follow this two-step process w
 
   const handleClearChat = () => {
     if (!showClearConfirm) {
-        setShowClearConfirm(true);
-        setTimeout(() => setShowClearConfirm(false), 3000);
-        return;
+      setShowClearConfirm(true);
+      setTimeout(() => setShowClearConfirm(false), 3000);
+      return;
     }
     setConversation([{
-        sender: MessageSender.AI,
-        text: "Hello! I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.",
+      sender: MessageSender.AI,
+      text: mode === 'search' ? SEARCH_WELCOME : CHAT_WELCOME,
     }]);
     setError(null);
     setShowClearConfirm(false);
@@ -252,12 +319,12 @@ If the user's message includes an image, you MUST follow this two-step process w
         <div className="max-w-md text-center space-y-4">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-brand-green/10 flex items-center justify-center">
             <svg className="w-8 h-8 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Sign in Required</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            The AI Context Finder is available to signed-in users only. Please log in or create an account to access the full collection of Maududi's works.
+            The AI Assistant is available to signed-in users only. Please log in or create an account to access the full collection of Maududi's works.
           </p>
           <button
             onClick={() => router.push('/auth/login')}
@@ -272,7 +339,7 @@ If the user's message includes an image, you MUST follow this two-step process w
 
   return (
     <div className="flex flex-col h-[100dvh] bg-brand-bg-light dark:bg-brand-bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
-      
+
       {/* Top header bar */}
       <div className="flex-none h-14 bg-white/90 dark:bg-brand-bg-dark/90 backdrop-blur-lg border-b border-emerald-100/40 dark:border-emerald-900/20">
         <div className="flex items-center justify-between h-full px-4 max-w-5xl mx-auto">
@@ -281,17 +348,50 @@ If the user's message includes an image, you MUST follow this two-step process w
               <ArrowLeftIcon className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
             </button>
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">AI Context Finder</span>
+
+            {/* Mode toggle */}
+            <div className="flex items-center bg-gray-100 dark:bg-white/5 rounded-lg p-0.5">
+              <button
+                onClick={() => setMode('search')}
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-semibold transition-all duration-200 ${
+                  mode === 'search'
+                    ? 'bg-brand-green text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Search
+              </button>
+              <button
+                onClick={() => setMode('chat')}
+                className={`cursor-pointer px-3 py-1 rounded-md text-xs font-semibold transition-all duration-200 ${
+                  mode === 'chat'
+                    ? 'bg-brand-green text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Chat
+              </button>
+            </div>
           </div>
+
           <div className="flex items-center gap-1.5">
+            {/* Language selector (header) — only in chat mode */}
+            {mode === 'chat' && (
+              <ChatLanguageDropdown
+                languageMode={chatLanguageMode}
+                detectedLanguage={detectedLanguage}
+                onChange={setChatLanguageMode}
+              />
+            )}
+
             <button onClick={handleCopyChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Copy Chat">
               <ClipboardIcon className="w-4 h-4" />
             </button>
-            <button 
-              onClick={handleClearChat} 
+            <button
+              onClick={handleClearChat}
               className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                showClearConfirm 
-                  ? 'bg-red-500 text-white' 
+                showClearConfirm
+                  ? 'bg-red-500 text-white'
                   : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
               }`}
               title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
@@ -303,36 +403,83 @@ If the user's message includes an image, you MUST follow this two-step process w
         </div>
       </div>
 
-      <ChatMessageList 
-        messages={conversation} 
-        isLoading={isLoading} 
-        selectedLanguage={selectedLanguage}
+      <ChatMessageList
+        messages={conversation}
+        isLoading={isLoading}
+        loadingStatus={loadingStatus}
+        selectedLanguage={resolvedLanguage}
         onNavigateToBook={onNavigateToBook}
-        parseStructuredResponse={parseStructuredResponse}
+        parseStructuredResponse={mode === 'search' ? parseStructuredResponse : undefined}
         books={fetchedBooks}
         followUpQuestions={followUps}
         onFollowUpClick={handleFollowUpClick}
       />
 
-      <ChatInputArea 
+      <ChatInputArea
         input={inputText}
         setInput={setInputText}
         isLoading={isLoading}
         error={error}
-        selectedLanguage={selectedLanguage}
-        languages={LANGUAGES}
-        onSelectLanguage={setSelectedLanguage}
+        selectedLanguage={resolvedLanguage}
+        languages={mode === 'search' ? SEARCH_LANGUAGES : CHAT_LANGUAGE_OPTIONS}
+        onSelectLanguage={mode === 'search' ? setSelectedLanguage : undefined}
         onSendMessage={handleSendMessage}
         imageFile={imageFile}
         imagePreview={imagePreview}
         onImageChange={handleImageChange}
         onRemoveImage={handleRemoveImage}
         fileInputRef={fileInputRef}
-        placeholder="Message AI Context Finder..."
-        footerText="AI Context Finder explores the complete works of Sayyid Abul A'la Maududi."
+        placeholder={mode === 'search' ? 'Message AI Context Finder...' : 'Message the Smart Assistant...'}
+        footerText={mode === 'search' ? 'AI Context Finder explores the complete works of Sayyid Abul A\'la Maududi.' : 'Auto-detects your language and replies in kind.'}
+        hideLanguageSelector={mode === 'chat'}
       />
     </div>
   );
 };
 
-export default AiContextFinderPage;
+function ChatLanguageDropdown({ languageMode, detectedLanguage, onChange }: { languageMode: string; detectedLanguage: string; onChange: (mode: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all duration-200 whitespace-nowrap"
+        title="Response language"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.78.147 2.653.255" />
+        </svg>
+        {languageMode === 'Auto' ? `Auto${detectedLanguage !== 'English' ? ` · ${detectedLanguage}` : ''}` : languageMode}
+        <ChevronDownIcon className="w-3 h-3" />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1.5 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-20">
+          {CHAT_LANGUAGE_OPTIONS.map(lang => (
+            <button
+              key={lang}
+              onClick={() => { onChange(lang); setOpen(false); }}
+              className={`cursor-pointer w-full text-left px-3 py-1.5 text-[12px] transition-colors flex items-center gap-2 ${languageMode === lang ? 'bg-brand-green text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+            >
+              <span className="flex-1">{lang === 'Auto' ? 'Auto-detect' : lang}</span>
+              {languageMode === lang && <CheckIcon className="w-3.5 h-3.5" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Assistant;

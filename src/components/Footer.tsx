@@ -68,8 +68,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {[
                 { href: '/', label: 'All Books' },
-                { href: '/ai-context-finder', label: 'AI Search' },
-                { href: '/smart-assistant', label: 'Smart Assistant' },
+                { href: '/assistant', label: 'AI Assistant' },
                 { href: '/biography', label: 'Biography' },
                 { href: '/about', label: 'About' },
               ].map(link => (

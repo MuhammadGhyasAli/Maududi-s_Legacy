@@ -490,7 +490,7 @@ export default function BiographyPageClient() {
               Browse Library
             </Link>
             <Link
-              href="/ai-context-finder"
+              href="/assistant"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border-2 border-white/30 text-white font-semibold hover:bg-white/10 transition-colors"
             >
               <Quote className="w-5 h-5" aria-hidden="true" />

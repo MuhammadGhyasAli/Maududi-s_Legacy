@@ -19,6 +19,13 @@ const nextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      { source: '/ai-context-finder', destination: '/assistant', permanent: true },
+      { source: '/smart-assistant', destination: '/assistant', permanent: true },
+    ];
+  },
+
   async rewrites() {
     if (process.env.VERCEL) return [];
     return [
