@@ -42,7 +42,6 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
 
       try {
         setStatus('loading');
-        onStartRef.current?.();
 
         const response = await fetch('/api/tts', {
           method: 'POST',

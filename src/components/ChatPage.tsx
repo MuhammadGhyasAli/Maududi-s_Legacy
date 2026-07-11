@@ -67,10 +67,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     const aiMsgs = messages.filter(m => m.sender === MessageSender.AI);
     if (aiMsgs.length > 0 && aiMsgs.length > prevAiCountRef.current) {
       const latest = aiMsgs[aiMsgs.length - 1];
-      autoSpeak(latest.text).catch(() => {});
+      autoSpeak(latest.text).catch((err) => {
+        toast(err?.message ? `Voice: ${err.message}` : 'Voice: could not play response', 'error');
+      });
     }
     prevAiCountRef.current = aiMsgs.length;
-  }, [messages, voiceAssistant, isLoading, autoSpeak]);
+  }, [messages, voiceAssistant, isLoading, autoSpeak, toast]);
 
   const restrictedLanguages = !user ? ALL_LANGUAGES.filter(l => !GUEST_LANGUAGES.includes(l)) : [];
   const displayLanguages = user ? ALL_LANGUAGES : GUEST_LANGUAGES;
