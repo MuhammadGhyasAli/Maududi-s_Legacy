@@ -100,10 +100,10 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
             case 'b': // Go to books
               router.push('/');
               break;
-            case 's': // Go to search
-              document.getElementById('book-search')?.focus();
+            case 's': // Go to AI search
+              router.push('/ai-context-finder');
               break;
-            case 'c': // Go to chat
+            case 'c': // Go to AI chat
               router.push('/ai-context-finder');
               break;
             case 'a': // Go to about
