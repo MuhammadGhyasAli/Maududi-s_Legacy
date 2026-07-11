@@ -14,9 +14,12 @@ interface PdfViewerProps {
 }
 
 const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl, pageNumber, scale, onLoadSuccess, onLoadError }) => {
+  // Use the PDF proxy to avoid CORS issues with external PDF hosts
+  const proxiedUrl = `/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`;
+
   return (
     <Document
-      file={pdfUrl}
+      file={proxiedUrl}
       onLoadSuccess={({ numPages }) => onLoadSuccess(numPages)}
       onLoadError={onLoadError}
       loading={null}
