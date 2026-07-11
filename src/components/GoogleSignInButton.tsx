@@ -106,7 +106,7 @@ export default function GoogleSignInButton({ mode = 'signin', className = '' }: 
       <div className="w-full">
         <button
           disabled
-          className="w-full py-3 px-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-card-dark text-gray-400 dark:text-gray-500 cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-card-dark text-gray-400 dark:text-gray-500 cursor-not-allowed flex items-center justify-center gap-2"
           aria-disabled="true"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">

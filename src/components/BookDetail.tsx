@@ -68,12 +68,11 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.25 }}
             onClick={onBack}
-            className="cursor-pointer inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-xl text-sm font-semibold
-                       text-gray-500 dark:text-gray-400
-                       hover:text-brand-green dark:hover:text-brand-green-dark
-                       hover:bg-emerald-500/10 dark:hover:bg-emerald-500/5
-                       border border-transparent hover:border-emerald-500/20
-                       transition-all duration-200"
+             className="cursor-pointer inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-lg text-sm font-semibold
+                        text-gray-500 dark:text-gray-400
+                        hover:text-gray-700 dark:hover:text-gray-200
+                        hover:bg-gray-100 dark:hover:bg-white/5
+                        transition-colors duration-200"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             Back to Library
@@ -135,11 +134,16 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                   </h1>
 
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-6 text-sm">
-                    <span className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-300 font-medium">
-                      <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                      </svg>
-                      {book.author}
+                    <span className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 font-medium">
+                      <div className="relative w-6 h-6 rounded-full overflow-hidden ring-2 ring-emerald-200 dark:ring-emerald-800 flex-shrink-0">
+                        <Image
+                          src="/author.png"
+                          alt="Sayyid Abul A'la Maududi"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      Sayyid Abul A&apos;la Maududi
                     </span>
                     <span className="text-gray-300 dark:text-gray-700">|</span>
                     <span className="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
@@ -163,11 +167,9 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                   <button
                     onClick={() => setPdfOpen(true)}
                     className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2.5
-                               px-6 py-4 rounded-xl font-bold text-sm text-white
-                               bg-gradient-brand shadow-lg shadow-emerald-500/20
-                               hover:shadow-xl hover:shadow-emerald-500/35 hover:-translate-y-0.5
-                               active:scale-[0.98]
-                               transition-all duration-200 group"
+                               px-6 py-4 rounded-lg font-bold text-sm text-white
+                               bg-brand-green hover:bg-brand-green-dark
+                               transition-colors duration-200 group"
                   >
                     <BookOpenIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
                     <span>Read Book PDF</span>
@@ -175,13 +177,11 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                   <button
                     onClick={onStartChat}
                     className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2.5
-                               px-6 py-4 rounded-xl font-bold text-sm
-                               bg-white/50 dark:bg-black/30 text-gray-800 dark:text-gray-200
-                               hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20
+                               px-6 py-4 rounded-lg font-bold text-sm
+                               bg-white dark:bg-black/20 text-gray-800 dark:text-gray-200
+                               hover:bg-gray-50 dark:hover:bg-white/5
                                border border-gray-200 dark:border-gray-800
-                               shadow-sm hover:shadow-md hover:border-brand-green/45 dark:hover:border-brand-green-dark/45
-                               active:scale-[0.98]
-                               transition-all duration-200 group"
+                               transition-colors duration-200 group"
                   >
                     <ChatIcon className="w-5 h-5 text-gray-400 group-hover:text-brand-green dark:group-hover:text-brand-green-dark transition-colors duration-200" />
                     <span>Chat with AI Context</span>
@@ -211,11 +211,11 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                 placeholder="Search other books..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-black/20
-                           border border-gray-200 dark:border-white/10
-                           rounded-xl text-sm text-gray-900 dark:text-gray-100
+                className="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-brand-bg-dark
+                           border border-gray-200 dark:border-gray-700
+                           rounded-lg text-sm text-gray-900 dark:text-gray-100
                            placeholder-gray-400 dark:placeholder-gray-500
-                           focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green
+                           focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green
                            transition-all duration-200"
                 autoComplete="off"
               />

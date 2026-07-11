@@ -112,7 +112,7 @@ const OnboardingTour: React.FC = () => {
                 </button>
                 <button
                   onClick={next}
-                  className="cursor-pointer flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-brand hover:opacity-90 shadow-md transition-all duration-200"
+                  className="cursor-pointer flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-brand-green hover:bg-brand-green-dark transition-colors duration-200"
                 >
                   {step < steps.length - 1 ? 'Next' : 'Get started'}
                 </button>

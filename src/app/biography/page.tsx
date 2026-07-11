@@ -169,7 +169,18 @@ export default function BiographyPage() {
           <span className="w-8 h-0.5 bg-emerald-500 rounded-full" />
           Key Intellectual Contributions
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col lg:flex-row gap-8 items-start mb-6">
+          <div className="flex-shrink-0 mx-auto lg:mx-0">
+            <div className="relative w-48 h-56 sm:w-56 sm:h-64 rounded-2xl overflow-hidden shadow-lg ring-2 ring-emerald-200/50 dark:ring-emerald-800/50">
+              <Image
+                src="/author.png"
+                alt="Sayyid Abul A'la Maududi"
+                fill
+                className="object-cover"
+              />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 flex-1">
           {intellectualLegacy.map((item, index) => (
             <div
               key={index}
@@ -181,6 +192,7 @@ export default function BiographyPage() {
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item}</p>
             </div>
           ))}
+        </div>
         </div>
       </section>
 

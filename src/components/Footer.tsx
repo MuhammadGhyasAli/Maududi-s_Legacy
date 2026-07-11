@@ -32,7 +32,7 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-white dark:bg-brand-bg-dark border-t border-gray-200/60 dark:border-white/[0.06] mt-auto">
-      <div className="h-px bg-gradient-brand" />
+      <div className="h-px bg-gray-200 dark:bg-white/10" />
 
       <div className="container mx-auto px-4 sm:px-6 py-14">
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-12 gap-8 md:gap-6">

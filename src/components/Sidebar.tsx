@@ -78,7 +78,7 @@ const linkBase = `
   motion-reduce:transition-none
 `;
 
-const activeClasses = 'bg-gradient-brand text-white shadow-emerald font-semibold';
+const activeClasses = 'bg-brand-green text-white font-semibold';
 const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-emerald-50/50 dark:hover:bg-white/[0.04] hover:text-brand-green dark:hover:text-brand-green-dark font-medium';
 
 function NavLink({
@@ -270,7 +270,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         }
       >
         {/* Top accent line */}
-        <div className="h-0.5 bg-gradient-brand flex-shrink-0" />
+        <div className="h-px bg-gray-200 dark:bg-white/10 flex-shrink-0" />
 
         {/* Mobile header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/[0.06] lg:hidden flex-shrink-0">

@@ -265,7 +265,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-gray-900 dark:text-gray-100 mb-5 leading-[1.15] tracking-tight">
               Explore the Digital <br/>
-              <span className="gradient-text">Legacy of Sayyid Abul A&apos;la Maududi</span>
+              <span className="text-brand-green">Legacy of Sayyid Abul A&apos;la Maududi</span>
             </h1>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-8 font-medium">
               Discover a comprehensive archive of profound scholarship. Engage with his complete works, search key concepts, and chat with custom AI contexts across multiple languages.
@@ -320,7 +320,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
                   onClick={() => handleSelectBook(book)}
                   className="flex-none w-32 snap-start group text-left cursor-pointer transition-all duration-300"
                 >
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-md ring-1 ring-gray-200/50 dark:ring-white/10 group-hover:ring-brand-green dark:group-hover:ring-brand-green-dark transition-all duration-300 group-hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/10">
+                  <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 dark:bg-brand-navy-mid shadow-sm ring-1 ring-gray-200/50 dark:ring-white/10 group-hover:shadow-md transition-all duration-300">
                     <Image src={book.imageUrl} alt={book.title} fill sizes="128px" className="object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
                     <span className="absolute bottom-2 left-2 right-2 text-[9px] font-bold uppercase tracking-wider text-white bg-black/40 backdrop-blur-md py-1 px-2 rounded-lg text-center truncate">
@@ -450,7 +450,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books, loading = false }) => {
           </>
         ) : (
           <div className="text-center py-20">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-950/30 dark:to-cyan-950/30 flex items-center justify-center mx-auto mb-6 ring-1 ring-emerald-200/50 dark:ring-emerald-800/30">
+            <div className="w-20 h-20 rounded-3xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mx-auto mb-6">
               <svg className="w-9 h-9 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>

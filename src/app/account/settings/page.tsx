@@ -123,7 +123,7 @@ export default function SettingsPage() {
           <div className="bg-white dark:bg-brand-card-dark rounded-2xl border border-gray-200/80 dark:border-gray-700/50 overflow-hidden">
             {/* Avatar card */}
             <div className="p-6 text-center border-b border-gray-100 dark:border-gray-800">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20">
+              <div className="w-16 h-16 rounded-2xl bg-brand-green flex items-center justify-center mx-auto mb-3">
                 <span className="text-xl font-bold text-white">{userInitials}</span>
               </div>
               <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -144,7 +144,7 @@ export default function SettingsPage() {
                       setActiveTab(tab.id);
                       if (tab.id === 'danger') setShowDeleteConfirm(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-left cursor-pointer ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-left cursor-pointer ${
                       isActive
                         ? isDanger
                           ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60'
@@ -201,7 +201,7 @@ export default function SettingsPage() {
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-brand-bg-dark text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-brand-bg-dark text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                   />
                   <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">Email cannot be changed</p>
                 </div>
@@ -216,7 +216,7 @@ export default function SettingsPage() {
                     value={displayName}
                     onChange={e => setDisplayName(e.target.value)}
                     placeholder="Enter your display name"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green text-sm transition-all duration-200"
                   />
                 </div>
 
@@ -224,7 +224,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={profileLoading}
-                    className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 active:scale-[0.98] shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                    className="px-6 py-2.5 rounded-lg text-white font-semibold text-sm bg-brand-green hover:bg-brand-green-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
                   >
                     {profileLoading ? (
                       <span className="flex items-center gap-2"><Spinner />Saving...</span>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={passwordLoading}
-                    className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 active:scale-[0.98] shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                    className="px-6 py-2.5 rounded-lg text-white font-semibold text-sm bg-brand-green hover:bg-brand-green-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
                   >
                     {passwordLoading ? (
                       <span className="flex items-center gap-2"><Spinner />Changing...</span>
@@ -404,7 +404,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={() => { logout(); router.push('/'); }}
-                    className="px-6 py-2.5 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 hover:bg-red-100 dark:hover:bg-red-950/50 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                    className="px-6 py-2.5 rounded-lg text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors duration-200 cursor-pointer"
                   >
                     Sign out
                   </button>
@@ -433,7 +433,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-[0.98] shadow-lg shadow-red-500/25 transition-all duration-200 cursor-pointer"
+                        className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors duration-200 cursor-pointer"
                       >
                         Delete my account
                       </button>
@@ -466,7 +466,7 @@ export default function SettingsPage() {
                           onChange={e => setDeletePassword(e.target.value)}
                           placeholder="Your current password"
                           autoComplete="current-password"
-                          className="w-full px-4 py-3 rounded-xl border border-red-300 dark:border-red-700 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 text-sm transition-all duration-200"
+                          className="w-full px-4 py-2.5 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-500/40 focus:border-red-500 text-sm transition-all duration-200"
                         />
                       </div>
 
@@ -474,7 +474,7 @@ export default function SettingsPage() {
                         <button
                           type="submit"
                           disabled={deleteLoading || !deletePassword}
-                          className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-[0.98] shadow-lg shadow-red-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                          className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
                         >
                           {deleteLoading ? (
                             <span className="flex items-center gap-2"><Spinner />Deleting...</span>
@@ -485,7 +485,7 @@ export default function SettingsPage() {
                         <button
                           type="button"
                           onClick={() => { setShowDeleteConfirm(false); setDeleteError(''); setDeletePassword(''); }}
-                          className="px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                          className="px-6 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
                         >
                           Cancel
                         </button>

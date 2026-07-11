@@ -57,7 +57,7 @@ const Header = React.memo(function Header({
       fixed top-0 left-0 right-0 z-50
       bg-white/90 dark:bg-brand-bg-dark/90
       backdrop-blur-lg
-      border-b border-emerald-100/40 dark:border-emerald-900/20
+      border-b border-gray-100 dark:border-white/[0.06]
       transition-all duration-300
     ">
       <div className="container mx-auto px-4 sm:px-6">
@@ -67,8 +67,8 @@ const Header = React.memo(function Header({
           <div className="flex items-center gap-1 sm:gap-3 min-w-0">
             <button
               onClick={onToggleSidebar}
-              className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400
-                         hover:bg-emerald-50 dark:hover:bg-white/5 transition-colors"
+              className="lg:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400
+                         hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
               aria-label="Toggle sidebar"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,10 +125,9 @@ const Header = React.memo(function Header({
             {/* AI Context Finder */}
             <button
               onClick={() => router.push('/ai-context-finder')}
-              className="header-ai-search flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium
+              className="header-ai-search flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium
                          text-brand-green dark:text-brand-green-dark
                          hover:bg-emerald-50 dark:hover:bg-emerald-950/40
-                         border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800/40
                          transition-all duration-200 cursor-pointer"
               aria-label="Open AI Context Finder"
             >
@@ -152,7 +151,7 @@ const Header = React.memo(function Header({
                   aria-haspopup="true"
                   aria-expanded={userMenuOpen}
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-brand-green flex items-center justify-center text-white text-xs font-bold">
                     {(user.display_name || user.email)[0].toUpperCase()}
                   </div>
                   <span className="hidden sm:inline max-w-[100px] truncate">{user.display_name || user.email}</span>
@@ -196,10 +195,9 @@ const Header = React.memo(function Header({
             ) : (
               <button
                 onClick={() => router.push('/auth/login')}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-white
-                           bg-gradient-brand hover:opacity-90
-                           shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
-                           transition-all duration-200 cursor-pointer"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white
+                         bg-brand-green hover:bg-brand-green-dark
+                         transition-all duration-200 cursor-pointer"
                 aria-label="Sign in"
               >
                 Sign In
