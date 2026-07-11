@@ -276,7 +276,7 @@ export default function SettingsPage() {
                       onChange={e => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
                       autoComplete="current-password"
-                      className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+                      className="w-full px-4 py-3 pr-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green text-sm transition-all duration-200"
                     />
                     <button
                       type="button"
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                       onChange={e => setNewPassword(e.target.value)}
                       placeholder="Create a new password"
                       autoComplete="new-password"
-                      className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+                      className="w-full px-4 py-3 pr-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green text-sm transition-all duration-200"
                     />
                     <button
                       type="button"
@@ -348,7 +348,7 @@ export default function SettingsPage() {
                       onChange={e => setConfirmPassword(e.target.value)}
                       placeholder="Repeat your new password"
                       autoComplete="new-password"
-                      className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+                      className="w-full px-4 py-3 pr-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green text-sm transition-all duration-200"
                     />
                     <button
                       type="button"
@@ -413,7 +413,7 @@ export default function SettingsPage() {
 
               {/* Delete Account */}
               <div className="bg-white dark:bg-brand-card-dark rounded-2xl border border-red-200 dark:border-red-900/50 overflow-hidden">
-                <div className="px-6 pt-6 pb-4 border-b border-red-100 dark:border-red-900/30 bg-gradient-to-r from-red-50/50 to-transparent dark:from-red-950/20">
+                <div className="px-6 pt-6 pb-4 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/20">
                   <h2 className="text-lg font-bold text-red-600 dark:text-red-400">Delete Account</h2>
                   <p className="text-sm text-red-500/70 dark:text-red-400/70 mt-1">Permanently delete your account and all associated data</p>
                 </div>

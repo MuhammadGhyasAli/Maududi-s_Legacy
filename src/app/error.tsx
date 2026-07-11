@@ -28,13 +28,13 @@ export default function ErrorPage({
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="px-6 py-2.5 rounded-xl text-white font-semibold bg-gradient-to-r from-brand-green to-brand-blue hover:from-brand-green hover:to-brand-blue shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+            className="px-6 py-2.5 rounded-lg text-white font-semibold bg-brand-green hover:bg-brand-green-dark transition-all duration-200 cursor-pointer"
           >
             Try again
           </button>
           <Link
             href="/"
-            className="px-6 py-2.5 rounded-xl font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
+            className="px-6 py-2.5 rounded-lg font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
           >
             Go home
           </Link>

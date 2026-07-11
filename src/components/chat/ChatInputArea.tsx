@@ -127,7 +127,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             disabled={isLoading || !input.trim()}
             className={`cursor-pointer p-2 rounded-full transition-all duration-200 flex items-center justify-center shrink-0
                        ${input.trim() && !isLoading 
-                         ? 'bg-brand-green text-white hover:bg-brand-green-light shadow-sm active:scale-95' 
+                          ? 'bg-brand-green text-white hover:bg-brand-green-light shadow-sm' 
                          : 'bg-transparent text-gray-400 dark:text-gray-500 cursor-not-allowed'}`}
             aria-label="Send message"
           >

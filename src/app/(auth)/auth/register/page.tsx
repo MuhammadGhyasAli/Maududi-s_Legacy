@@ -295,7 +295,7 @@ export default function RegisterPage() {
               minLength={6}
               autoComplete="new-password"
               placeholder="Create a strong password"
-              className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+              className="w-full px-4 py-3 pr-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green text-sm transition-all duration-200"
             />
             <button
               type="button"
@@ -340,7 +340,7 @@ export default function RegisterPage() {
               minLength={6}
               autoComplete="new-password"
               placeholder="Repeat your password"
-              className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green text-sm transition-all duration-200"
+              className="w-full px-4 py-3 pr-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-brand-bg-dark text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green/40 focus:border-brand-green text-sm transition-all duration-200"
             />
             <button
               type="button"
