@@ -309,67 +309,67 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed = false,
         </div>
 
         {/* Nav links */}
-        {!showCollapsed && (
-          <nav ref={navRef} role="navigation" aria-label="Main navigation" className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4 space-y-0.5">
-            <NavLink
-              href="/"
-              icon={<BookOpenMini />}
-              label="All Books"
-              isActive={isHome}
-              isCollapsed={false}
-              onNavigate={handleMobileClose}
-            />
+        <nav ref={navRef} role="navigation" aria-label="Main navigation" className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4 space-y-0.5">
+          <NavLink
+            href="/"
+            icon={<BookOpenMini />}
+            label="All Books"
+            isActive={isHome}
+            isCollapsed={showCollapsed}
+            onNavigate={handleMobileClose}
+          />
 
-            <NavLink
-              href="/biography"
-              icon={<PenIcon />}
-              label="Biography"
-              isActive={isBiography}
-              isCollapsed={false}
-              onNavigate={handleMobileClose}
-            />
+          <NavLink
+            href="/biography"
+            icon={<PenIcon />}
+            label="Biography"
+            isActive={isBiography}
+            isCollapsed={showCollapsed}
+            onNavigate={handleMobileClose}
+          />
 
-            <NavLink
-              href="/about"
-              icon={<InfoIcon />}
-              label="About"
-              isActive={pathname === '/about'}
-              isCollapsed={false}
-              onNavigate={handleMobileClose}
-            />
+          <NavLink
+            href="/about"
+            icon={<InfoIcon />}
+            label="About"
+            isActive={pathname === '/about'}
+            isCollapsed={showCollapsed}
+            onNavigate={handleMobileClose}
+          />
 
-            <NavLink
-              href="/ai-context-finder"
-              icon={<SearchIcon />}
-              label="AI Search"
-              isActive={pathname === '/ai-context-finder'}
-              isCollapsed={false}
-              onNavigate={handleMobileClose}
-            />
+          <NavLink
+            href="/ai-context-finder"
+            icon={<SearchIcon />}
+            label="AI Search"
+            isActive={pathname === '/ai-context-finder'}
+            isCollapsed={showCollapsed}
+            onNavigate={handleMobileClose}
+          />
 
-            {/* Separator */}
+          {/* Separator */}
+          {!showCollapsed && (
             <div className="px-3 py-2" aria-hidden="true">
               <div className="h-px bg-gray-200 dark:bg-white/10" />
             </div>
+          )}
 
-            {/* Category links */}
-            {CATEGORIES.slice(1).map((cat) => {
-              const slug = slugify(cat);
-              return (
-                <NavLink
-                  key={cat}
-                  href={`/${slug}`}
-                  icon={getCategoryIcon(cat)}
-                  label={cat}
-                  isActive={category === slug}
-                  isCollapsed={false}
-                  onNavigate={handleMobileClose}
-                  count={categoryCounts[cat]}
-                />
-              );
-            })}
-          </nav>
-        )}
+          {/* Category links */}
+          {CATEGORIES.slice(1).map((cat) => {
+            const slug = slugify(cat);
+            return (
+              <NavLink
+                key={cat}
+                href={`/${slug}`}
+                icon={getCategoryIcon(cat)}
+                label={cat}
+                isActive={category === slug}
+                isCollapsed={showCollapsed}
+                onNavigate={handleMobileClose}
+                count={categoryCounts[cat]}
+              />
+            );
+          })}
+        </nav>
 
         {/* Footer branding */}
         {!showCollapsed && (
