@@ -8,7 +8,7 @@ import { Book } from '../types';
 import BookOpenIcon from './icons/BookOpenIcon';
 import ChatIcon from './icons/ChatIcon';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
-import PdfReaderPanel from './PdfReaderPanel';
+import ExternalLinkIcon from './icons/ExternalLinkIcon';
 
 
 interface BookDetailProps {
@@ -23,7 +23,6 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
   const category = (params?.category as string | undefined) || 'all';
   
   const [imageError, setImageError] = useState(false);
-  const [pdfOpen, setPdfOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = useCallback((e: React.FormEvent) => {
@@ -36,7 +35,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !pdfOpen) {
+      if (e.key === 'Escape') {
         e.stopPropagation();
         if (window.history.length > 1) {
           onBack();
@@ -47,7 +46,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [onBack, pdfOpen]);
+  }, [onBack]);
 
   return (
     <>
@@ -73,10 +72,10 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
             transition={{ duration: 0.25 }}
             onClick={onBack}
              className="cursor-pointer inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-lg text-sm font-semibold
-                        text-gray-500 dark:text-gray-400
-                        hover:text-gray-700 dark:hover:text-gray-200
-                        hover:bg-gray-100 dark:hover:bg-white/5
-                        transition-colors duration-200"
+                         text-gray-500 dark:text-gray-400
+                         hover:text-gray-700 dark:hover:text-gray-200
+                         hover:bg-gray-100 dark:hover:bg-white/5
+                         transition-colors duration-200"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             Back to Library
@@ -162,8 +161,10 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                  <button
-                    onClick={() => setPdfOpen(true)}
+                  <a
+                    href={book.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2.5
                                px-6 py-4 rounded-lg font-bold text-sm text-white
                                bg-brand-green hover:bg-brand-green-dark
@@ -171,7 +172,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
                   >
                     <BookOpenIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
                     <span>Read Book PDF</span>
-                  </button>
+                    <ExternalLinkIcon className="w-4 h-4" />
+                  </a>
                   <button
                     onClick={onStartChat}
                     className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2.5
@@ -237,15 +239,6 @@ const BookDetail: React.FC<BookDetailProps> = ({ book, onBack, onStartChat }) =>
           </motion.div>
         </div>
       </main>
-
-      <PdfReaderPanel
-        isOpen={pdfOpen}
-        onClose={() => setPdfOpen(false)}
-        pdfUrl={book.pdfUrl}
-        title={book.title}
-        bookId={book.id}
-        onAskAI={onStartChat}
-      />
     </>
   );
 };
