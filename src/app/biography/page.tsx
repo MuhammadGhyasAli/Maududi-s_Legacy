@@ -186,7 +186,7 @@ export default function BiographyPage() {
               key={index}
               className="flex gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             >
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs">
                 {index + 1}
               </span>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item}</p>
