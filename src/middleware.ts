@@ -12,7 +12,8 @@ export function middleware(_request: NextRequest) {
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://accounts.google.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
+      "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
       "img-src 'self' data: blob: https://jamaatpk.b-cdn.net https://picsum.photos https://jamaatwomen.org https://encrypted-tbn0.gstatic.com https://archive.org",
       "font-src 'self' data: https://fonts.gstatic.com",
       "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com",

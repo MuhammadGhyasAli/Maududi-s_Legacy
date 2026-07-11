@@ -17,7 +17,7 @@
       "src": "/logo.png",
       "sizes": "160x40",
       "type": "image/png",
-      "purpose": "banner"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192x192.svg",

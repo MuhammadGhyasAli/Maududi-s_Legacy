@@ -1,4 +1,4 @@
-const CACHE = "maududi-v1";
+const CACHE = "maududi-v2";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
@@ -29,6 +29,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Only handle http(s) requests. Skip unsupported schemes like
+  // chrome-extension, data, blob, etc. that cannot be cached.
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return;
+  }
 
   // API requests: network-first with timeout fallback to cache
   if (url.pathname.startsWith("/api/")) {
