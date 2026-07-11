@@ -558,13 +558,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
               onClick={handleClearChat} 
               className={`cursor-pointer p-1.5 rounded-lg transition-all duration-200 ${
                 showClearConfirm 
-                  ? 'bg-red-500 text-white' 
+                  ? 'bg-red-500 text-white shadow-sm' 
                   : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
               }`}
+              style={showClearConfirm ? { animation: 'pulse 1s ease-in-out 2' } : undefined}
               title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
             >
               <TrashIcon className="w-4 h-4" />
-              {showClearConfirm && <span className="text-xs font-medium ml-1">Confirm</span>}
             </button>
           </div>
         </div>

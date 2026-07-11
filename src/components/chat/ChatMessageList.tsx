@@ -4,6 +4,8 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ChatMessage, MessageSender, Book } from '../../types';
 import { getLangProps } from '../../utils/language';
 import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis';
+import { cn } from '../../utils/cn';
+import { SparklesIcon } from '../icons';
 
 export interface StructuredResponse {
     bookTitle?: string;
@@ -330,6 +332,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
     prevMessagesLengthRef.current = messages.length;
   }, [messages.length]);
 
+  const lastUserIdx = messages.map((m, i) => m.sender === MessageSender.USER ? i : -1).filter(i => i >= 0).pop();
+  const lastAiIdx = messages.map((m, i) => m.sender === MessageSender.AI ? i : -1).filter(i => i >= 0).pop();
+
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto relative" role="log" aria-live="polite" aria-label="Chat messages">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
@@ -357,6 +362,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
           const isUser = msg.sender === MessageSender.USER;
           const timestamp = msg.timestamp || new Date();
           const isLast = index === messages.length - 1;
+          const isLastUser = index === lastUserIdx;
+          const isLastAi = index === lastAiIdx;
+          const alwaysShowTs = isLast || isLastUser || isLastAi;
           const { dir, className } = getLangProps(msg.text, selectedLanguage);
 
           if (isUser) {
@@ -372,7 +380,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     </div>
                   </div>
                   <div className="flex justify-end mt-1">
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className={cn('text-[10px] text-gray-400 dark:text-gray-500 transition-opacity', alwaysShowTs ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')}>
                       {formatTime(timestamp)}
                     </span>
                   </div>
@@ -382,13 +390,18 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
           }
 
           return (
-            <div key={index} className="flex justify-start group">
+            <div key={index} className="flex justify-start gap-2 sm:gap-3 group">
+              <div className="flex-shrink-0 mt-1 hidden sm:block">
+                <div className="w-7 h-7 rounded-full bg-brand-green/10 flex items-center justify-center">
+                  <SparklesIcon className="w-3.5 h-3.5 text-brand-green" />
+                </div>
+              </div>
               <div className="max-w-[85%] sm:max-w-[75%]">
-                <div className="text-gray-800 dark:text-gray-200" dir={dir}>
+                <div className="bg-gray-50/80 dark:bg-white/[0.03] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 border border-gray-100 dark:border-white/[0.06] shadow-sm" dir={dir}>
                   {renderAIMessage(msg.text, className, dir, onNavigateToBook, parseStructuredResponse, books)}
                 </div>
-                <div className="flex items-center gap-1 mt-1">
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 mt-1 ml-1">
+                  <span className={cn('text-[10px] text-gray-400 dark:text-gray-500 transition-opacity', alwaysShowTs ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')}>
                     {formatTime(timestamp)}
                   </span>
                   <CopyButton text={msg.text} />
@@ -420,16 +433,25 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
         )}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-center gap-3 px-1">
-              <div className="flex space-x-1.5">
-                <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft"></span>
-                <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.2s' }}></span>
-                <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.4s' }}></span>
+          <div className="flex justify-start gap-2 sm:gap-3">
+            <div className="flex-shrink-0 mt-1 hidden sm:block">
+              <div className="w-7 h-7 rounded-full bg-brand-green/10 flex items-center justify-center">
+                <SparklesIcon className="w-3.5 h-3.5 text-brand-green" />
               </div>
-              {loadingStatus && (
-                <span className="text-xs text-gray-400 dark:text-gray-500 animate-pulse">{loadingStatus}</span>
-              )}
+            </div>
+            <div className="max-w-[85%] sm:max-w-[75%]">
+              <div className="bg-gray-50/80 dark:bg-white/[0.03] rounded-2xl px-5 py-4 border border-gray-100 dark:border-white/[0.06] shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex space-x-1.5">
+                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0s', animationDuration: '1s' }}></span>
+                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.15s', animationDuration: '1s' }}></span>
+                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.3s', animationDuration: '1s' }}></span>
+                  </div>
+                  {loadingStatus && (
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{loadingStatus}</span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -438,20 +460,22 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
       </div>
 
       {showScrollBtn && (
-        <button
-          onClick={() => scrollToBottom()}
-          className="cursor-pointer fixed bottom-28 right-8 z-40 w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:shadow-xl transition-all duration-200"
-          aria-label="Scroll to bottom"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-brand-green text-white text-[10px] font-bold shadow-md">
-              {unreadCount}
-            </span>
-          )}
-        </button>
+        <div className="sticky bottom-0 pointer-events-none flex justify-end pb-4 pr-4">
+          <button
+            onClick={() => scrollToBottom()}
+            className="pointer-events-auto cursor-pointer w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:shadow-xl transition-all duration-200"
+            aria-label="Scroll to bottom"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-brand-green text-white text-[10px] font-bold shadow-md">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
       )}
     </div>
   );
