@@ -1,13 +1,12 @@
 import type { Book, SavedConversation, ConversationDetail, BookSuggestion, ChatResponse } from '../types';
 import { handleApiResponse } from './apiEvents';
+import { CACHE_DURATION, STALE_DURATION } from '../constants';
 
 export interface ApiChatMessage {
   role: string;
   content: string | any[];
 }
 
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for persistence
-const STALE_DURATION = 5 * 60 * 1000;  // 5 minutes: serve stale while revalidating
 const LS_PREFIX = 'maududi_cache_';
 
 const memoryCache = new Map<string, { data: any; timestamp: number; stale: boolean }>();

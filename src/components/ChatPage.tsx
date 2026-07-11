@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useChatHistory } from '../hooks/useChatHistory';
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis';
 import { slugify } from '../utils/slugify';
+import { CATEGORIES } from '../constants';
 
 const MAX_FREE_MESSAGES = 10;
 
@@ -25,7 +26,7 @@ function getGuestCountFromCookie(): number {
 const ALL_LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 const GUEST_LANGUAGES = ['English', 'Urdu'];
 
-const TOPIC_CATEGORIES = ['Tafsir', 'Politics', 'Theology', 'Economics', 'Jurisprudence', 'Social Issues', 'History', 'Guidance'];
+const TOPIC_CATEGORIES = CATEGORIES.filter(c => c !== 'All');
 
 const TOPIC_EMOJI: Record<string, string> = {
   Tafsir: '📖', Politics: '🏛️', Theology: '☪️', Economics: '💰',
@@ -72,8 +73,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   }, [messages, voiceAssistant, isLoading, autoSpeak]);
 
   const restrictedLanguages = !user ? ALL_LANGUAGES.filter(l => !GUEST_LANGUAGES.includes(l)) : [];
-  const displayLanguages = user ? ALL_LANGUAGES : ALL_LANGUAGES;
+  const displayLanguages = user ? ALL_LANGUAGES : GUEST_LANGUAGES;
   const apiMessagesRef = useRef<ApiChatMessage[]>([]);
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
   const bookSlug = slugify(book.title);
 
   const {
@@ -212,7 +215,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   }, []);
 
   const handleBranchFromMessage = useCallback((messageIndex: number) => {
-    const branchMsgs = messages.slice(0, messageIndex + 1);
+    const branchMsgs = messagesRef.current.slice(0, messageIndex + 1);
     const apiBranchMsgs = branchMsgs
       .filter(m => m.sender === MessageSender.USER || m.sender === MessageSender.AI)
       .map(m => ({ role: m.sender === MessageSender.USER ? 'user' as const : 'assistant' as const, content: m.text }));
@@ -222,7 +225,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setConversationId(undefined);
     setFollowUps([]);
     toast('Conversation branched from this message');
-  }, [messages, toast]);
+  }, [toast]);
 
   const handleShareChat = async () => {
     if (!user) {
@@ -293,32 +296,38 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
   };
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const clearConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const deleteConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleDeleteConversation = (id: string) => {
     if (deleteConfirmId === id) {
       deleteConversation(id);
       setDeleteConfirmId(null);
+      if (deleteConfirmTimerRef.current) clearTimeout(deleteConfirmTimerRef.current);
     } else {
       setDeleteConfirmId(id);
-      setTimeout(() => setDeleteConfirmId(prev => prev === id ? null : prev), 3000);
+      if (deleteConfirmTimerRef.current) clearTimeout(deleteConfirmTimerRef.current);
+      deleteConfirmTimerRef.current = setTimeout(() => setDeleteConfirmId(null), 3000);
     }
   };
 
   const handleClearChat = () => {
     if (!showClearConfirm) {
         setShowClearConfirm(true);
-        setTimeout(() => setShowClearConfirm(false), 3000);
+        if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+        clearConfirmTimerRef.current = setTimeout(() => setShowClearConfirm(false), 3000);
         return;
     }
+    if (clearConfirmTimerRef.current) clearTimeout(clearConfirmTimerRef.current);
+    apiMessagesRef.current = [];
+    setActiveConvId(null);
+    setConversationId(undefined);
     setMessages([
         { sender: MessageSender.AI, text: `Hello! I am an AI assistant trained on "${book.title}". How can I help you?`, timestamp: new Date() }
     ]);
-    apiMessagesRef.current = [];
     setError(null);
     setShowClearConfirm(false);
-    setActiveConvId(null);
-    setConversationId(undefined);
     setCurrentTopics([]);
     setBookSuggestions([]);
     setFollowUps([]);

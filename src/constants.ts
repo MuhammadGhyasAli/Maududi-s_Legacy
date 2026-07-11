@@ -54,7 +54,7 @@ export const SORT_OPTIONS = {
 export const CACHE_DURATION = 30 * 60 * 1000;
 export const STALE_DURATION = 5 * 60 * 1000;
 export const BOOKS_PER_PAGE = 15;
-export const TOAST_DURATION = 3000;
+export const TOAST_DURATION = 4000;
 export const READING_HISTORY_LIMIT = 10;
 
 export const LANGUAGE_LOCALE_MAP: Record<string, string> = {
