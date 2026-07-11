@@ -1,24 +1,39 @@
-## What's Changed
+# Release Notes — Maududi's Legacy
 
-### 🔴 Critical Fixes
-- **Removed global SSL verification disable** — the database module no longer monkey-patches `ssl.create_default_context` with `CERT_NONE`, eliminating a MITM vulnerability
-- **Added JWT secret validation** — warns if the default secret is still in use
+> Living changelog. Items marked **OPEN** are known issues from the security/code audit that are **not yet fixed** and should be addressed before relying on the app in production.
 
-### 🟠 Major Bug Fixes
-- **Fixed auth API routing** — frontend API calls now use `/api/v1/...` matching the backend router prefix, fixing all login/register/me endpoints
-- **Included chat router** — added `chat.router` to FastAPI app so AI chat features actually work
-- **Fixed login field mismatch** — frontend now sends `username` (not `email`) to match the backend schema
-- **Fixed Vercel deployment** — restored `process.env.VERCEL` guard in next.config rewrites; cleaned up vercel.json
+## Current Version
 
-### 🟡 Moderate Fixes
-- **Fixed duplicate GroqService** — `llm_service.py` now imports the singleton instead of creating a second instance
-- **Fixed stale closure in ChatPage** — replaced `apiMessages` state with `useRef` to prevent stale message history
-- **Deduplicated `getLangProps`** — extracted shared utility to `utils/language.ts`
-- **Removed duplicate `import os`** in `main.py`
-- **Removed unused `removeFromStorage`** from apiService
-- **Fixed test file** — updated `chat` test to match the correct method signature
+- Frontend: `1.0.1` (Next.js 15 App Router)
+- Backend: `1.0.1` (FastAPI)
 
-### 🎨 UI
-- **Sidebar starts collapsed** by default — shows only icons in a small `w-16` area
-- **Added `overflow-x-hidden`** to sidebar and nav to prevent horizontal scroll
-- **Version bumped** to 1.0.1
+## Shipped Fixes (verified against code)
+
+- **Auth routing** — frontend API calls use `/api/v1/...`, matching the backend router prefixes (`backend/main.py` registers `auth`, `books`, `chat` under `/api/v1`).
+- **Chat router included** — `chat.router` is registered in the FastAPI app, so AI chat works.
+- **Login field** — frontend sends `username` to match the backend auth schema.
+- **Vercel deployment** — `process.env.VERCEL` guard retained in `next.config.mjs` rewrites; `backend/vercel.json` routes `/health` and `/api/*` to `main.py`.
+- **JWT secret validation** — `backend/config.py` warns when the JWT secret is empty or the default value.
+- **Security headers** — `X-Content-Type-Options`, `X-Frame-Options`, `Strict-Transport-Security`, `Referrer-Policy` set in both frontend middleware and backend.
+- **UI** — collapsible sidebar, theme toggle, keyboard shortcuts, reading-history; version bumped to `1.0.1`.
+
+## OPEN — Critical (fix before production)
+
+- **SSRF in `/api/pdf-proxy`** (frontend) — the proxy fetches any external URL with `redirect: 'follow'` and returns `Access-Control-Allow-Origin: *`. Add a strict host allowlist, disable auto-redirects (or re-validate the final URL), restrict CORS, and enforce PDF content-type + size limits.
+- **Password-reset token disclosure** (backend) — `POST /api/v1/auth/forgot-password?return_token=true` returns the raw reset token (also enabled by `DEV_RETURN_PASSWORD_RESET_TOKEN`). Remove the parameter, deliver tokens only via email, and never enable the dev flag in production.
+
+## OPEN — High
+
+- **No server-side rate limiting** on auth/chat endpoints (frontend and backend). Login is brute-forceable; `/chat/global` is an unauthenticated, client-prompt-controllable LLM proxy (quota drain).
+- **Logout** — frontend `logout()` calls a `DELETE /api/auth/me` that clears the cookie, but the client path should be verified end-to-end; ensure the `auth_token` cookie is always cleared.
+- **Secrets in plaintext `.env`** — live MongoDB URL, Groq key, JWT secret, and Google OAuth secret sit in gitignored-but-on-disk `.env` files. Rotate and move to a secrets manager.
+- **`Secure` cookie flag** only set when `VERCEL === '1'`; set `Secure` on any HTTPS origin.
+
+## OPEN — Medium / Housekeeping
+
+- Cookie `Max-Age` (7d) vs JWT expiry (1d) mismatch.
+- Backend CORS origin with trailing slash breaks production matching.
+- `/docs` and `/redoc` exposed in production.
+- Backend test suite references SQLAlchemy but the app uses MongoDB — update `tests/conftest.py`.
+- Python version mismatch across `runtime.txt` (3.10), `pyproject.toml`/`Dockerfile` (3.11), and bundled `cp313` wheels.
+- Documentation consolidated: removed fictional `SYSTEM_DOCUMENTATION.md`, `AI_Features_Report.md`, `ENVIRONMENT_SETUP.md`, `QUICK_START.md`, and the generated `dataconnect-generated` READMEs; rewrote `README.md` (frontend) and `backend/README.md` from the actual code.
