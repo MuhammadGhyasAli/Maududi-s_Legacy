@@ -7,9 +7,21 @@ import CloseIcon from './icons/CloseIcon';
 const shortcuts = [
   { key: '/', description: 'Focus search bar' },
   { key: '⌘K', description: 'Quick search all books' },
+  { key: 'n', description: 'Next page' },
+  { key: 'p', description: 'Previous page' },
+  { key: 'j', description: 'Next page (vim)' },
+  { key: 'k', description: 'Previous page (vim)' },
   { key: 't', description: 'Toggle theme' },
   { key: '?', description: 'Open shortcuts' },
   { key: 'Esc', description: 'Close sidebar / modal' },
+];
+
+const navShortcuts = [
+  { key: 'g h', description: 'Go to home' },
+  { key: 'g b', description: 'Go to books' },
+  { key: 'g s', description: 'Go to AI search' },
+  { key: 'g a', description: 'Go to about' },
+  { key: 'g i', description: 'Go to biography' },
 ];
 
 const ShortcutsModal: React.FC = () => {
@@ -59,15 +71,30 @@ const ShortcutsModal: React.FC = () => {
                   <CloseIcon className="w-4 h-4" />
                 </button>
               </div>
-              <div className="space-y-2">
-                {shortcuts.map(s => (
-                  <div key={s.key} className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{s.description}</span>
-                    <kbd className="inline-flex items-center px-2 py-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 min-w-[28px] justify-center">
-                      {s.key}
-                    </kbd>
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">General</h3>
+                <div className="space-y-2">
+                  {shortcuts.map(s => (
+                    <div key={s.key} className="flex items-center justify-between py-1.5">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{s.description}</span>
+                      <kbd className="inline-flex items-center px-2 py-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 min-w-[28px] justify-center">
+                        {s.key}
+                      </kbd>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-gray-200 dark:border-white/10 my-2" />
+                <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Navigation (g + key)</h3>
+                <div className="space-y-2">
+                  {navShortcuts.map(s => (
+                    <div key={s.key} className="flex items-center justify-between py-1.5">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{s.description}</span>
+                      <kbd className="inline-flex items-center px-2 py-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 min-w-[28px] justify-center font-mono">
+                        {s.key}
+                      </kbd>
+                    </div>
+                  ))}
+                </div>
               </div>
               <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center mt-5">
                 Press <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">?</kbd> to toggle this modal

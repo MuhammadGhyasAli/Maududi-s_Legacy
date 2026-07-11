@@ -15,13 +15,14 @@ import CookieConsent from "./CookieConsent";
 import type { Theme } from "../types/theme";
 import { apiService } from "../services/apiService";
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import NavigationProgress from './NavigationProgress';
 import { CATEGORY_SLUGS } from '../constants';
 import RateLimitListener from './RateLimitListener';
 
 export default function MainShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
   
   const [theme, setTheme] = useState<Theme>(() => {
@@ -32,23 +33,97 @@ export default function MainShell({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(true);
 
-  // Global 't' shortcut to cycle theme
+  // Global keyboard shortcuts
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
-      if (e.key === 't') {
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      
+      // Single-key shortcuts (don't trigger in inputs)
+      if (!isInput) {
+        switch (e.key) {
+          case 't': // Toggle theme
+            e.preventDefault();
+            setTheme(prev => {
+              const themes: Theme[] = ['light', 'dark', 'system'];
+              const nextIndex = (themes.indexOf(prev) + 1) % themes.length;
+              return themes[nextIndex];
+            });
+            break;
+          case 'h': // Toggle sidebar
+            if (!e.metaKey && !e.ctrlKey) {
+              e.preventDefault();
+              setIsSidebarOpen(prev => !prev);
+            }
+            break;
+          case '/': // Focus search
+            e.preventDefault();
+            {
+              const searchInput = document.getElementById('book-search') as HTMLInputElement;
+              if (searchInput) {
+                searchInput.focus();
+              }
+            }
+            break;
+          case 'n': // Next page
+          case 'j': // Vim next
+            if (!e.metaKey && !e.ctrlKey) {
+              const nextBtn = document.querySelector('[aria-label="Next page"]') as HTMLElement;
+              if (nextBtn && !nextBtn.hasAttribute('disabled')) {
+                e.preventDefault();
+                nextBtn.click();
+              }
+            }
+            break;
+          case 'p': // Previous page
+          case 'k': // Vim previous
+            if (!e.metaKey && !e.ctrlKey) {
+              const prevBtn = document.querySelector('[aria-label="Previous page"]') as HTMLElement;
+              if (prevBtn && !prevBtn.hasAttribute('disabled')) {
+                e.preventDefault();
+                prevBtn.click();
+              }
+            }
+            break;
+        }
+      }
+
+      // G-key sequences (g + key)
+      if (e.key === 'g' && !isInput && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        setTheme(prev => {
-          const themes: Theme[] = ['light', 'dark', 'system'];
-          const nextIndex = (themes.indexOf(prev) + 1) % themes.length;
-          return themes[nextIndex];
-        });
+        const handleNextKey = (nextE: KeyboardEvent) => {
+          nextE.preventDefault();
+          switch (nextE.key) {
+            case 'h': // Go home
+              router.push('/');
+              break;
+            case 'b': // Go to books
+              router.push('/');
+              break;
+            case 's': // Go to search
+              document.getElementById('book-search')?.focus();
+              break;
+            case 'c': // Go to chat
+              router.push('/ai-context-finder');
+              break;
+            case 'a': // Go to about
+              router.push('/about');
+              break;
+            case 'i': // Go to biography
+              router.push('/biography');
+              break;
+            case 'g': // Go to top
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              break;
+          }
+          document.removeEventListener('keydown', handleNextKey);
+        };
+        document.addEventListener('keydown', handleNextKey, { once: true });
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [setTheme]);
+  }, [router, setTheme]);
 
   // Prefetch book data in background as soon as shell mounts
   useEffect(() => {
