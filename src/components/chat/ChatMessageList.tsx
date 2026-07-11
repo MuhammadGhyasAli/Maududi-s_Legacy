@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import Image from 'next/image';
 import { ChatMessage, MessageSender, Book } from '../../types';
 import { getLangProps } from '../../utils/language';
 
@@ -32,13 +31,37 @@ interface ChatMessageListProps {
   onNavigateToBook?: (book: Book) => void;
   parseStructuredResponse?: (text: string) => StructuredResponse | null;
   books?: Book[];
-  userDisplayName?: string;
   loadingStatus?: string;
   followUpQuestions?: string[];
   onFollowUpClick?: (question: string) => void;
   onBranchFromMessage?: (messageIndex: number) => void;
   showSuggestions?: boolean;
   onSuggestionClick?: (question: string) => void;
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="opacity-0 group-hover:opacity-100 cursor-pointer p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-all shrink-0"
+      title="Copy response"
+    >
+      {copied ? (
+        <svg className="w-3.5 h-3.5 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+        </svg>
+      )}
+    </button>
+  );
 }
 
 const renderFormattedMessage = (text: string, onNavigateToBook?: (book: Book) => void, books: Book[] = []): React.ReactNode[] => {
@@ -170,16 +193,14 @@ function renderAIMessage(
   const sd = parseStructuredResponse ? parseStructuredResponse(text) : null;
   if (sd) {
     return (
-      <div className="w-full bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-gray-700/50 p-3 sm:p-5 rounded-2xl shadow-sm">
+      <div className="w-full p-3 sm:p-5 rounded-2xl">
         {renderStructuredView(sd, dir, className, onNavigateToBook, books)}
       </div>
     );
   }
   return (
-    <div className="w-full bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-gray-700/50 p-3 sm:p-5 rounded-2xl shadow-sm">
-      <div className={`whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
-        {renderFormattedMessage(text, onNavigateToBook, books)}
-      </div>
+    <div className={`whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px] text-gray-800 dark:text-gray-200 ${className}`} dir={dir}>
+      {renderFormattedMessage(text, onNavigateToBook, books)}
     </div>
   );
 }
@@ -189,7 +210,7 @@ function renderBranchButton(onBranchFromMessage: ((index: number) => void) | und
   return (
     <button
       onClick={() => onBranchFromMessage(index)}
-      className="opacity-0 group-hover:opacity-100 mt-1 ml-1 cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-gray-400 hover:text-brand-green hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+      className="opacity-0 group-hover:opacity-100 cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-gray-400 hover:text-brand-green hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
       title="Branch conversation from here"
     >
       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -197,68 +218,6 @@ function renderBranchButton(onBranchFromMessage: ((index: number) => void) | und
       </svg>
       Branch
     </button>
-  );
-}
-
-function renderMessage(
-  msg: ChatMessage & { image?: string; timestamp?: Date },
-  isUser: boolean,
-  selectedLanguage: string,
-  onNavigateToBook?: (book: Book) => void,
-  parseStructuredResponse?: (text: string) => StructuredResponse | null,
-  books: Book[] = [],
-  userDisplayName?: string,
-  className?: string,
-  dir?: string,
-  timestamp?: Date,
-  index?: number,
-  totalMessages?: number,
-  onBranchFromMessage?: (messageIndex: number) => void,
-) {
-  const { dir: msgDir, className: msgClassName } = getLangProps(msg.text, selectedLanguage);
-  const c = className || msgClassName;
-  const d = dir || msgDir;
-  const ts = timestamp || msg.timestamp || new Date();
-  const isLast = index !== undefined && totalMessages !== undefined && index === totalMessages - 1;
-
-  return (
-    <div className="flex gap-2 sm:gap-4 w-full group">
-      <div className="flex-none mt-0.5">
-        {isUser ? (
-          <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-semibold text-xs sm:text-sm">
-             {userDisplayName ? userDisplayName[0].toUpperCase() : 'U'}
-          </div>
-        ) : (
-          <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
-            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
-            </svg>
-          </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0 pt-1">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
-            {isUser ? 'You' : 'AI Assistant'}
-          </span>
-          <span className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-            {formatTime(ts)}
-          </span>
-        </div>
-
-        {isUser ? (
-          <div className={`whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px] text-gray-900 dark:text-gray-100 p-3 sm:p-4 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-300/40 dark:border-emerald-700/40 shadow-sm ${c}`} dir={d}>
-            {msg.image && <Image src={msg.image} alt="User upload" width={320} height={240} className="max-w-[200px] sm:max-w-xs rounded-xl mb-3 shadow-sm border border-white/20" />}
-            {msg.text}
-          </div>
-        ) : (
-          <>
-            {renderAIMessage(msg.text, c, d, onNavigateToBook, parseStructuredResponse, books)}
-            {renderBranchButton(onBranchFromMessage, index ?? 0, isLast)}
-          </>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -274,7 +233,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   onNavigateToBook,
   parseStructuredResponse,
   books = [],
-  userDisplayName,
   followUpQuestions,
   onFollowUpClick,
   onBranchFromMessage,
@@ -337,11 +295,11 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto relative" role="log" aria-live="polite" aria-label="Chat messages">
-      <div className="max-w-3xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-8 lg:py-10 space-y-4 sm:space-y-8 lg:space-y-10 mt-2 sm:mt-0">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
         {showSuggestions && (
-          <div className="space-y-3">
+          <div className="space-y-4 pt-8 sm:pt-16">
             <p className="text-xs font-medium text-gray-400 dark:text-gray-500 text-center">Try asking:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg mx-auto">
               {DEFAULT_SUGGESTIONS.map((s, i) => (
                 <button
                   key={i}
@@ -357,61 +315,88 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
             </div>
           </div>
         )}
+
         {messages.map((msg, index) => {
           const isUser = msg.sender === MessageSender.USER;
           const timestamp = msg.timestamp || new Date();
-          return renderMessage(
-            msg, isUser, selectedLanguage, onNavigateToBook, parseStructuredResponse,
-            books, userDisplayName, undefined, undefined, timestamp, index, messages.length, onBranchFromMessage,
+          const isLast = index === messages.length - 1;
+          const { dir, className } = getLangProps(msg.text, selectedLanguage);
+
+          if (isUser) {
+            return (
+              <div key={index} className="flex justify-end">
+                <div className="max-w-[85%] sm:max-w-[75%] group">
+                  <div className="bg-brand-green text-white px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl rounded-br-md shadow-sm">
+                    <div className="whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px]" dir={dir}>
+                      {msg.image && (
+                        <img src={msg.image} alt="User upload" className="max-w-[200px] sm:max-w-xs rounded-xl mb-3 shadow-sm" />
+                      )}
+                      {msg.text}
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-1">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {formatTime(timestamp)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div key={index} className="flex justify-start group">
+              <div className="max-w-[85%] sm:max-w-[75%]">
+                <div className="text-gray-800 dark:text-gray-200" dir={dir}>
+                  {renderAIMessage(msg.text, className, dir, onNavigateToBook, parseStructuredResponse, books)}
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {formatTime(timestamp)}
+                  </span>
+                  <CopyButton text={msg.text} />
+                  {renderBranchButton(onBranchFromMessage, index, isLast)}
+                </div>
+              </div>
+            </div>
           );
         })}
 
         {followUpQuestions && followUpQuestions.length > 0 && !isLoading && (
-          <div className="pl-10 sm:pl-12">
-            <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Suggested follow-ups:</p>
-            <div className="flex flex-wrap gap-2">
-              {followUpQuestions.map((q, i) => (
-                <button
-                  key={i}
-                  onClick={() => onFollowUpClick?.(q)}
-                  className="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-brand-green/50 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-brand-green/5 transition-all duration-200 shadow-sm"
-                >
-                  {q}
-                </button>
-              ))}
+          <div className="flex justify-start pl-1">
+            <div>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Follow-up:</p>
+              <div className="flex flex-wrap gap-2">
+                {followUpQuestions.map((q, i) => (
+                  <button
+                    key={i}
+                    onClick={() => onFollowUpClick?.(q)}
+                    className="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-brand-green/50 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-brand-green/5 transition-all duration-200 shadow-sm"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="flex gap-4 w-full">
-              <div className="flex-none mt-0.5">
-                <div className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm opacity-50">
-                  <svg className="w-4 h-4 text-brand-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
-                  </svg>
-                </div>
+            <div className="flex items-center gap-3 px-1">
+              <div className="flex space-x-1.5">
+                <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft"></span>
+                <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.2s' }}></span>
+                <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.4s' }}></span>
               </div>
-              <div className="flex-1 pt-1">
-                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 opacity-50">AI Assistant</span>
-                </div>
-                 <div className="flex items-center gap-2 ml-1 mt-1">
-                  <div className="flex space-x-1.5">
-                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft"></span>
-                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.2s' }}></span>
-                    <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full animate-pulse-soft" style={{ animationDelay: '0.4s' }}></span>
-                  </div>
-                  {loadingStatus && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500 animate-pulse">{loadingStatus}</span>
-                  )}
-                </div>
-              </div>
+              {loadingStatus && (
+                <span className="text-xs text-gray-400 dark:text-gray-500 animate-pulse">{loadingStatus}</span>
+              )}
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} className="h-8" />
+
+        <div ref={messagesEndRef} className="h-4" />
       </div>
 
       {showScrollBtn && (

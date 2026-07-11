@@ -447,82 +447,79 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
       )}
 
       {/* Main chat area */}
-      <div className="flex flex-col flex-1 min-w-0 pt-14">
-        {/* Slim top bar */}
-        <div className="fixed top-0 left-0 right-0 z-20 h-14 bg-white/90 dark:bg-brand-bg-dark/90 backdrop-blur-lg border-b border-emerald-100/40 dark:border-emerald-900/20">
-          <div className="flex items-center justify-between h-full px-4 max-w-5xl mx-auto">
-            <div className="flex items-center gap-3 min-w-0">
-              <button onClick={onBack} className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all duration-200 whitespace-nowrap" title="Back to library">
-                <ArrowLeftIcon className="w-4 h-4" />
-                <span className="hidden sm:inline">Back</span>
-              </button>
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[200px] sm:max-w-[400px]">
-                {book.title}
-              </span>
-              {currentTopics.length > 0 && (
-                <div className="hidden md:flex items-center gap-1 ml-2">
-                  {currentTopics.slice(0, 2).map(t => (
-                    <span key={t} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-brand-green/8 text-brand-green/60 border border-brand-green/15">
-                      {t}
-                    </span>
-                  ))}
-                  {currentTopics.length > 2 && (
-                    <span className="text-[9px] text-gray-400">+{currentTopics.length - 2}</span>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              {user && bookSuggestions.length > 0 && (
-                <button
-                  onClick={() => setShowSuggestions(!showSuggestions)}
-                  className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                    showSuggestions
-                      ? 'bg-brand-green/10 text-brand-green'
-                      : 'text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
-                  title="Related books"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                  </svg>
-                </button>
-              )}
-              {user && (
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                    showHistory
-                      ? 'bg-brand-green/10 text-brand-green'
-                      : 'text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
-                  title="Chat history"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
-                  </svg>
-                </button>
-              )}
-              {user && (
-                <button onClick={handleShareChat} className="cursor-pointer p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Share Chat">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-                  </svg>
-                </button>
-              )}
-              <button 
-                onClick={handleClearChat} 
-                className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                  showClearConfirm 
-                    ? 'bg-red-500 text-white' 
-                    : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Minimal top bar */}
+        <div className="flex-none h-12 flex items-center justify-between px-4 max-w-5xl mx-auto w-full border-b border-gray-100 dark:border-white/5">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={onBack} className="cursor-pointer p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-all" title="Back to library">
+              <ArrowLeftIcon className="w-4 h-4" />
+            </button>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-[400px]">
+              {book.title}
+            </span>
+            {currentTopics.length > 0 && (
+              <div className="hidden md:flex items-center gap-1 ml-2">
+                {currentTopics.slice(0, 2).map(t => (
+                  <span key={t} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-brand-green/8 text-brand-green/60 border border-brand-green/15">
+                    {t}
+                  </span>
+                ))}
+                {currentTopics.length > 2 && (
+                  <span className="text-[9px] text-gray-400">+{currentTopics.length - 2}</span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-0.5">
+            {user && bookSuggestions.length > 0 && (
+              <button
+                onClick={() => setShowSuggestions(!showSuggestions)}
+                className={`cursor-pointer p-1.5 rounded-lg transition-all duration-200 ${
+                  showSuggestions
+                    ? 'bg-brand-green/10 text-brand-green'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5'
                 }`}
-                title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
+                title="Related books"
               >
-                <TrashIcon className="w-4 h-4" />
-                {showClearConfirm && <span className="text-xs font-medium ml-1">Confirm</span>}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
               </button>
-            </div>
+            )}
+            {user && (
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className={`cursor-pointer p-1.5 rounded-lg transition-all duration-200 ${
+                  showHistory
+                    ? 'bg-brand-green/10 text-brand-green'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5'
+                }`}
+                title="Chat history"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
+                </svg>
+              </button>
+            )}
+            {user && (
+              <button onClick={handleShareChat} className="cursor-pointer p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-brand-green dark:hover:text-brand-green-dark hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200" title="Share Chat">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                </svg>
+              </button>
+            )}
+            <button 
+              onClick={handleClearChat} 
+              className={`cursor-pointer p-1.5 rounded-lg transition-all duration-200 ${
+                showClearConfirm 
+                  ? 'bg-red-500 text-white' 
+                  : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
+              }`}
+              title={showClearConfirm ? "Click again to confirm" : "Clear Chat"}
+            >
+              <TrashIcon className="w-4 h-4" />
+              {showClearConfirm && <span className="text-xs font-medium ml-1">Confirm</span>}
+            </button>
           </div>
         </div>
 
@@ -533,7 +530,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
           selectedLanguage={selectedLanguage}
           onNavigateToBook={onNavigateToBook}
           books={books}
-          userDisplayName={user?.display_name || user?.email}
           followUpQuestions={followUps}
           onFollowUpClick={handleFollowUpClick}
           onBranchFromMessage={handleBranchFromMessage}
@@ -542,9 +538,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
         />
 
         {!user && !limitReached && (
-          <div className="flex-none px-4 py-1.5 text-center">
-            <span className="text-xs text-gray-400 dark:text-gray-500">
-              Free messages remaining: {MAX_FREE_MESSAGES - guestMessageCount} / {MAX_FREE_MESSAGES}
+          <div className="flex-none px-4 pb-1 text-center">
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">
+              Free messages: {MAX_FREE_MESSAGES - guestMessageCount}/{MAX_FREE_MESSAGES}
             </span>
           </div>
         )}
