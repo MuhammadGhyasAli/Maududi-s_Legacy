@@ -6,7 +6,6 @@ import SendIcon from '../icons/SendIcon';
 import Spinner from '../icons/Spinner';
 import PaperclipIcon from '../icons/PaperclipIcon';
 import CloseIcon from '../icons/CloseIcon';
-import VoiceButton from '../VoiceButton';
 import { getLangProps } from '../../utils/language';
 
 interface ChatInputAreaProps {
@@ -48,8 +47,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onRestrictedLanguageClick,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const inputRef = useRef(input);
-  useEffect(() => { inputRef.current = input; });
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
@@ -138,11 +135,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             rows={1}
             dir={inputDir}
             disabled={isLoading}
-          />
-          <VoiceButton
-            language={selectedLanguage}
-            disabled={isLoading}
-            onTranscript={(text) => setInput(inputRef.current + text + ' ')}
           />
           <button 
             onClick={onSendMessage} 
