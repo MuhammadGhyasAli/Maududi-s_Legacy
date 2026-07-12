@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Maududi's Legacy API",
     description="Backend API for Maududi's Legacy application",
-    version="1.0.1",
+    version="1.1.1",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -97,7 +97,7 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 @app.get("/")
 @limiter.limit(f"{settings.rate_limit_requests}/{settings.rate_limit_period} seconds")
 async def root(request: Request):
-    return {"message": "Maududi's Legacy API is running", "version": "1.0.1"}
+    return {"message": "Maududi's Legacy API is running", "version": "1.1.1"}
 
 
 
@@ -106,7 +106,7 @@ async def root(request: Request):
 async def health_check(request: Request):
     return {
         "status": "healthy",
-        "version": "1.0.1",
+        "version": "1.1.1",
         "service": "maududi-legacy-api"
     }
 
