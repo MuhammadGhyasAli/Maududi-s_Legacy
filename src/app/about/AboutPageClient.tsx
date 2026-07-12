@@ -40,7 +40,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const as const },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
@@ -222,7 +222,7 @@ function CategoryCard({ category, index }: { category: string; index: number }) 
           opacity: 1,
           y: 0,
           scale: 1,
-          transition: { delay: delays[index] || 0, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const as const },
+          transition: { delay: delays[index] || 0, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
         },
       }}
     >
@@ -256,7 +256,7 @@ function StepItem({ step, title, description, index }: { step: number; title: st
         visible: {
           opacity: 1,
           x: 0,
-          transition: { delay: index * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const as const },
+          transition: { delay: index * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
         },
       }}
       className="relative flex gap-5 group"
