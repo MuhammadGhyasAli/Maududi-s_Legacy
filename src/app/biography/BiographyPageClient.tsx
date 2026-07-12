@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -14,9 +14,7 @@ import {
   Users,
   Quote,
   Landmark,
-
   ExternalLink,
-
   Brain,
   Scale,
   Coins,
@@ -102,18 +100,17 @@ const galleryImages = [
 ];
 
 function TimelineItem({ item, index }: { item: (typeof timeline)[0]; index: number }) {
-  const isEven = index % 2 === 0;
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, x: isEven ? -30 : 30 },
+        hidden: { opacity: 0, x: -30 },
         visible: {
           opacity: 1,
           x: 0,
           transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
         },
       }}
-      className="relative flex items-start gap-6 group"
+      className="relative flex items-start gap-6"
     >
       {/* year badge */}
       <div className="flex-shrink-0 w-20 sm:w-24 text-right">
@@ -122,21 +119,21 @@ function TimelineItem({ item, index }: { item: (typeof timeline)[0]; index: numb
         </span>
       </div>
 
-      {/* connector line + dot */}
-      <div className="flex flex-col items-center flex-shrink-0 pt-1">
-        <div className="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-gray-950 shadow-sm z-10 group-hover:scale-125 transition-transform duration-300" />
+      {/* connector dot + line */}
+      <div className="flex flex-col items-center flex-shrink-0 pt-1.5">
+        <div className="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-gray-950 shadow-sm z-10" />
         {index < timeline.length - 1 && (
-          <div className="w-px flex-1 bg-gradient-to-b from-emerald-300 to-gray-200 dark:from-emerald-700 dark:to-gray-800 min-h-[3rem]" />
+          <div className="w-px flex-1 bg-emerald-200 dark:bg-emerald-800 min-h-[2rem]" />
         )}
       </div>
 
       {/* content card */}
-      <div className="flex-1 pb-8 -mt-1">
-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-300">
-          <h3 className="font-bold text-gray-900 dark:text-white text-base mb-1">
+      <div className="flex-1 pb-8 -mt-0.5">
+        <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/50 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-300">
+          <h3 className="font-display font-bold text-gray-900 dark:text-white text-base mb-1">
             {item.title}
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
             {item.event}
           </p>
         </div>
@@ -152,8 +149,8 @@ function WorkCard({ work }: { work: (typeof majorWorks)[0] }) {
       variants={itemVariants}
       className={`group relative p-6 rounded-2xl border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col ${
         isFeatured
-          ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/20 border-emerald-200 dark:border-emerald-800/60 md:col-span-2 lg:col-span-3'
-          : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-emerald-200 dark:hover:border-emerald-800'
+          ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 md:col-span-2 lg:col-span-3'
+          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700/50 hover:border-emerald-300 dark:hover:border-emerald-700'
       }`}
     >
       <div className="flex items-center justify-between mb-3">
@@ -167,7 +164,7 @@ function WorkCard({ work }: { work: (typeof majorWorks)[0] }) {
         )}
       </div>
       <h3
-        className={`font-bold text-gray-900 dark:text-white mb-2 leading-snug ${
+        className={`font-display font-bold text-gray-900 dark:text-white mb-2 leading-snug ${
           isFeatured ? 'text-xl sm:text-2xl' : 'text-base'
         }`}
       >
@@ -196,16 +193,16 @@ function LegacyItem({ item, index }: { item: (typeof intellectualLegacy)[0]; ind
           transition: { delay: index * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
         },
       }}
-      className="group flex items-start gap-4 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-300 hover:-translate-y-0.5"
+      className="group flex items-start gap-4 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/50 bg-white dark:bg-gray-800/60 hover:shadow-lg hover:border-emerald-300 dark:hover:border-emerald-700 transition-all duration-300 hover:-translate-y-0.5"
     >
-      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
         <Icon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-0.5">
+        <h3 className="font-display font-bold text-gray-900 dark:text-white text-sm mb-0.5">
           {item.title}
         </h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
           {item.desc}
         </p>
       </div>
@@ -216,9 +213,9 @@ function LegacyItem({ item, index }: { item: (typeof intellectualLegacy)[0]; ind
 function FactCard({ fact }: { fact: (typeof quickFacts)[0] }) {
   const Icon = fact.icon;
   return (
-    <div className="p-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-center hover:shadow-md transition-shadow duration-300">
+    <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700/50 bg-white dark:bg-gray-800 text-center hover:shadow-md transition-shadow duration-300">
       <Icon className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mx-auto mb-1.5" aria-hidden="true" />
-      <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5">
+      <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">
         {fact.label}
       </p>
       <p className="text-xs font-semibold text-gray-900 dark:text-white leading-snug">
@@ -236,13 +233,13 @@ function Gallery() {
     setCurrentIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <div className="relative h-64 sm:h-80 md:h-96">
+    <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700/50">
+      <div className="relative aspect-[4/3] sm:aspect-[16/10]">
         {galleryImages.map((img, index) => (
-          <motion.div
+          <div
             key={img.src}
-            className={`absolute inset-0 transition-all duration-700 ${
-              index === currentIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
           >
             <Image
@@ -253,33 +250,37 @@ function Gallery() {
               priority={index === 0}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
-              <p className="text-white text-sm font-medium">{img.caption}</p>
-              <p className="text-white/60 text-xs mt-0.5">
-                {index + 1} / {galleryImages.length}
-              </p>
-            </div>
-          </motion.div>
+          </div>
         ))}
+
+        {/* gradient overlay + caption */}
+        <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 z-20 pointer-events-none">
+          <p className="text-white text-sm font-medium">
+            {galleryImages[currentIndex].caption}
+          </p>
+          <p className="text-white/50 text-xs mt-0.5">
+            {currentIndex + 1} / {galleryImages.length}
+          </p>
+        </div>
 
         <button
           onClick={prev}
-          className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors z-20"
+          className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors z-30"
           aria-label="Previous image"
         >
           <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         </button>
         <button
           onClick={next}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors z-20"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors z-30"
           aria-label="Next image"
         >
           <ChevronRight className="w-4 h-4" aria-hidden="true" />
         </button>
 
         {/* dots */}
-        <div className="absolute bottom-5 right-5 sm:right-6 flex gap-1.5 z-20">
+        <div className="absolute bottom-5 right-5 sm:right-6 flex gap-1.5 z-30">
           {galleryImages.map((_, index) => (
             <button
               key={index}
@@ -326,11 +327,11 @@ export default function BiographyPageClient() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
-              className="flex-shrink-0"
+              className="flex-shrink-0 relative"
             >
               <motion.div
                 style={{ scale: portraitScale }}
-                className="relative w-52 h-64 sm:w-60 sm:h-76 md:w-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl ring-2 ring-white/10"
+                className="relative w-52 h-64 sm:w-60 sm:h-[19rem] md:w-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl ring-2 ring-white/10"
               >
                 <Image
                   src="/maududi-portrait.jpg"
@@ -342,7 +343,7 @@ export default function BiographyPageClient() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               </motion.div>
-              <div className="absolute -bottom-3 -right-3 sm:bottom-4 sm:right-4 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold shadow-lg shadow-emerald-600/30">
+              <div className="absolute -bottom-3 -right-3 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold shadow-lg shadow-emerald-600/30">
                 1903–1979
               </div>
             </motion.div>
@@ -359,7 +360,7 @@ export default function BiographyPageClient() {
                 Scholar &bull; Philosopher &bull; Jurist &bull; Journalist
               </span>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-5 leading-[1.1] tracking-tight">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-5 leading-[1.1] tracking-tight">
                 Sayyid Abul A&apos;la{' '}
                 <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
                   Maududi
@@ -396,7 +397,6 @@ export default function BiographyPageClient() {
           </div>
         </motion.div>
 
-        {/* decorative orbs */}
         <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
         <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-teal-500/8 blur-3xl pointer-events-none" />
       </section>
@@ -405,7 +405,6 @@ export default function BiographyPageClient() {
       <section className="py-16 sm:py-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid gap-8 lg:grid-cols-5">
-            {/* Quick Facts */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -413,7 +412,7 @@ export default function BiographyPageClient() {
               className="lg:col-span-2"
             >
               <div className="lg:sticky lg:top-24">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 text-lg">
+                <h3 className="font-display font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 text-lg">
                   <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                   Quick Facts
                 </h3>
@@ -425,7 +424,6 @@ export default function BiographyPageClient() {
               </div>
             </motion.div>
 
-            {/* Gallery */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -433,7 +431,7 @@ export default function BiographyPageClient() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-3"
             >
-              <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-4">
+              <h3 className="font-display font-bold text-gray-900 dark:text-white text-lg mb-4">
                 Photo Gallery
               </h3>
               <Gallery />
@@ -443,7 +441,7 @@ export default function BiographyPageClient() {
       </section>
 
       {/* ─── Timeline ─── */}
-      <section className="py-16 sm:py-24 bg-gray-50/50 dark:bg-gray-900/30 border-y border-gray-100 dark:border-gray-800/50">
+      <section className="py-16 sm:py-24 bg-gray-50 dark:bg-gray-800/30 border-y border-gray-200 dark:border-gray-700/50">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -451,13 +449,13 @@ export default function BiographyPageClient() {
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Life{' '}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-300">
                 Timeline
               </span>
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+            <p className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
               Key milestones in the life of one of Islam&apos;s most influential
               modern thinkers.
             </p>
@@ -485,13 +483,13 @@ export default function BiographyPageClient() {
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Major{' '}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-300">
                 Works
               </span>
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+            <p className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
               A selection of his most influential publications spanning over five
               decades.
             </p>
@@ -512,7 +510,7 @@ export default function BiographyPageClient() {
       </section>
 
       {/* ─── Intellectual Legacy ─── */}
-      <section className="py-16 sm:py-24 border-y border-gray-100 dark:border-gray-800/50">
+      <section className="py-16 sm:py-24 bg-gray-50 dark:bg-gray-800/30 border-y border-gray-200 dark:border-gray-700/50">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -520,13 +518,13 @@ export default function BiographyPageClient() {
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Intellectual{' '}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-300">
                 Legacy
               </span>
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+            <p className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
               Core concepts that shaped modern Islamic political thought and continue
               to influence scholars worldwide.
             </p>
@@ -554,13 +552,13 @@ export default function BiographyPageClient() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">
             Sources &{' '}
             <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-300">
               Attribution
             </span>
           </h2>
-          <div className="space-y-4 text-gray-600 dark:text-gray-400">
+          <div className="space-y-4 text-base text-gray-600 dark:text-gray-400">
             <p className="leading-relaxed">
               Biographical information is drawn from{' '}
               <a href="https://en.wikipedia.org/wiki/Abul_A%27la_Maududi" target="_blank" rel="noopener noreferrer" className="underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Wikipedia (CC BY-SA 4.0)</a>,{' '}
@@ -587,7 +585,7 @@ export default function BiographyPageClient() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl font-bold text-white mb-4"
+            className="font-display text-3xl sm:text-4xl font-bold text-white mb-4"
           >
             Explore His Works
           </motion.h2>
