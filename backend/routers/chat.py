@@ -23,6 +23,21 @@ router = APIRouter()
 logger = get_logger(__name__)
 limiter = Limiter(key_func=get_remote_address)
 
+# Lazy-loaded retriever (avoids import-time side effects)
+_retriever = None
+
+
+def _get_retriever():
+    global _retriever
+    if _retriever is None:
+        try:
+            from services.vector_db.retriever import RetrieverService
+            _retriever = RetrieverService()
+        except Exception as e:
+            logger.warning("Vector DB retriever unavailable", error=str(e))
+            _retriever = False
+    return _retriever if _retriever is not False else None
+
 
 async def optional_user(
     request: Request,
@@ -167,6 +182,24 @@ async def chat(
     messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
     selected_language = getattr(chat_request, "language", "English")
 
+    # Retrieve relevant context from vector DB
+    rag_context = None
+    retriever = _get_retriever()
+    if retriever:
+        try:
+            last_user_msg = ""
+            for m in reversed(messages):
+                if m["role"] == "user" and isinstance(m.get("content"), str):
+                    last_user_msg = m["content"]
+                    break
+            if last_user_msg:
+                rag_context = retriever.retrieve_context(
+                    last_user_msg, book_id=chat_request.bookId, n_results=5
+                )
+                logger.info("RAG context retrieved", book_id=chat_request.bookId, context_len=len(rag_context) if rag_context else 0)
+        except Exception as e:
+            logger.warning("RAG retrieval failed, continuing without context", error=str(e))
+
     # Add follow-up prompt to the system context
     enhanced_messages = list(messages)
     if enhanced_messages:
@@ -179,7 +212,7 @@ async def chat(
             last_user_msg["content"] += _build_follow_up_prompt(selected_language)
 
     try:
-        response_text = llm_service.generate_response(book.aiContext, enhanced_messages)
+        response_text = llm_service.generate_response(book.aiContext, enhanced_messages, rag_context=rag_context)
         clean_text, follow_ups = _parse_follow_ups(response_text)
 
         # ── Conversation persistence for authenticated users ──
@@ -248,6 +281,22 @@ async def global_chat(
     messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
     selected_language = getattr(chat_request, "language", "English")
 
+    # Retrieve relevant context from vector DB (all books)
+    rag_context = None
+    retriever = _get_retriever()
+    if retriever:
+        try:
+            last_user_msg = ""
+            for m in reversed(messages):
+                if m["role"] == "user" and isinstance(m.get("content"), str):
+                    last_user_msg = m["content"]
+                    break
+            if last_user_msg:
+                rag_context = retriever.retrieve_context(last_user_msg, n_results=5)
+                logger.info("RAG context retrieved (global)", context_len=len(rag_context) if rag_context else 0)
+        except Exception as e:
+            logger.warning("RAG retrieval failed for global chat, continuing without context", error=str(e))
+
     enhanced_messages = list(messages)
     if enhanced_messages:
         last_user_msg = None
@@ -259,7 +308,7 @@ async def global_chat(
             last_user_msg["content"] += _build_follow_up_prompt(selected_language)
 
     try:
-        response_text = llm_service.generate_response(chat_request.systemInstruction, enhanced_messages)
+        response_text = llm_service.generate_response(chat_request.systemInstruction, enhanced_messages, rag_context=rag_context)
         clean_text, follow_ups = _parse_follow_ups(response_text)
 
         saved_id = None
