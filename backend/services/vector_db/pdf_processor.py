@@ -82,34 +82,74 @@ class PDFProcessor:
         return ocr_text
 
     def _extract_with_ocr(self, doc) -> str:
-        """Extract text from scanned PDF using Tesseract OCR."""
+        """Extract text from scanned PDF using Tesseract OCR. Streams to disk for large PDFs."""
         total_pages = len(doc)
+        use_streaming = total_pages > 100
         text_parts = []
+        tmp = None
+        tmp_path = None
 
-        for page_num in range(total_pages):
-            if page_num % 10 == 0:
-                logger.info("OCR progress", page=f"{page_num + 1}/{total_pages}")
+        if use_streaming:
+            import tempfile
+            tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8')
+            tmp_path = tmp.name
 
-            page = doc.load_page(page_num)
-            mat = fitz.Matrix(1.5, 1.5)
-            pix = page.get_pixmap(matrix=mat)
-            img_bytes = pix.tobytes("png")
+        try:
+            for page_num in range(total_pages):
+                if page_num % 10 == 0:
+                    logger.info("OCR progress", page=f"{page_num + 1}/{total_pages}")
 
-            img = Image.open(io.BytesIO(img_bytes))
-            img_np = np.array(img)
+                try:
+                    page = doc.load_page(page_num)
+                    mat = fitz.Matrix(1.5, 1.5)
+                    pix = page.get_pixmap(matrix=mat)
+                    img_bytes = pix.tobytes("png")
 
-            page_text = pytesseract.image_to_string(
-                img_np,
-                lang="urd+eng",
-                config="--psm 3 --oem 1",
-            )
+                    img = Image.open(io.BytesIO(img_bytes))
+                    img_np = np.array(img)
+                    del img
 
-            if page_text and page_text.strip():
-                text_parts.append(page_text.strip())
+                    page_text = pytesseract.image_to_string(
+                        img_np,
+                        lang="urd+eng",
+                        config="--psm 3 --oem 1",
+                    )
+                    del img_np
+                    del pix
 
-        ocr_text = "\n\n".join(text_parts)
-        logger.info("OCR extraction complete", characters=len(ocr_text), pages=len(text_parts))
-        return ocr_text
+                    if page_text and page_text.strip():
+                        if use_streaming:
+                            tmp.write(page_text.strip())
+                            tmp.write("\n\n")
+                        else:
+                            text_parts.append(page_text.strip())
+                except Exception as e:
+                    logger.warning("OCR page failed", page=page_num + 1, error=str(e))
+                    continue
+                finally:
+                    try:
+                        page.clean_contents()
+                    except Exception:
+                        pass
+
+            if use_streaming:
+                tmp.close()
+                with open(tmp_path, 'r', encoding='utf-8') as f:
+                    ocr_text = f.read()
+                os.unlink(tmp_path)
+            else:
+                ocr_text = "\n\n".join(text_parts)
+
+            logger.info("OCR extraction complete", characters=len(ocr_text))
+            return ocr_text
+        except Exception as e:
+            if tmp and tmp_path:
+                try:
+                    tmp.close()
+                    os.unlink(tmp_path)
+                except Exception:
+                    pass
+            raise
 
     async def process_book(self, book_id: int, pdf_url: str) -> str:
         """Full pipeline: download PDF and extract text."""
