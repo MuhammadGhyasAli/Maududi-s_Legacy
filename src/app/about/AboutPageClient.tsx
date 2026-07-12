@@ -27,6 +27,7 @@ import {
   Landmark,
   Scale,
   Users,
+  ExternalLink,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -601,38 +602,32 @@ export default function AboutPageClient() {
               Attribution
             </span>
           </h2>
-          <div className="space-y-4 text-base text-gray-600 dark:text-gray-400">
-            <p className="leading-relaxed">
-              The books and metadata on this platform are sourced from publicly
-              available digital archives, published editions, and official
-              Jamaat-e-Islami publications.
-            </p>
-            <p className="font-medium text-gray-800 dark:text-gray-200">
-              Primary sources include:
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {dataSources.map((source, _i) => (
-                <div
-                  key={_i}
-                  className="flex items-center gap-2.5 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/50"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm underline decoration-emerald-500/40 hover:decoration-emerald-600 hover:text-emerald-700 dark:decoration-emerald-500/30 dark:hover:decoration-emerald-500 dark:hover:text-emerald-400 transition-colors"
-                  >
-                    {source.name}
-                  </a>
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-gray-500 dark:text-gray-500 pt-2">
-              If you are a rights holder and believe content should be removed or
-              attributed differently, please contact us.
-            </p>
+          <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8 text-center max-w-2xl mx-auto">
+            The books and metadata on this platform are sourced from publicly
+            available digital archives, published editions, and official
+            Jamaat-e-Islami publications. Primary sources include:
+          </p>
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {dataSources.map((source, _i) => (
+              <a
+                key={_i}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/50 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all duration-300 group"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  {source.name}
+                </span>
+                <ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 ml-auto flex-shrink-0 transition-colors" aria-hidden="true" />
+              </a>
+            ))}
           </div>
+          <p className="text-sm text-gray-500 dark:text-gray-500 pt-4 text-center">
+            If you are a rights holder and believe content should be removed or
+            attributed differently, please contact us.
+          </p>
         </motion.div>
       </section>
 
