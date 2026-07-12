@@ -89,3 +89,12 @@ env_value.txt
 
 # Vercel hidden project config
 .vercel_hidden/
+
+# Vector DB temp files
+backend/temp_pdfs/
+backend/check_pdf.py
+backend/test_extract.py
+backend/test_extract2.py
+backend/test_ocr.py
+backend/test_ocr_fast.py
+backend/test_pipeline.py
