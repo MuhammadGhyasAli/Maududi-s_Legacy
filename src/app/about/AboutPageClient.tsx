@@ -6,7 +6,6 @@ import { useRef } from 'react';
 import { CATEGORIES } from '@/constants';
 import { slugify } from '@/utils/slugify';
 import {
-  ChevronRight,
   BookOpen,
   Search,
   MessageSquare,
@@ -18,7 +17,6 @@ import {
   Zap,
   Shield,
   FolderOpen,
-
   Database,
   Brain,
   Lock,
@@ -49,7 +47,6 @@ const featureCards = [
     icon: BookOpen,
     title: 'Browse the Library',
     description: `Explore ${CATEGORIES.length - 1} curated categories — from Tafsir to Jurisprudence.`,
-    href: '/',
     color: 'emerald',
     span: 'col-span-1 md:col-span-2 lg:col-span-2',
     height: 'min-h-[200px]',
@@ -59,7 +56,6 @@ const featureCards = [
     title: 'AI Context Finder',
     description:
       'Search across every book simultaneously. Find which chapter or page discusses any topic.',
-    href: '/assistant',
     color: 'blue',
     span: 'col-span-1',
     height: 'min-h-[200px]',
@@ -96,7 +92,6 @@ const featureCards = [
     title: 'Reading Progress',
     description:
       'Track your journey with bookmarks, history, and progress across all books.',
-    href: '/account',
     color: 'indigo',
     span: 'col-span-1',
     height: 'min-h-[160px]',
@@ -185,15 +180,6 @@ function FeatureCard({ feature }: { feature: (typeof featureCards)[0] }) {
         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1">
           {feature.description}
         </p>
-        {'href' in feature && feature.href && (
-          <Link
-            href={feature.href}
-            className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors mt-4 group/link"
-          >
-            Explore
-            <ChevronRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" aria-hidden="true" />
-          </Link>
-        )}
       </div>
     </motion.div>
   );
