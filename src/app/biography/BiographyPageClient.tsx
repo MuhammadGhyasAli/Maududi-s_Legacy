@@ -562,10 +562,13 @@ export default function BiographyPageClient() {
           </h2>
           <div className="space-y-4 text-gray-600 dark:text-gray-400">
             <p className="leading-relaxed">
-              Biographical information is drawn from Wikipedia (CC BY-SA 4.0),
-              Encyclopedia.com, Oxford Encyclopedia of Islam and the Muslim World,
-              and official Jamaat-e-Islami biographical records. The timeline
-              synthesizes these authoritative sources.
+              Biographical information is drawn from{' '}
+              <a href="https://en.wikipedia.org/wiki/Abul_A%27la_Maududi" target="_blank" rel="noopener noreferrer" className="underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Wikipedia (CC BY-SA 4.0)</a>,{' '}
+              <a href="https://www.encyclopedia.com/people/history/south-asian-biographies/abul-ala-maududi" target="_blank" rel="noopener noreferrer" className="underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Encyclopedia.com</a>,{' '}
+              <a href="https://global.oup.com/academic/product/encyclopedia-of-islam-and-the-muslim-world-9780199754564" target="_blank" rel="noopener noreferrer" className="underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Oxford Encyclopedia of Islam and the Muslim World</a>,
+              and official{' '}
+              <a href="https://jamaat.org" target="_blank" rel="noopener noreferrer" className="underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Jamaat-e-Islami</a>{' '}
+              biographical records. The timeline synthesizes these authoritative sources.
             </p>
             <p className="text-sm text-gray-400 dark:text-gray-500">
               If you are a rights holder and believe content should be removed or

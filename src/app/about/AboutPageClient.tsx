@@ -120,9 +120,9 @@ const techStack = [
 const dataSources = [
   { name: 'Jamaat-e-Islami Pakistan', url: 'https://jamaat.org' },
   { name: 'Jamaat-e-Islami Hind', url: 'https://jamaateislamihind.org' },
-  { name: 'Markazi Maktaba Islami Publishers, Delhi', url: null },
-  { name: 'Islamic Foundation, UK', url: null },
-  { name: 'Darussalam Publishers', url: null },
+  { name: 'Markazi Maktaba Islami Publishers, Delhi', url: 'https://www.maktaba.org' },
+  { name: 'Islamic Foundation, UK', url: 'https://www.islamic-foundation.org.uk' },
+  { name: 'Darussalam Publishers', url: 'https://www.darussalam.com' },
   { name: 'Rekhta.org (Urdu Digital Library)', url: 'https://rekhta.org' },
   { name: 'Internet Archive / Archive.org', url: 'https://archive.org' },
 ];
@@ -709,18 +709,14 @@ export default function AboutPageClient() {
                   className="flex items-center gap-2.5 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                  {source.url ? (
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                    >
-                      {source.name}
-                    </a>
-                  ) : (
-                    <span className="text-sm">{source.name}</span>
-                  )}
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  >
+                    {source.name}
+                  </a>
                 </div>
               ))}
             </div>
