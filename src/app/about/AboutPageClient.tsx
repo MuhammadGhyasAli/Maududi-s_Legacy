@@ -139,7 +139,7 @@ function FeatureCard({ feature }: { feature: (typeof featureCards)[0] }) {
         <h3 className="font-semibold text-gray-900 dark:text-white mb-1.5 text-lg">
           {feature.title}
         </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-1">
           {feature.description}
         </p>
       </div>
@@ -211,7 +211,7 @@ function StepItem({ step, title, description, index }: { step: number; title: st
         <h4 className="font-semibold text-gray-900 dark:text-white text-base mb-0.5">
           {title}
         </h4>
-        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
           {description}
         </p>
       </div>
@@ -233,10 +233,10 @@ export default function AboutPageClient() {
       {/* ─── Hero ─── */}
       <section
         ref={heroRef}
-        className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-emerald-950/40 to-gray-950 dark:from-black dark:via-emerald-950/30 dark:to-black py-24 sm:py-32 lg:py-40"
+        className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-emerald-50/60 to-gray-50 dark:from-gray-950 dark:via-emerald-950/40 dark:to-gray-950 py-24 sm:py-32 lg:py-40"
       >
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(5,150,105,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(5,150,105,0.04)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(5,150,105,0.15),transparent_60%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(5,150,105,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(5,150,105,0.06)_1px,transparent_1px)] bg-[size:64px_64px] dark:bg-[linear-gradient(rgba(5,150,105,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(5,150,105,0.04)_1px,transparent_1px)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(5,150,105,0.18),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,rgba(5,150,105,0.15),transparent_60%)] pointer-events-none" />
 
         <motion.div
           style={{ opacity: heroOpacity, y: heroY }}
@@ -248,7 +248,7 @@ export default function AboutPageClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600/10 border border-emerald-600/20 dark:bg-emerald-500/10 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-sm font-medium mb-6">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                 Digital Archive & AI Platform
               </span>
@@ -258,10 +258,10 @@ export default function AboutPageClient() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
-              className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
+              className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-[1.1] tracking-tight"
             >
               About{' '}
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-300">
                 Maududi&apos;s Legacy
               </span>
             </motion.h1>
@@ -270,7 +270,7 @@ export default function AboutPageClient() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
-              className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed mb-10"
+              className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed mb-10"
             >
               A digital platform dedicated to preserving, organizing, and making
               accessible the complete intellectual legacy of Sayyid Abul A&apos;la
@@ -292,7 +292,7 @@ export default function AboutPageClient() {
               </Link>
               <Link
                 href="/"
-                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all duration-300 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300 hover:-translate-y-0.5"
               >
                 <BookOpen className="w-4.5 h-4.5" aria-hidden="true" />
                 Browse Library
@@ -304,6 +304,8 @@ export default function AboutPageClient() {
         <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
         <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-teal-500/8 blur-3xl pointer-events-none" />
       </section>
+
+      {/* ─── Mission ─── */}
 
       {/* ─── Mission ─── */}
       <section className="py-20 sm:py-28 max-w-6xl mx-auto px-4">
@@ -325,7 +327,7 @@ export default function AboutPageClient() {
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
+            className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
           >
             Maududi was described as &ldquo;the most systematic thinker of modern
             Islam.&rdquo; His works span Quranic exegesis, hadith, philosophy, political
@@ -368,7 +370,7 @@ export default function AboutPageClient() {
               <h3 className="font-display font-bold text-gray-900 dark:text-white text-xl mb-2">
                 {item.title}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 {item.desc}
               </p>
             </motion.div>
@@ -391,7 +393,7 @@ export default function AboutPageClient() {
                 Exists
               </span>
             </h2>
-            <div className="space-y-5 text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            <div className="space-y-5 text-base text-gray-700 dark:text-gray-400 leading-relaxed">
               <p>
                 For decades, students of Islamic thought have faced a persistent problem:
                 Maududi&rsquo;s works &mdash; among the most systematic and comprehensive
@@ -429,7 +431,7 @@ export default function AboutPageClient() {
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto"
+            className="text-base text-gray-600 dark:text-gray-400 max-w-xl mx-auto"
           >
             Powerful tools for researchers, students, and anyone interested in
             Islamic thought.
@@ -470,7 +472,7 @@ export default function AboutPageClient() {
             </motion.h2>
             <motion.p
               variants={itemVariants}
-              className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto"
+              className="text-base text-gray-600 dark:text-gray-400 max-w-xl mx-auto"
             >
               Explore books organized by thematic categories spanning the breadth of
               Islamic scholarship.
@@ -507,7 +509,7 @@ export default function AboutPageClient() {
                 Works
               </span>
             </h2>
-            <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed max-w-md">
+            <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed max-w-md">
               Five simple steps to explore, read, and engage with Maududi&apos;s
               complete works.
             </p>
@@ -549,7 +551,7 @@ export default function AboutPageClient() {
             </motion.h2>
             <motion.p
               variants={itemVariants}
-              className="text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto"
+              className="text-base text-gray-600 dark:text-gray-400 max-w-xl mx-auto"
             >
               Built with modern technologies for performance, scalability, and
               developer experience.
@@ -619,14 +621,14 @@ export default function AboutPageClient() {
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm underline decoration-emerald-500/30 hover:decoration-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                    className="text-sm underline decoration-emerald-500/40 hover:decoration-emerald-600 hover:text-emerald-700 dark:decoration-emerald-500/30 dark:hover:decoration-emerald-500 dark:hover:text-emerald-400 transition-colors"
                   >
                     {source.name}
                   </a>
                 </div>
               ))}
             </div>
-            <p className="text-sm text-gray-400 dark:text-gray-500 pt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-500 pt-2">
               If you are a rights holder and believe content should be removed or
               attributed differently, please contact us.
             </p>
@@ -635,15 +637,15 @@ export default function AboutPageClient() {
       </section>
 
       {/* ─── Footer CTA ─── */}
-      <section className="relative overflow-hidden py-24 sm:py-32 bg-gradient-to-br from-gray-950 via-emerald-950/40 to-gray-950">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(5,150,105,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(5,150,105,0.04)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_100%,rgba(5,150,105,0.2),transparent_60%)] pointer-events-none" />
+      <section className="relative overflow-hidden py-24 sm:py-32 bg-gradient-to-br from-gray-100 via-emerald-50/60 to-gray-100 dark:from-gray-950 dark:via-emerald-950/40 dark:to-gray-950">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(5,150,105,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(5,150,105,0.06)_1px,transparent_1px)] bg-[size:64px_64px] dark:bg-[linear-gradient(rgba(5,150,105,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(5,150,105,0.04)_1px,transparent_1px)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_100%,rgba(5,150,105,0.15),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_50%_100%,rgba(5,150,105,0.2),transparent_60%)] pointer-events-none" />
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display text-3xl sm:text-4xl font-bold text-white mb-4"
+            className="font-display text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4"
           >
             Ready to Explore?
           </motion.h2>
@@ -652,7 +654,7 @@ export default function AboutPageClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400 mb-10 max-w-xl mx-auto"
+            className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-xl mx-auto"
           >
             Start your journey through Maududi&apos;s complete intellectual legacy
             today.
@@ -673,7 +675,7 @@ export default function AboutPageClient() {
             </Link>
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white font-semibold hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300"
             >
               <BookOpen className="w-5 h-5" aria-hidden="true" />
               Browse Library
@@ -684,7 +686,7 @@ export default function AboutPageClient() {
 
       {/* ─── Mini footer ─── */}
       <footer className="border-t border-gray-200 dark:border-gray-700/50 py-8 text-center">
-        <p className="text-sm text-gray-400 dark:text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-500">
           Built with Next.js, MongoDB, and Groq AI. An open-source project for the
           global Muslim community and scholars of Islamic thought.
         </p>
