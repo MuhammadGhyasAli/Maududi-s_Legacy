@@ -23,8 +23,8 @@ coverage/
 # Env files
 .env
 .env.*
-backend/.env
-backend/.env.*
+!.env.example
+!.env.sample
 
 # Local databases / data
 *.db
@@ -60,10 +60,31 @@ tsconfig.tsbuildinfo
 # Google OAuth secrets
 client_secret_*.json
 
+# Confidential / secrets
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+*.jks
+*.keystore
+*.credentials
+*.secrets
+*.secret
+*.api_key
+*.apikey
+*.private_key
+*.s3cfg
+*.awsconfig
+*.gcloud*
+service-account*.json
+**/credentials*.json
+**/secrets*.json
+
 # Test artifacts
 test_out.txt
 test_output.txt
-.vercel_env
 .vercel
 
 # PythonAnywhere deploy scripts
@@ -86,9 +107,6 @@ backend/wheels.zip
 
 # Env value files
 env_value.txt
-
-# Vercel hidden project config
-.vercel_hidden/
 
 # Vector DB temp files
 backend/temp_pdfs/
