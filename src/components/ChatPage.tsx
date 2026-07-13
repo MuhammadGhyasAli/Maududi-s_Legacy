@@ -195,10 +195,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
     setInput(question);
   }, []);
 
-  const handleSuggestionClick = useCallback((question: string) => {
-    setInput(question);
-  }, []);
-
   const handleBranchFromMessage = useCallback((messageIndex: number) => {
     const branchMsgs = messagesRef.current.slice(0, messageIndex + 1);
     const apiBranchMsgs = branchMsgs
@@ -542,8 +538,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ book, books = [], onBack, onNavigat
           followUpQuestions={followUps}
           onFollowUpClick={handleFollowUpClick}
           onBranchFromMessage={handleBranchFromMessage}
-          showSuggestions={messages.length <= 1 && !isLoading}
-          onSuggestionClick={handleSuggestionClick}
         />
 
         {!user && !limitReached && (

@@ -14,17 +14,7 @@ export interface StructuredResponse {
     remainingText: string;
 }
 
-export interface SuggestedQuestion {
-  question: string;
-  category: string;
-}
 
-export const DEFAULT_SUGGESTIONS: SuggestedQuestion[] = [
-  { question: "What are the key themes of this book?", category: "Overview" },
-  { question: "Explain the main argument in the introduction", category: "Deep dive" },
-  { question: "How does this relate to modern issues?", category: "Application" },
-  { question: "Summarize the first chapter", category: "Summary" },
-];
 
 interface ChatMessageListProps {
   messages: (ChatMessage & { image?: string; timestamp?: Date })[];
@@ -37,8 +27,6 @@ interface ChatMessageListProps {
   followUpQuestions?: string[];
   onFollowUpClick?: (question: string) => void;
   onBranchFromMessage?: (messageIndex: number) => void;
-  showSuggestions?: boolean;
-  onSuggestionClick?: (question: string) => void;
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -238,8 +226,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   followUpQuestions,
   onFollowUpClick,
   onBranchFromMessage,
-  showSuggestions,
-  onSuggestionClick,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -301,25 +287,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto relative" role="log" aria-live="polite" aria-label="Chat messages">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
-        {showSuggestions && (
-          <div className="space-y-4 pt-8 sm:pt-16">
-            <p className="text-xs font-medium text-gray-400 dark:text-gray-500 text-center">Try asking:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg mx-auto">
-              {DEFAULT_SUGGESTIONS.map((s, i) => (
-                <button
-                  key={i}
-                  onClick={() => onSuggestionClick?.(s.question)}
-                  className="cursor-pointer text-left p-3 sm:p-4 rounded-xl bg-white dark:bg-brand-card-dark border border-gray-200 dark:border-gray-700/50 hover:border-brand-green/40 dark:hover:border-brand-green-dark/40 hover:shadow-md transition-all duration-200 group"
-                >
-                  <span className="text-[10px] font-medium text-brand-green/60 dark:text-brand-green-dark/60 uppercase tracking-wider">{s.category}</span>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 mt-1 transition-colors">
-                    {s.question}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {messages.map((msg, index) => {
           const isUser = msg.sender === MessageSender.USER;
