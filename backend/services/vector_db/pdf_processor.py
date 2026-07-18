@@ -3,7 +3,7 @@ import io
 import httpx
 import fitz
 import structlog
-from typing import Optional
+from typing import Optional, List, Tuple
 from pathlib import Path
 from PIL import Image
 import numpy as np
@@ -18,9 +18,40 @@ os.environ["TESSDATA_PREFIX"] = TESSDATA_DIR
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+_HAS_PADDLE = None
+
+
+def _get_paddle_ocr():
+    """Lazy-load PaddleOCR (downloads models on first call)."""
+    global _HAS_PADDLE
+    if _HAS_PADDLE is False:
+        return None
+    if _HAS_PADDLE is None:
+        try:
+            from paddleocr import PaddleOCR
+            ocr = PaddleOCR(use_angle_cls=True, lang='ar', show_log=False)
+            _HAS_PADDLE = ocr
+            logger.info("PaddleOCR loaded successfully for Urdu/Arabic")
+        except ImportError:
+            _HAS_PADDLE = False
+            logger.warning("PaddleOCR not available")
+        except Exception as e:
+            _HAS_PADDLE = False
+            logger.warning("PaddleOCR failed to load", error=str(e))
+    return _HAS_PADDLE if _HAS_PADDLE is not False else None
+
+
+EMBEDDED_TEXT_THRESHOLD = 50
+
 
 class PDFProcessor:
-    """Handles PDF download and text extraction with Tesseract OCR for scanned PDFs."""
+    """Handles PDF download and text extraction with per-page detection.
+
+    For each page:
+      1. Try embedded text extraction via PyMuPDF
+      2. If < threshold chars -> use PaddleOCR (best for Urdu)
+      3. If PaddleOCR unavailable/fails -> fall back to Tesseract+urd
+    """
 
     def __init__(self):
         self.config = VectorDBConfig()
@@ -51,38 +82,157 @@ class PDFProcessor:
 
         return filepath
 
-    def extract_text(self, pdf_path: Path) -> str:
-        """Extract text: try embedded first, then Tesseract OCR."""
-        logger.info("Checking PDF for text layer", path=str(pdf_path))
-
+    def analyse_pdf(self, pdf_path: Path) -> dict:
+        """Analyse PDF and return per-page statistics."""
         doc = fitz.open(str(pdf_path))
-        text_parts = []
+        pages_with_text = 0
+        pages_with_images = 0
+        total_chars = 0
+        per_page = []
 
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
-            text = page.get_text()
-            if text.strip():
-                text_parts.append(text)
+            text = page.get_text().strip()
+            images = page.get_images(full=True)
+            char_count = len(text)
+            per_page.append({
+                "page": page_num + 1,
+                "has_embedded_text": char_count > EMBEDDED_TEXT_THRESHOLD,
+                "char_count": char_count,
+                "image_count": len(images),
+            })
+            if char_count > EMBEDDED_TEXT_THRESHOLD:
+                pages_with_text += 1
+                total_chars += char_count
+            if images:
+                pages_with_images += 1
 
-        embedded_text = "\n\n".join(text_parts)
-
-        if len(embedded_text) > 100:
-            doc.close()
-            logger.info(
-                "Extracted embedded text",
-                path=str(pdf_path),
-                characters=len(embedded_text),
-            )
-            return embedded_text
-
-        logger.info("No embedded text found, using Tesseract OCR", path=str(pdf_path))
-        ocr_text = self._extract_with_ocr(doc)
         doc.close()
 
-        return ocr_text
+        total_pages = len(doc)
+        return {
+            "total_pages": total_pages,
+            "pages_with_embedded_text": pages_with_text,
+            "pages_with_images": pages_with_images,
+            "total_chars_embedded": total_chars,
+            "per_page": per_page,
+            "pdf_type": "embedded" if pages_with_text > total_pages * 0.5 else "scanned",
+        }
 
-    def _extract_with_ocr(self, doc) -> str:
-        """Extract text from scanned PDF using Tesseract OCR. Streams to disk for large PDFs."""
+    def extract_text(self, pdf_path: Path) -> str:
+        """Extract text with per-page embedded/OCR detection."""
+        logger.info("Extracting text with per-page detection", path=str(pdf_path))
+
+        doc = fitz.open(str(pdf_path))
+        total_pages = len(doc)
+        all_text: List[str] = []
+        ocr_pages = 0
+        embedded_pages = 0
+
+        for page_num in range(total_pages):
+            page = doc.load_page(page_num)
+            text = page.get_text().strip()
+
+            if len(text) > EMBEDDED_TEXT_THRESHOLD:
+                all_text.append(text)
+                embedded_pages += 1
+            else:
+                ocr_text = self._ocr_page(page)
+                if ocr_text.strip():
+                    all_text.append(ocr_text)
+                    ocr_pages += 1
+
+            if (page_num + 1) % 20 == 0:
+                logger.info(
+                    "Extraction progress",
+                    page=f"{page_num + 1}/{total_pages}",
+                    embedded=embedded_pages,
+                    ocr=ocr_pages,
+                )
+
+        doc.close()
+
+        result = "\n\n".join(all_text)
+        logger.info(
+            "Extraction complete",
+            total_pages=total_pages,
+            embedded_pages=embedded_pages,
+            ocr_pages=ocr_pages,
+            total_chars=len(result),
+        )
+        return result
+
+    def _ocr_page(self, page) -> str:
+        """OCR a single page: PaddleOCR first, Tesseract fallback."""
+        paddle = _get_paddle_ocr()
+        if paddle:
+            try:
+                return self._ocr_page_with_paddle(page, paddle)
+            except Exception as e:
+                logger.warning("PaddleOCR failed for page, falling back to Tesseract", error=str(e))
+        return self._ocr_page_with_tesseract(page)
+
+    def _ocr_page_with_paddle(self, page, paddle) -> str:
+        """OCR a page using PaddleOCR with Arabic/Urdu model."""
+        mat = fitz.Matrix(2.0, 2.0)
+        pix = page.get_pixmap(matrix=mat)
+        img_bytes = pix.tobytes("png")
+        img = Image.open(io.BytesIO(img_bytes))
+        img_np = np.array(img)
+
+        result = paddle.ocr(img_np, cls=True)
+
+        if not result or not result[0]:
+            return ""
+
+        lines = {}
+        threshold = 10
+
+        for item in result[0]:
+            position = item[0]
+            text = item[1][0]
+            y_center = (position[0][1] + position[2][1]) / 2
+            added = False
+            for key in list(lines.keys()):
+                if abs(y_center - key) < threshold:
+                    lines[key].append((position, text))
+                    added = True
+                    break
+            if not added:
+                lines[y_center] = [(position, text)]
+
+        sorted_lines = sorted(lines.items(), key=lambda x: x[0])
+        page_lines = []
+        for y, items in sorted_lines:
+            sorted_items = sorted(items, key=lambda x: -max(p[0] for p in x[0]))
+            page_lines.append(' '.join(t for _, t in sorted_items))
+
+        return "\n".join(page_lines)
+
+    def _ocr_page_with_tesseract(self, page) -> str:
+        """OCR a page using Tesseract with Urdu+English language pack."""
+        try:
+            mat = fitz.Matrix(1.5, 1.5)
+            pix = page.get_pixmap(matrix=mat)
+            img_bytes = pix.tobytes("png")
+            img = Image.open(io.BytesIO(img_bytes))
+            img_np = np.array(img)
+
+            page_text = pytesseract.image_to_string(
+                img_np,
+                lang="urd+eng",
+                config="--psm 3 --oem 1",
+            )
+            return page_text.strip()
+        except Exception as e:
+            logger.warning("Tesseract failed for page", error=str(e))
+            return ""
+
+    def extract_text_bulk_ocr(self, pdf_path: Path) -> str:
+        """Legacy: OCR all pages (used when entire PDF is scanned)."""
+        logger.info("Using bulk OCR for scanned PDF", path=str(pdf_path))
+
+        doc = fitz.open(str(pdf_path))
         total_pages = len(doc)
         use_streaming = total_pages > 100
         text_parts = []
@@ -101,28 +251,13 @@ class PDFProcessor:
 
                 try:
                     page = doc.load_page(page_num)
-                    mat = fitz.Matrix(1.5, 1.5)
-                    pix = page.get_pixmap(matrix=mat)
-                    img_bytes = pix.tobytes("png")
-
-                    img = Image.open(io.BytesIO(img_bytes))
-                    img_np = np.array(img)
-                    del img
-
-                    page_text = pytesseract.image_to_string(
-                        img_np,
-                        lang="urd+eng",
-                        config="--psm 3 --oem 1",
-                    )
-                    del img_np
-                    del pix
-
-                    if page_text and page_text.strip():
+                    page_text = self._ocr_page(page)
+                    if page_text:
                         if use_streaming:
-                            tmp.write(page_text.strip())
+                            tmp.write(page_text)
                             tmp.write("\n\n")
                         else:
-                            text_parts.append(page_text.strip())
+                            text_parts.append(page_text)
                 except Exception as e:
                     logger.warning("OCR page failed", page=page_num + 1, error=str(e))
                     continue
@@ -140,7 +275,7 @@ class PDFProcessor:
             else:
                 ocr_text = "\n\n".join(text_parts)
 
-            logger.info("OCR extraction complete", characters=len(ocr_text))
+            logger.info("Bulk OCR complete", characters=len(ocr_text))
             return ocr_text
         except Exception as e:
             if tmp and tmp_path:
@@ -150,6 +285,8 @@ class PDFProcessor:
                 except Exception:
                     pass
             raise
+        finally:
+            doc.close()
 
     async def process_book(self, book_id: int, pdf_url: str) -> str:
         """Full pipeline: download PDF and extract text."""
