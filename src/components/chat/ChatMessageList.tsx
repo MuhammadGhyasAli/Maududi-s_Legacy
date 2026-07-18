@@ -5,6 +5,7 @@ import { ChatMessage, MessageSender, Book } from '../../types';
 import { getLangProps } from '../../utils/language';
 import { cn } from '../../utils/cn';
 import { SparklesIcon } from '../icons';
+import styles from './ChatMessageList.module.css';
 
 export interface StructuredResponse {
     bookTitle?: string;
@@ -132,7 +133,7 @@ function renderStructuredView(
   books: Book[] = [],
 ) {
   return (
-    <div className="space-y-3 sm:space-y-4" dir={dir}>
+    <div className={`space-y-3 sm:space-y-4 ${styles.structuredView}`} dir={dir}>
       <div className="bg-emerald-500/5 p-3 sm:p-4 rounded-xl border border-emerald-500/10">
         <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-green dark:text-brand-green-dark mb-2 sm:mb-2.5 flex items-center gap-1.5 sm:gap-2">
           <span className="text-xs" aria-hidden="true">📚</span> Context Reference
@@ -297,18 +298,18 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
           const alwaysShowTs = isLast || isLastUser || isLastAi;
           const { dir, className } = getLangProps(msg.text, selectedLanguage);
 
-          if (isUser) {
+if (isUser) {
             return (
               <div key={index} className="flex justify-end">
                 <div className="max-w-[85%] sm:max-w-[75%] group">
-                  <div className="bg-brand-green text-white px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl rounded-br-md shadow-sm">
+                  <div className={`bg-brand-green text-white px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl rounded-br-md shadow-sm ${styles.userMessage}`}>
                     <div className="whitespace-pre-wrap leading-relaxed text-[14px] sm:text-[15px]" dir={dir}>
                       {msg.image && (
                         <img src={msg.image} alt="User upload" className="max-w-[200px] sm:max-w-xs rounded-xl mb-3 shadow-sm" />
                       )}
                       {msg.text}
                     </div>
-                  </div>
+</div>
                   <div className="flex justify-end mt-1">
                     <span className={cn('text-[10px] text-gray-400 dark:text-gray-500 transition-opacity', alwaysShowTs ? 'opacity-100' : 'opacity-0 group-hover:opacity-100')}>
                       {formatTime(timestamp)}
@@ -327,7 +328,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 </div>
               </div>
               <div className="max-w-[85%] sm:max-w-[75%]">
-                <div className="bg-gray-50/80 dark:bg-white/[0.03] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 border border-gray-100 dark:border-white/[0.06] shadow-sm" dir={dir}>
+                <div className={`bg-gray-50/80 dark:bg-white/[0.03] rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 border border-gray-100 dark:border-white/[0.06] shadow-sm ${styles.aiMessage}`} dir={dir}>
                   {renderAIMessage(msg.text, className, dir, onNavigateToBook, parseStructuredResponse, books)}
                 </div>
                 <div className="flex items-center gap-1 mt-1 ml-1">
@@ -343,7 +344,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
         })}
 
         {followUpQuestions && followUpQuestions.length > 0 && !isLoading && (
-          <div className="flex justify-start pl-1">
+          <div className={`flex justify-start pl-1 ${styles.followUpContainer}`}>
             <div>
               <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-2">Follow-up:</p>
               <div className="flex flex-wrap gap-2">
@@ -362,7 +363,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
         )}
 
         {isLoading && (
-          <div className="flex justify-start gap-2 sm:gap-3">
+          <div className={`flex justify-start gap-2 sm:gap-3 ${styles.loadingContainer}`}>
             <div className="flex-shrink-0 mt-1 hidden sm:block">
               <div className="w-7 h-7 rounded-full bg-brand-green/10 flex items-center justify-center">
                 <SparklesIcon className="w-3.5 h-3.5 text-brand-green" />

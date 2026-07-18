@@ -1,0 +1,20 @@
+/* Override excessive line-height for RTL fonts in chat messages */
+/* Nastaliq (Urdu) and Amiri (Arabic/Persian) have line-height: 2.4!important and 2.0!important in globals.css */
+/* These are too large for chat message font sizes (14-15px), causing layout breaks */
+
+.aiMessage :global(.font-nastaaliq),
+.aiMessage :global(.font-arabic),
+.userMessage :global(.font-nastaaliq),
+.userMessage :global(.font-arabic),
+.loadingContainer :global(.font-nastaaliq),
+.loadingContainer :global(.font-arabic),
+.followUpContainer :global(.font-nastaaliq),
+.followUpContainer :global(.font-arabic) {
+  line-height: 1.7 !important; /* Reasonable line-height for chat message font sizes */
+}
+
+/* Also apply to structured response elements */
+.structuredView :global(.font-nastaaliq),
+.structuredView :global(.font-arabic) {
+  line-height: 1.8 !important;
+}
