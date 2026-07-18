@@ -18,7 +18,7 @@ interface AuthContextValue {
   login: (email: string, password: string, remember?: boolean) => Promise<User>;
   register: (email: string, password: string, display_name?: string) => Promise<{ id: number; email: string }>;
   verifyEmail: (code: string, email: string) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfile: (data: { display_name?: string; email?: string }) => Promise<User>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
   deleteAccount: (password?: string) => Promise<void>;
@@ -64,8 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return u;
   }, []);
 
-  const logout = useCallback(() => {
-    apiService.logout();
+  const logout = useCallback(async () => {
+    await apiService.logout();
+    apiService.clearCache();
     setUser(null);
     setToken(null);
   }, []);
