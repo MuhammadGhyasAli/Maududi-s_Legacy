@@ -262,6 +262,162 @@ export const apiService = {
     return response.json();
   },
 
+  // ── Agent Pipeline Streaming ──
+
+  chatStream: async (
+    bookId: number,
+    messages: ApiChatMessage[],
+    callbacks: {
+      onStatus: (event: { agent: string; message: string; done?: boolean; chunksFound?: number }) => void;
+      onToken: (token: string) => void;
+      onDone: (data: { conversationId?: number; followUpQuestions?: string[] }) => void;
+      onError: (message: string) => void;
+    },
+    signal?: AbortSignal,
+    conversationId?: number,
+    language?: string,
+  ): Promise<void> => {
+    const response = await apiFetch('/api/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookId, messages, conversationId, language }),
+      signal: getAbortSignal(signal),
+    });
+
+    if (!response.ok) {
+      let errMessage = `Failed to stream chat: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData.detail) errMessage = errData.detail;
+      } catch { /* ignore */ }
+      callbacks.onError(errMessage);
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      callbacks.onError('No response stream');
+      return;
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        let currentEvent = '';
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            currentEvent = line.slice(7).trim();
+          } else if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            try {
+              const data = JSON.parse(dataStr);
+              if (currentEvent === 'agent_status') {
+                callbacks.onStatus(data);
+              } else if (currentEvent === 'token') {
+                callbacks.onToken(data.token || '');
+              } else if (currentEvent === 'done') {
+                callbacks.onDone(data);
+              } else if (currentEvent === 'error') {
+                callbacks.onError(data.message || 'Unknown error');
+              }
+            } catch { /* skip malformed JSON */ }
+          }
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') return;
+      callbacks.onError(e instanceof Error ? e.message : 'Stream failed');
+    } finally {
+      reader.releaseLock();
+    }
+  },
+
+  globalChatStream: async (
+    systemInstruction: string,
+    messages: ApiChatMessage[],
+    callbacks: {
+      onStatus: (event: { agent: string; message: string; done?: boolean; chunksFound?: number }) => void;
+      onToken: (token: string) => void;
+      onDone: (data: { conversationId?: number; followUpQuestions?: string[] }) => void;
+      onError: (message: string) => void;
+    },
+    signal?: AbortSignal,
+    conversationId?: number,
+    language?: string,
+  ): Promise<void> => {
+    const response = await apiFetch('/api/chat/global/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemInstruction, messages, conversationId, language }),
+      signal: getAbortSignal(signal),
+    });
+
+    if (!response.ok) {
+      let errMessage = `Failed to stream global chat: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData.detail) errMessage = errData.detail;
+      } catch { /* ignore */ }
+      callbacks.onError(errMessage);
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      callbacks.onError('No response stream');
+      return;
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        let currentEvent = '';
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            currentEvent = line.slice(7).trim();
+          } else if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            try {
+              const data = JSON.parse(dataStr);
+              if (currentEvent === 'agent_status') {
+                callbacks.onStatus(data);
+              } else if (currentEvent === 'token') {
+                callbacks.onToken(data.token || '');
+              } else if (currentEvent === 'done') {
+                callbacks.onDone(data);
+              } else if (currentEvent === 'error') {
+                callbacks.onError(data.message || 'Unknown error');
+              }
+            } catch { /* skip malformed JSON */ }
+          }
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') return;
+      callbacks.onError(e instanceof Error ? e.message : 'Stream failed');
+    } finally {
+      reader.releaseLock();
+    }
+  },
+
   // Get conversations for current user
   getConversations: async (bookId?: number, limit?: number): Promise<SavedConversation[]> => {
     const params = new URLSearchParams();

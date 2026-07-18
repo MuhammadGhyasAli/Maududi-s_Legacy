@@ -176,3 +176,11 @@ class ChatResponse(BaseModel):
         if not v or not v.strip():
             raise ValueError('Response cannot be empty')
         return v.strip()
+
+
+class OrchestrationResult(BaseModel):
+    intent: str
+    query_strategy: str
+    target_topic: str
+    search_keywords: List[str] = []
+    short_circuit_response: Optional[str] = None

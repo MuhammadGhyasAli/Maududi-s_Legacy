@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Book, MessageSender } from '../types';
+import { Book, MessageSender, AgentStatusEvent } from '../types';
 import { apiService, ApiChatMessage } from '../services/apiService';
 import ArrowLeftIcon from './icons/ArrowLeftIcon';
 import TrashIcon from './icons/TrashIcon';
@@ -93,6 +93,9 @@ const Assistant: React.FC<AssistantProps> = ({ onNavigateToBook }) => {
   const [fetchedBooks, setFetchedBooks] = useState<Book[]>([]);
   const [conversationId, setConversationId] = useState<number | undefined>(undefined);
   const [followUps, setFollowUps] = useState<string[]>([]);
+  const [thinkingSteps, setThinkingSteps] = useState<AgentStatusEvent[]>([]);
+  const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
+  const [thinkingStartTime, setThinkingStartTime] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const systemInstruction = useRef('');
@@ -180,6 +183,8 @@ If the user's message includes an image, you MUST follow this two-step process w
 
     setConversation(prev => [...prev, userMessage]);
     setFollowUps([]);
+    setThinkingSteps([]);
+    setIsThinkingExpanded(false);
 
     const textToSend = inputText;
     const imageToSend = imageFile;
@@ -187,8 +192,9 @@ If the user's message includes an image, you MUST follow this two-step process w
     setInputText('');
     handleRemoveImage();
     setIsLoading(true);
-    setLoadingStatus(mode === 'chat' ? 'Thinking…' : undefined);
+    setLoadingStatus(undefined);
     setError(null);
+    setThinkingStartTime(Date.now());
 
     try {
       const messagesToBackend: ApiChatMessage[] = conversation.map(msg => ({
@@ -218,15 +224,55 @@ If the user's message includes an image, you MUST follow this two-step process w
 
         messagesToBackend.push({ role: 'user', content: currentMessageContent });
 
-        const response = await apiService.globalChat(systemInstruction.current, messagesToBackend, undefined, conversationId, resolvedLanguage);
-        setConversation(prev => [...prev, { sender: MessageSender.AI, text: response.response }]);
+        let aiText = '';
+        setConversation(prev => [...prev, { sender: MessageSender.AI, text: '' }]);
 
-        if (response.conversationId) {
-          setConversationId(response.conversationId);
-        }
-        if (response.followUpQuestions && response.followUpQuestions.length > 0) {
-          setFollowUps(response.followUpQuestions);
-        }
+        await apiService.globalChatStream(
+          systemInstruction.current,
+          messagesToBackend,
+          {
+            onStatus: (event) => {
+              const typed: AgentStatusEvent = { ...event, agent: event.agent as AgentStatusEvent['agent'] };
+              setThinkingSteps(prev => {
+                const existing = prev.findIndex(s => s.agent === typed.agent);
+                if (existing >= 0) {
+                  const updated = [...prev];
+                  updated[existing] = typed;
+                  return updated;
+                }
+                return [...prev, typed];
+              });
+              setIsThinkingExpanded(true);
+            },
+            onToken: (token) => {
+              aiText += token;
+              setConversation(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.sender === MessageSender.AI) {
+                  updated[updated.length - 1] = { ...last, text: aiText };
+                }
+                return updated;
+              });
+            },
+            onDone: (data) => {
+              if (data.conversationId) setConversationId(data.conversationId);
+              if (data.followUpQuestions?.length) setFollowUps(data.followUpQuestions);
+            },
+            onError: (msg) => {
+              setError(`Sorry, something went wrong. ${msg}`);
+              setConversation(prev => prev.slice(0, -1));
+              setInputText(textToSend);
+              if (imageToSend && currentImagePreview) {
+                setImageFile(imageToSend);
+                setImagePreview(currentImagePreview);
+              }
+            },
+          },
+          undefined,
+          conversationId,
+          resolvedLanguage,
+        );
       } else {
         let currentMessageContent: string | any[] = textToSend || ' ';
         if (imageToSend && currentImagePreview) {
@@ -237,14 +283,56 @@ If the user's message includes an image, you MUST follow this two-step process w
         }
         messagesToBackend.push({ role: 'user', content: currentMessageContent });
 
-        const response = await apiService.smartChat(messagesToBackend, chatLanguageMode);
-        const aiText = response.response;
-        setDetectedLanguage(detectLanguage(aiText));
-        setConversation(prev => [...prev, { sender: MessageSender.AI, text: aiText }]);
+        let aiText = '';
+        setConversation(prev => [...prev, { sender: MessageSender.AI, text: '' }]);
 
-        if (response.followUpQuestions && response.followUpQuestions.length > 0) {
-          setFollowUps(response.followUpQuestions);
-        }
+        await apiService.globalChatStream(
+          systemInstruction.current,
+          messagesToBackend,
+          {
+            onStatus: (event) => {
+              const typed: AgentStatusEvent = { ...event, agent: event.agent as AgentStatusEvent['agent'] };
+              setThinkingSteps(prev => {
+                const existing = prev.findIndex(s => s.agent === typed.agent);
+                if (existing >= 0) {
+                  const updated = [...prev];
+                  updated[existing] = typed;
+                  return updated;
+                }
+                return [...prev, typed];
+              });
+              setIsThinkingExpanded(true);
+            },
+            onToken: (token) => {
+              aiText += token;
+              setConversation(prev => {
+                const updated = [...prev];
+                const last = updated[updated.length - 1];
+                if (last && last.sender === MessageSender.AI) {
+                  updated[updated.length - 1] = { ...last, text: aiText };
+                }
+                return updated;
+              });
+              setDetectedLanguage(detectLanguage(aiText));
+            },
+            onDone: (data) => {
+              if (data.conversationId) setConversationId(data.conversationId);
+              if (data.followUpQuestions?.length) setFollowUps(data.followUpQuestions);
+            },
+            onError: (msg) => {
+              setError(`Sorry, something went wrong. ${msg}`);
+              setConversation(prev => prev.slice(0, -1));
+              setInputText(textToSend);
+              if (imageToSend && currentImagePreview) {
+                setImageFile(imageToSend);
+                setImagePreview(currentImagePreview);
+              }
+            },
+          },
+          undefined,
+          conversationId,
+          resolvedLanguage,
+        );
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "An unknown error occurred.";
@@ -258,8 +346,12 @@ If the user's message includes an image, you MUST follow this two-step process w
     } finally {
       setIsLoading(false);
       setLoadingStatus(undefined);
+      setTimeout(() => {
+        setThinkingSteps([]);
+        setIsThinkingExpanded(false);
+      }, 2000);
     }
-  }, [inputText, imageFile, isLoading, imagePreview, mode, resolvedLanguage, conversation, conversationId, chatLanguageMode]);
+  }, [inputText, imageFile, isLoading, imagePreview, mode, resolvedLanguage, conversation, conversationId]);
 
   const handleCopyChat = async () => {
     const transcript = conversation.map(msg => `${msg.sender.charAt(0).toUpperCase() + msg.sender.slice(1)}: ${msg.text}`).join('\n\n');
@@ -307,6 +399,8 @@ If the user's message includes an image, you MUST follow this two-step process w
     setShowClearConfirm(false);
     setConversationId(undefined);
     setFollowUps([]);
+    setThinkingSteps([]);
+    setIsThinkingExpanded(false);
   };
 
   const handleFollowUpClick = (question: string) => {
@@ -402,6 +496,55 @@ If the user's message includes an image, you MUST follow this two-step process w
           </div>
         </div>
       </div>
+
+      {thinkingSteps.length > 0 && (
+        <div className="flex-none px-4 max-w-5xl mx-auto w-full">
+          <div className="mt-2 mb-1">
+            <button
+              onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
+              className="cursor-pointer flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <svg
+                className={`w-3 h-3 transition-transform duration-200 ${isThinkingExpanded ? 'rotate-90' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="font-medium">
+                {isLoading ? 'Thinking...' : `${thinkingSteps.length} steps completed`}
+                {!isLoading && thinkingStartTime > 0 && (
+                  <span className="ml-1 text-gray-300 dark:text-gray-600">
+                    in {((Date.now() - thinkingStartTime) / 1000).toFixed(1)}s
+                  </span>
+                )}
+              </span>
+            </button>
+            {isThinkingExpanded && (
+              <div className="mt-1.5 ml-1 space-y-1 border-l-2 border-emerald-200 dark:border-emerald-800 pl-3">
+                {thinkingSteps.map((step, i) => (
+                  <div key={`${step.agent}-${i}`} className="flex items-center gap-2 text-xs">
+                    {step.done ? (
+                      <svg className="w-3 h-3 text-emerald-500 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <div className="w-3 h-3 flex-none">
+                        <div className="w-3 h-3 rounded-full border-2 border-emerald-300 dark:border-emerald-700 border-t-emerald-600 dark:border-t-emerald-400 animate-spin" />
+                      </div>
+                    )}
+                    <span className={step.done ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300 font-medium'}>
+                      {step.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <ChatMessageList
         messages={conversation}

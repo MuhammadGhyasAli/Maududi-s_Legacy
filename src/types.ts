@@ -52,3 +52,17 @@ export interface ChatResponse {
   followUpQuestions?: string[];
   conversationId?: number;
 }
+
+export interface AgentStatusEvent {
+  agent: 'orchestrator' | 'researcher' | 'synthesizer';
+  message: string;
+  done?: boolean;
+  chunksFound?: number;
+}
+
+export interface StreamCallbacks {
+  onStatus: (event: AgentStatusEvent) => void;
+  onToken: (token: string) => void;
+  onDone: (data: { conversationId?: number; followUpQuestions?: string[] }) => void;
+  onError: (message: string) => void;
+}

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from structlog import get_logger
@@ -12,6 +13,7 @@ from database import get_db
 from repositories.book_repository import BookRepository
 from repositories.conversation_repository import ConversationRepository
 from services.llm_service import llm_service
+from services.agent_pipeline import agent_pipeline
 from services.topic_service import extract_topics_from_text
 from exceptions import NotFoundException
 from validators import validate_book_id
@@ -356,6 +358,228 @@ async def global_chat(
     except RuntimeError as e:
         logger.error("Global chat generation failed", error=str(e))
         raise HTTPException(status_code=502, detail=str(e))
+
+
+# ── Agent Pipeline Streaming Endpoints ──
+
+@router.post("/stream")
+@limiter.limit("20/minute")
+async def chat_stream(
+    request: Request,
+    chat_request: ChatRequest,
+    db: Database = Depends(get_db),
+    current_user: Optional[UserModel] = Depends(optional_user),
+):
+    """Stream chat with AI about a specific book using the 3-agent pipeline."""
+    logger.info("Stream chat request received", book_id=chat_request.bookId, message_count=len(chat_request.messages))
+
+    validate_book_id(chat_request.bookId)
+
+    if db is None:
+        book = None
+        for b in BOOKS_DATA:
+            if b["id"] == chat_request.bookId:
+                book = Book(**b)
+                break
+    else:
+        book_repo = BookRepository(db)
+        book_model = book_repo.get_book_by_id(chat_request.bookId)
+        if book_model:
+            book = book_repo.to_pydantic(book_model)
+        else:
+            book = None
+
+    if not book:
+        raise NotFoundException(f"Book with id {chat_request.bookId} not found")
+
+    messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
+    selected_language = getattr(chat_request, "language", "English")
+
+    last_user_msg = ""
+    for m in reversed(messages):
+        if m["role"] == "user" and isinstance(m.get("content"), str):
+            last_user_msg = m["content"]
+            break
+
+    conversation_id = getattr(chat_request, "conversationId", None)
+
+    async def event_generator():
+        full_response = ""
+        final_conversation_id = conversation_id
+        final_follow_ups = []
+
+        async for event in agent_pipeline.run_stream(
+            user_message=last_user_msg,
+            messages=messages,
+            system_context=book.aiContext,
+            book_id=chat_request.bookId,
+            language=selected_language,
+            conversation_id=conversation_id,
+        ):
+            yield event
+
+            import json
+            for line in event.strip().split("\n"):
+                if line.startswith("data: "):
+                    try:
+                        data = json.loads(line[6:])
+                        if "token" in data:
+                            full_response += data["token"]
+                        if data.get("conversationId"):
+                            final_conversation_id = data["conversationId"]
+                        if data.get("followUpQuestions"):
+                            final_follow_ups = data["followUpQuestions"]
+                    except json.JSONDecodeError:
+                        pass
+
+        if current_user and db is not None and full_response:
+            try:
+                repo = ConversationRepository(db)
+                conv_id = conversation_id
+
+                if conv_id:
+                    conv = repo.get_conversation(conv_id)
+                    if conv:
+                        repo.create_message(conv_id, "assistant", full_response)
+                        count = conv.message_count + 1
+                        repo.update_conversation_message_count(conv_id, count)
+                        final_conversation_id = conv_id
+                else:
+                    conv = repo.create_conversation(
+                        user_id=current_user.id,
+                        book_id=book.id,
+                        book_title=book.title,
+                        book_slug="",
+                        conv_type="book_chat",
+                    )
+                    for m in messages:
+                        role = m["role"]
+                        content = m["content"] if isinstance(m["content"], str) else str(m["content"])
+                        repo.create_message(conv.id, role, content)
+                    repo.create_message(conv.id, "assistant", full_response)
+                    repo.update_conversation_message_count(conv.id, len(messages) + 1)
+                    final_conversation_id = conv.id
+
+                    user_text = ""
+                    for m in messages:
+                        if m["role"] == "user" and isinstance(m.get("content"), str):
+                            user_text += " " + m["content"]
+                    if user_text.strip():
+                        topics = extract_topics_from_text(user_text)
+                        if topics:
+                            repo.update_conversation_topics(final_conversation_id, topics)
+            except Exception as e:
+                logger.error("Failed to persist streamed conversation", error=str(e))
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/global/stream")
+@limiter.limit("20/minute")
+async def global_chat_stream(
+    request: Request,
+    chat_request: GlobalChatRequest,
+    db: Database = Depends(get_db),
+    current_user: Optional[UserModel] = Depends(optional_user),
+):
+    """Stream global chat with AI using the 3-agent pipeline."""
+    logger.info("Stream global chat request received", message_count=len(chat_request.messages))
+
+    messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
+    selected_language = getattr(chat_request, "language", "English")
+
+    last_user_msg = ""
+    for m in reversed(messages):
+        if m["role"] == "user" and isinstance(m.get("content"), str):
+            last_user_msg = m["content"]
+            break
+
+    conversation_id = getattr(chat_request, "conversationId", None)
+
+    async def event_generator():
+        full_response = ""
+        final_conversation_id = conversation_id
+        final_follow_ups = []
+
+        async for event in agent_pipeline.run_stream(
+            user_message=last_user_msg,
+            messages=messages,
+            system_context=chat_request.systemInstruction,
+            language=selected_language,
+            conversation_id=conversation_id,
+        ):
+            yield event
+
+            import json
+            for line in event.strip().split("\n"):
+                if line.startswith("data: "):
+                    try:
+                        data = json.loads(line[6:])
+                        if "token" in data:
+                            full_response += data["token"]
+                        if data.get("conversationId"):
+                            final_conversation_id = data["conversationId"]
+                        if data.get("followUpQuestions"):
+                            final_follow_ups = data["followUpQuestions"]
+                    except json.JSONDecodeError:
+                        pass
+
+        if current_user and db is not None and full_response:
+            try:
+                repo = ConversationRepository(db)
+                conv_id = conversation_id
+
+                if conv_id:
+                    conv = repo.get_conversation(conv_id)
+                    if conv:
+                        repo.create_message(conv_id, "assistant", full_response)
+                        count = conv.message_count + 1
+                        repo.update_conversation_message_count(conv_id, count)
+                        final_conversation_id = conv_id
+                else:
+                    conv = repo.create_conversation(
+                        user_id=current_user.id,
+                        book_id=0,
+                        book_title="AI Context Finder",
+                        book_slug="ai-context-finder",
+                        conv_type="global_chat",
+                    )
+                    for m in messages:
+                        role = m["role"]
+                        content = m["content"] if isinstance(m["content"], str) else str(m["content"])
+                        repo.create_message(conv.id, role, content)
+                    repo.create_message(conv.id, "assistant", full_response)
+                    repo.update_conversation_message_count(conv.id, len(messages) + 1)
+                    final_conversation_id = conv.id
+
+                    user_text = ""
+                    for m in messages:
+                        if m["role"] == "user" and isinstance(m.get("content"), str):
+                            user_text += " " + m["content"]
+                    if user_text.strip():
+                        topics = extract_topics_from_text(user_text)
+                        if topics:
+                            repo.update_conversation_topics(final_conversation_id, topics)
+            except Exception as e:
+                logger.error("Failed to persist streamed global conversation", error=str(e))
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 # ── Conversation CRUD Endpoints ──

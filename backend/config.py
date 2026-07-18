@@ -75,6 +75,10 @@ class Settings(BaseSettings):
     groq_model_text: str = "llama-3.3-70b-versatile"
     groq_model_vision: str = "llama-3.2-11b-vision-preview"
 
+    # Agent Configuration
+    orchestrator_model: str = "llama-3.3-70b-versatile"
+    synthesizer_model: str = "llama-3.3-70b-versatile"
+    agent_timeout: float = 30.0
 
 
 settings = Settings()
