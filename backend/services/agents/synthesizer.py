@@ -67,7 +67,7 @@ class SynthesizerAgent:
             "Write your response based on the above context. Follow the rules in your system prompt."
         )
 
-    def synthesize_stream(
+    async def synthesize_stream(
         self,
         question: str,
         orchestration: OrchestrationResult,
@@ -93,8 +93,8 @@ class SynthesizerAgent:
         if proxy:
             client_kwargs["proxy"] = proxy
 
-        with httpx.Client(**client_kwargs) as client:
-            with client.stream(
+        async with httpx.AsyncClient(**client_kwargs) as client:
+            async with client.stream(
                 "POST",
                 "/chat/completions",
                 json={
@@ -110,7 +110,7 @@ class SynthesizerAgent:
                 },
             ) as response:
                 response.raise_for_status()
-                for line in response.iter_lines():
+                async for line in response.aiter_lines():
                     if not line:
                         continue
                     if line.startswith("data: "):

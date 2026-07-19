@@ -107,7 +107,7 @@ export async function DELETE(request: Request) {
     ]);
 
     const res = NextResponse.json({ message: 'Account deleted successfully' });
-    clearAuthCookie(res);
+    clearAuthCookie(res, request);
     return res;
   } catch {
     return NextResponse.json({ detail: 'Server error' }, { status: 500 });

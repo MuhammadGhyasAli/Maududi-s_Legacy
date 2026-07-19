@@ -42,8 +42,8 @@ app = FastAPI(
     description="Backend API for Maududi's Legacy application",
     version="1.1.1",
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if os.environ.get("ENVIRONMENT") != "production" else None,
+    redoc_url="/redoc" if os.environ.get("ENVIRONMENT") != "production" else None,
     redirect_slashes=True,
 )
 

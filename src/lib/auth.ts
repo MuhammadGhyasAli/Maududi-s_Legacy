@@ -30,18 +30,18 @@ export function getUserIdFromRequest(request: Request): number | null {
   }
 }
 
-function setCookie(res: NextResponse, token: string, maxAge: number): void {
-  const secure = process.env.VERCEL === '1';
+function setCookie(res: NextResponse, token: string, maxAge: number, request: Request): void {
+  const secure = request.url.startsWith('https://');
   res.headers.set(
     'Set-Cookie',
     `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}; Max-Age=${maxAge}`,
   );
 }
 
-export function setAuthCookie(res: NextResponse, token: string): void {
-  setCookie(res, token, 7 * 24 * 60 * 60);
+export function setAuthCookie(res: NextResponse, token: string, request: Request): void {
+  setCookie(res, token, 7 * 24 * 60 * 60, request);
 }
 
-export function clearAuthCookie(res: NextResponse): void {
-  setCookie(res, '', 0);
+export function clearAuthCookie(res: NextResponse, request: Request): void {
+  setCookie(res, '', 0, request);
 }

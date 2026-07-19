@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 # Move vendored packages to end of sys.path so pip-installed takes priority
 if os.environ.get('VERCEL'):
@@ -16,7 +17,10 @@ logger = get_logger(__name__)
 
 client: MongoClient | None = None
 db: MongoDatabase | None = None
-_mongodb_failed: bool = False
+_last_connection_attempt: float = 0
+_connection_cooldown: float = 30.0  # seconds before retry after failure
+MAX_RETRIES = 3
+RETRY_DELAY = 1.0
 
 
 def _test_connection(c: MongoClient) -> bool:
@@ -28,27 +32,38 @@ def _test_connection(c: MongoClient) -> bool:
 
 
 def get_mongo_client() -> MongoClient:
-    global client, _mongodb_failed
-    if client is not None or _mongodb_failed:
+    global client, _last_connection_attempt
+    if client is not None:
         return client
-    try:
-        c = MongoClient(settings.mongodb_url, serverSelectionTimeoutMS=2000)
-        if _test_connection(c):
-            client = c
-        else:
-            c.close()
-            _mongodb_failed = True
-            logger.warning("MongoDB unreachable, caching failure")
+
+    now = time.time()
+    if _last_connection_attempt > 0 and (now - _last_connection_attempt) < _connection_cooldown:
         return client
-    except Exception:
-        _mongodb_failed = True
-        logger.warning("MongoDB unreachable, caching failure")
-        return None
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            c = MongoClient(settings.mongodb_url, serverSelectionTimeoutMS=2000)
+            if _test_connection(c):
+                client = c
+                _last_connection_attempt = 0
+                logger.info("MongoDB connected")
+                return client
+            else:
+                c.close()
+        except Exception:
+            pass
+
+        if attempt < MAX_RETRIES:
+            time.sleep(RETRY_DELAY * attempt)
+
+    _last_connection_attempt = time.time()
+    logger.warning("MongoDB unreachable after retries, will retry later")
+    return None
 
 
 def get_database() -> MongoDatabase:
     global db
-    if db is None and not _mongodb_failed:
+    if db is None:
         c = get_mongo_client()
         if c:
             db = c[settings.mongodb_db_name]

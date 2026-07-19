@@ -28,5 +28,17 @@ class LLMService:
             raise RuntimeError(f"Groq failed: {result.get('message')}")
         return result["response"]
 
+    async def agenerate_response(
+        self,
+        system_instruction: str,
+        messages: list[dict],
+    ) -> str:
+        enhanced_instruction = system_instruction if system_instruction else ""
+        enhanced_instruction += ACCURACY_INSTRUCTION
+        result = await _groq_service.achat(enhanced_instruction, messages)
+        if result.get("error"):
+            raise RuntimeError(f"Groq failed: {result.get('message')}")
+        return result["response"]
+
 
 llm_service = LLMService()

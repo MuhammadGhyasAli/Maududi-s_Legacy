@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     );
 
     const res = NextResponse.json({ access_token: accessToken, token_type: 'bearer', expires_in: expiresIn });
-    setAuthCookie(res, accessToken);
+    setAuthCookie(res, accessToken, request);
     return res;
   } catch {
     return NextResponse.json({ detail: 'Server error' }, { status: 500 });

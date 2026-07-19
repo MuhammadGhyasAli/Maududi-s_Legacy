@@ -4,9 +4,10 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from structlog import get_logger
 from pymongo.database import Database
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timezone
+import json
 
 from models.book import Book, ChatRequest, GlobalChatRequest
 from database import get_db
@@ -14,12 +15,12 @@ from repositories.book_repository import BookRepository
 from repositories.conversation_repository import ConversationRepository
 from services.llm_service import llm_service
 from services.agent_pipeline import agent_pipeline
-from services.topic_service import extract_topics_from_text
+from services.conversation_service import persist_conversation
 from exceptions import NotFoundException
 from validators import validate_book_id
 from data.books import BOOKS_DATA
 from routers.auth import get_current_user, decode_access_token
-from models.db_models import UserModel, ConversationModel
+from models.db_models import UserModel
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -184,47 +185,17 @@ async def chat(
         response_text = llm_service.generate_response(book.aiContext, enhanced_messages)
         clean_text, follow_ups = _parse_follow_ups(response_text)
 
-        # ── Conversation persistence for authenticated users ──
-        saved_id = None
-        if current_user and db is not None:
-            repo = ConversationRepository(db)
-            conv_id = getattr(chat_request, "conversationId", None)
-
-            if conv_id:
-                conv = repo.get_conversation(conv_id)
-                if not conv:
-                    raise NotFoundException("Conversation not found")
-                repo.create_message(conv_id, "assistant", clean_text)
-                count = conv.message_count + 1
-                repo.update_conversation_message_count(conv_id, count)
-                saved_id = conv_id
-            else:
-                conv = repo.create_conversation(
-                    user_id=current_user.id,
-                    book_id=book.id,
-                    book_title=book.title,
-                    book_slug="",
-                    conv_type="book_chat",
-                )
-                # Save all messages
-                for m in messages:
-                    role = m["role"]
-                    content = m["content"] if isinstance(m["content"], str) else str(m["content"])
-                    repo.create_message(conv.id, role, content)
-                # Save AI response
-                repo.create_message(conv.id, "assistant", clean_text)
-                repo.update_conversation_message_count(conv.id, len(messages) + 1)
-                saved_id = conv.id
-
-            # Topic extraction
-            user_text = ""
-            for m in messages:
-                if m["role"] == "user" and isinstance(m.get("content"), str):
-                    user_text += " " + m["content"]
-            if user_text.strip():
-                topics = extract_topics_from_text(user_text)
-                if topics:
-                    repo.update_conversation_topics(saved_id, topics)
+        saved_id = persist_conversation(
+            db=db,
+            current_user=current_user,
+            messages=messages,
+            response_text=clean_text,
+            conversation_id=getattr(chat_request, "conversationId", None),
+            book_id=book.id,
+            book_title=book.title,
+            book_slug="",
+            conv_type="book_chat",
+        )
 
         return {
             "response": clean_text,
@@ -264,42 +235,17 @@ async def global_chat(
         response_text = llm_service.generate_response(chat_request.systemInstruction, enhanced_messages)
         clean_text, follow_ups = _parse_follow_ups(response_text)
 
-        saved_id = None
-        if current_user and db is not None:
-            repo = ConversationRepository(db)
-            conv_id = getattr(chat_request, "conversationId", None)
-
-            if conv_id:
-                conv = repo.get_conversation(conv_id)
-                if conv:
-                    repo.create_message(conv_id, "assistant", clean_text)
-                    count = conv.message_count + 1
-                    repo.update_conversation_message_count(conv_id, count)
-                    saved_id = conv_id
-            else:
-                conv = repo.create_conversation(
-                    user_id=current_user.id,
-                    book_id=0,
-                    book_title="AI Context Finder",
-                    book_slug="ai-context-finder",
-                    conv_type="global_chat",
-                )
-                for m in messages:
-                    role = m["role"]
-                    content = m["content"] if isinstance(m["content"], str) else str(m["content"])
-                    repo.create_message(conv.id, role, content)
-                repo.create_message(conv.id, "assistant", clean_text)
-                repo.update_conversation_message_count(conv.id, len(messages) + 1)
-                saved_id = conv.id
-
-            user_text = ""
-            for m in messages:
-                if m["role"] == "user" and isinstance(m.get("content"), str):
-                    user_text += " " + m["content"]
-            if user_text.strip():
-                topics = extract_topics_from_text(user_text)
-                if topics:
-                    repo.update_conversation_topics(saved_id, topics)
+        saved_id = persist_conversation(
+            db=db,
+            current_user=current_user,
+            messages=messages,
+            response_text=clean_text,
+            conversation_id=getattr(chat_request, "conversationId", None),
+            book_id=0,
+            book_title="AI Context Finder",
+            book_slug="ai-context-finder",
+            conv_type="global_chat",
+        )
 
         return {
             "response": clean_text,
@@ -369,7 +315,6 @@ async def chat_stream(
         ):
             yield event
 
-            import json
             for line in event.strip().split("\n"):
                 if line.startswith("data: "):
                     try:
@@ -383,44 +328,20 @@ async def chat_stream(
                     except json.JSONDecodeError:
                         pass
 
-        if current_user and db is not None and full_response:
-            try:
-                repo = ConversationRepository(db)
-                conv_id = conversation_id
-
-                if conv_id:
-                    conv = repo.get_conversation(conv_id)
-                    if conv:
-                        repo.create_message(conv_id, "assistant", full_response)
-                        count = conv.message_count + 1
-                        repo.update_conversation_message_count(conv_id, count)
-                        final_conversation_id = conv_id
-                else:
-                    conv = repo.create_conversation(
-                        user_id=current_user.id,
-                        book_id=book.id,
-                        book_title=book.title,
-                        book_slug="",
-                        conv_type="book_chat",
-                    )
-                    for m in messages:
-                        role = m["role"]
-                        content = m["content"] if isinstance(m["content"], str) else str(m["content"])
-                        repo.create_message(conv.id, role, content)
-                    repo.create_message(conv.id, "assistant", full_response)
-                    repo.update_conversation_message_count(conv.id, len(messages) + 1)
-                    final_conversation_id = conv.id
-
-                    user_text = ""
-                    for m in messages:
-                        if m["role"] == "user" and isinstance(m.get("content"), str):
-                            user_text += " " + m["content"]
-                    if user_text.strip():
-                        topics = extract_topics_from_text(user_text)
-                        if topics:
-                            repo.update_conversation_topics(final_conversation_id, topics)
-            except Exception as e:
-                logger.error("Failed to persist streamed conversation", error=str(e))
+        if full_response:
+            saved = persist_conversation(
+                db=db,
+                current_user=current_user,
+                messages=messages,
+                response_text=full_response,
+                conversation_id=conversation_id,
+                book_id=book.id,
+                book_title=book.title,
+                book_slug="",
+                conv_type="book_chat",
+            )
+            if saved is not None:
+                final_conversation_id = saved
 
     return StreamingResponse(
         event_generator(),
@@ -469,7 +390,6 @@ async def global_chat_stream(
         ):
             yield event
 
-            import json
             for line in event.strip().split("\n"):
                 if line.startswith("data: "):
                     try:
@@ -483,44 +403,20 @@ async def global_chat_stream(
                     except json.JSONDecodeError:
                         pass
 
-        if current_user and db is not None and full_response:
-            try:
-                repo = ConversationRepository(db)
-                conv_id = conversation_id
-
-                if conv_id:
-                    conv = repo.get_conversation(conv_id)
-                    if conv:
-                        repo.create_message(conv_id, "assistant", full_response)
-                        count = conv.message_count + 1
-                        repo.update_conversation_message_count(conv_id, count)
-                        final_conversation_id = conv_id
-                else:
-                    conv = repo.create_conversation(
-                        user_id=current_user.id,
-                        book_id=0,
-                        book_title="AI Context Finder",
-                        book_slug="ai-context-finder",
-                        conv_type="global_chat",
-                    )
-                    for m in messages:
-                        role = m["role"]
-                        content = m["content"] if isinstance(m["content"], str) else str(m["content"])
-                        repo.create_message(conv.id, role, content)
-                    repo.create_message(conv.id, "assistant", full_response)
-                    repo.update_conversation_message_count(conv.id, len(messages) + 1)
-                    final_conversation_id = conv.id
-
-                    user_text = ""
-                    for m in messages:
-                        if m["role"] == "user" and isinstance(m.get("content"), str):
-                            user_text += " " + m["content"]
-                    if user_text.strip():
-                        topics = extract_topics_from_text(user_text)
-                        if topics:
-                            repo.update_conversation_topics(final_conversation_id, topics)
-            except Exception as e:
-                logger.error("Failed to persist streamed global conversation", error=str(e))
+        if full_response:
+            saved = persist_conversation(
+                db=db,
+                current_user=current_user,
+                messages=messages,
+                response_text=full_response,
+                conversation_id=conversation_id,
+                book_id=0,
+                book_title="AI Context Finder",
+                book_slug="ai-context-finder",
+                conv_type="global_chat",
+            )
+            if saved is not None:
+                final_conversation_id = saved
 
     return StreamingResponse(
         event_generator(),

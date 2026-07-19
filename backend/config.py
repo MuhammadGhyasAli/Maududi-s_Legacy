@@ -69,7 +69,6 @@ class Settings(BaseSettings):
 
     # Password Reset
     password_reset_ttl_minutes: int = 30
-    dev_return_password_reset_token: bool = False
 
     # AI Model Configuration
     groq_model_text: str = "llama-3.3-70b-versatile"

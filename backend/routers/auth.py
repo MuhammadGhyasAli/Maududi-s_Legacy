@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pymongo.database import Database
 from pydantic import BaseModel, field_validator
@@ -7,6 +7,8 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from typing import Optional
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from database import get_db
 from config import settings
@@ -18,14 +20,15 @@ logger = get_logger(__name__)
 router = APIRouter()
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+limiter = Limiter(key_func=get_remote_address)
 
 
 COOKIE_NAME = "auth_token"
 
 
-def set_auth_cookie(response: Response, token: str) -> None:
+def set_auth_cookie(response: Response, token: str, request: Request) -> None:
     max_age = settings.jwt_expiration_minutes * 60
-    secure = os.environ.get("VERCEL") == "1"
+    secure = request.url.scheme == "https"
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
@@ -38,8 +41,8 @@ def set_auth_cookie(response: Response, token: str) -> None:
     )
 
 
-def clear_auth_cookie(response: Response) -> None:
-    secure = os.environ.get("VERCEL") == "1"
+def clear_auth_cookie(response: Response, request: Request) -> None:
+    secure = request.url.scheme == "https"
     response.delete_cookie(
         key=COOKIE_NAME,
         path="/",
@@ -124,7 +127,6 @@ class ResetPasswordRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
-    reset_token: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
@@ -158,8 +160,8 @@ def decode_access_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
         return payload
-    except JWTError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {str(e)}")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
 
 
 async def get_current_user(
@@ -186,16 +188,17 @@ async def get_current_user(
 # ── Endpoints ──
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest, response: Response, db: Database = Depends(get_db)):
+@limiter.limit("10/minute")
+async def login(request: Request, login_request: LoginRequest, response: Response, db: Database = Depends(get_db)):
     repo = UserRepository(db)
-    user = repo.get_by_username(request.username)
-    if not user or not pwd_context.verify(request.password, user.password_hash):
-        logger.warning("Login failed", username=request.username)
+    user = repo.get_by_username(login_request.username)
+    if not user or not pwd_context.verify(login_request.password, user.password_hash):
+        logger.warning("Login failed", username=login_request.username)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
     token = create_access_token(user.id, user.username)
-    set_auth_cookie(response, token)
-    logger.info("Login successful", username=request.username)
+    set_auth_cookie(response, token, request)
+    logger.info("Login successful", username=login_request.username)
     return TokenResponse(
         access_token=token,
         expires_in=settings.jwt_expiration_minutes * 60,
@@ -203,17 +206,18 @@ async def login(request: LoginRequest, response: Response, db: Database = Depend
 
 
 @router.post("/register", response_model=UserResponse)
-async def register(request: RegisterRequest, db: Database = Depends(get_db)):
+@limiter.limit("5/minute")
+async def register(request: Request, register_request: RegisterRequest, db: Database = Depends(get_db)):
     repo = UserRepository(db)
 
-    if repo.get_by_username(request.username):
+    if repo.get_by_username(register_request.username):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken")
-    if repo.get_by_email(request.email):
+    if repo.get_by_email(register_request.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
-    password_hash = pwd_context.hash(request.password)
-    user = repo.create(request.username, request.email, password_hash, display_name=request.display_name)
-    logger.info("User registered", username=request.username)
+    password_hash = pwd_context.hash(register_request.password)
+    user = repo.create(register_request.username, register_request.email, password_hash, display_name=register_request.display_name)
+    logger.info("User registered", username=register_request.username)
     return UserResponse(
         id=user.id, username=user.username, email=user.email,
         display_name=user.display_name, is_active=user.is_active,
@@ -221,7 +225,7 @@ async def register(request: RegisterRequest, db: Database = Depends(get_db)):
 
 
 @router.post("/google", response_model=TokenResponse)
-async def google_auth(request: GoogleAuthRequest, response: Response, db: Database = Depends(get_db)):
+async def google_auth(http_request: Request, google_request: GoogleAuthRequest, response: Response, db: Database = Depends(get_db)):
     from google.oauth2 import id_token
     from google.auth.transport import requests as google_requests
     import traceback
@@ -231,15 +235,15 @@ async def google_auth(request: GoogleAuthRequest, response: Response, db: Databa
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Google OAuth is not configured")
     try:
         info = id_token.verify_oauth2_token(
-            request.id_token,
+            google_request.id_token,
             google_requests.Request(),
             client_id,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid Google token: {str(e)}")
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token")
     except Exception as e:
         logger.error("Google token verification failed", error=str(e), traceback=traceback.format_exc())
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Google token verification error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google token verification failed")
 
     try:
         google_id = info.get("sub")
@@ -276,24 +280,25 @@ async def google_auth(request: GoogleAuthRequest, response: Response, db: Databa
                 user.google_id = google_id
 
         token = create_access_token(user.id, user.username)
-        set_auth_cookie(response, token)
+        set_auth_cookie(response, token, http_request)
         return TokenResponse(
             access_token=token,
             expires_in=settings.jwt_expiration_minutes * 60,
         )
     except Exception as e:
         logger.error("Google auth handler failed", error=str(e), traceback=traceback.format_exc())
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Google auth error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Authentication failed")
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
-async def forgot_password(request: ForgotPasswordRequest, return_token: bool = False, db: Database = Depends(get_db)):
+@limiter.limit("3/minute")
+async def forgot_password(request: Request, forgot_request: ForgotPasswordRequest, db: Database = Depends(get_db)):
     import hashlib
     import secrets
     from database import get_next_id
 
     repo = UserRepository(db)
-    user = repo.get_by_email(request.email.strip())
+    user = repo.get_by_email(forgot_request.email.strip())
 
     if not user:
         return MessageResponse(message="If that email is registered, a reset link has been sent.")
@@ -311,20 +316,18 @@ async def forgot_password(request: ForgotPasswordRequest, return_token: bool = F
 
     logger.info("Password reset token created", user_id=user.id)
 
-    if settings.dev_return_password_reset_token or return_token:
-        return MessageResponse(
-            message="Password reset token generated.",
-            reset_token=token,
-        )
+    # Token is ONLY delivered via email — never returned in the API response.
+    # TODO: Send reset email here with token (e.g. via nodemailer/SMTP)
 
     return MessageResponse(message="If that email is registered, a reset link has been sent.")
 
 
 @router.post("/reset-password", response_model=MessageResponse)
-async def reset_password(request: ResetPasswordRequest, db: Database = Depends(get_db)):
+@limiter.limit("5/minute")
+async def reset_password(request: Request, reset_request: ResetPasswordRequest, db: Database = Depends(get_db)):
     import hashlib
 
-    token_hash = hashlib.sha256(request.token.encode()).hexdigest()
+    token_hash = hashlib.sha256(reset_request.token.encode()).hexdigest()
     now = datetime.now(timezone.utc)
 
     reset = db.password_reset_tokens.find_one({
@@ -341,7 +344,7 @@ async def reset_password(request: ResetPasswordRequest, db: Database = Depends(g
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-    new_hash = pwd_context.hash(request.new_password)
+    new_hash = pwd_context.hash(reset_request.new_password)
     db.users.update_one({"id": user.id}, {"$set": {"password_hash": new_hash}})
     db.password_reset_tokens.update_one(
         {"_id": reset["_id"]},
@@ -353,8 +356,8 @@ async def reset_password(request: ResetPasswordRequest, db: Database = Depends(g
 
 
 @router.post("/logout")
-async def logout(response: Response):
-    clear_auth_cookie(response)
+async def logout(request: Request, response: Response):
+    clear_auth_cookie(response, request)
     return {"message": "Logged out successfully"}
 
 

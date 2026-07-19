@@ -11,8 +11,8 @@ function getGuestCount(request: Request): number {
   return match ? parseInt(match[1], 10) : 0;
 }
 
-function setGuestCountCookie(res: NextResponse, count: number): void {
-  const secure = process.env.VERCEL === '1';
+function setGuestCountCookie(res: NextResponse, count: number, request: Request): void {
+  const secure = request.url.startsWith('https://');
   res.headers.set(
     'Set-Cookie',
     `${COOKIE_NAME}=${count}; Path=/; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}; Max-Age=${30 * 24 * 60 * 60}`,
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         response: result.response,
         guestMessageCount: newCount,
       });
-      setGuestCountCookie(res, newCount);
+      setGuestCountCookie(res, newCount, request);
       return res;
     }
 

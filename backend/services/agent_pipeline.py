@@ -59,7 +59,7 @@ class AgentPipeline:
                 "message": "Understanding your question...",
             })
 
-            orchestration = self.orchestrator.classify(user_message, language)
+            orchestration = await self.orchestrator.classify(user_message, language)
             logger.info("Orchestrator classified", intent=orchestration.intent, topic=orchestration.target_topic)
 
             if orchestration.short_circuit_response:
@@ -132,7 +132,7 @@ class AgentPipeline:
             async for event in self._fallback_stream(messages, system_context, language, conversation_id):
                 yield event
 
-    def _fallback_stream(
+    async def _fallback_stream(
         self,
         messages: list[dict],
         system_context: str,
@@ -140,7 +140,7 @@ class AgentPipeline:
         conversation_id: Optional[int],
     ) -> AsyncGenerator[str, None]:
         try:
-            response_text = llm_service.generate_response(system_context, messages)
+            response_text = await llm_service.agenerate_response(system_context, messages)
             clean_text, follow_ups = _parse_follow_ups(response_text)
 
             for word in clean_text.split(" "):

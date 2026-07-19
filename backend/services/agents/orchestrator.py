@@ -44,8 +44,8 @@ SHORT_CIRCUIT_OFF_TOPIC = (
 
 
 class OrchestratorAgent:
-    def classify(self, user_message: str, language: str = "English") -> OrchestrationResult:
-        result = groq_service.chat(ORCHESTRATOR_SYSTEM_PROMPT, [{"role": "user", "content": user_message}])
+    async def classify(self, user_message: str, language: str = "English") -> OrchestrationResult:
+        result = await groq_service.achat(ORCHESTRATOR_SYSTEM_PROMPT, [{"role": "user", "content": user_message}])
 
         if result.get("error"):
             logger.warning("Orchestrator LLM failed, defaulting to factual_question", error=result.get("message"))
