@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_API_URL || 'https://syedghyas.pythonanywhere.com';
+const BACKEND_URL = process.env.BACKEND_API_URL || 'https://backend-phi-eosin-87.vercel.app';
 
 function sseEvent(event: string, data: Record<string, unknown>): string {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;

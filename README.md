@@ -63,7 +63,7 @@ Create a `.env` file in the project root (it is **gitignored** — never commit 
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | Yes | Base URL of the FastAPI backend (e.g. `https://syedghyas.pythonanywhere.com`). Used for `/api/v1/...` calls. |
+| `NEXT_PUBLIC_API_BASE_URL` | Yes | Base URL of the FastAPI backend (e.g. `https://backend-phi-eosin-87.vercel.app`). Used for `/api/v1/...` calls. |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | For Google login | Google OAuth client ID. |
 | `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` | For Google login | e.g. `http://localhost:3000/auth/google/callback` |
 | `MONGODB_URL` | Yes | MongoDB connection string (used by the Next.js API routes). |
