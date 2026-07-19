@@ -24,16 +24,5 @@ google-auth==2.35.0
 redis==5.0.0
 cachetools==5.3.0
 
-# Vector DB (lightweight — no torch/sentence-transformers)
-fastembed>=0.8.0
-onnxruntime>=1.17.0
-requests>=2.31.0
-
-# PDF Processing
-pymupdf>=1.24.0
-pytesseract>=0.3.10
-Pillow>=10.0.0
-numpy>=1.24.0
-
 # Utilities
-tqdm>=4.66.0
+requests>=2.31.0
