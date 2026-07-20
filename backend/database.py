@@ -138,3 +138,54 @@ def init_db():
         ])
 
     logger.info("Database initialized")
+    seed_books()
+
+
+def seed_books():
+    """Sync BOOKS_DATA into MongoDB, correcting any misaligned aiContext values."""
+    from data.books import BOOKS_DATA
+    from datetime import datetime, timezone
+    from services.cache_service import cache_service
+
+    database = get_database()
+    if database is None:
+        try:
+            from pymongo import MongoClient
+            c = MongoClient(settings.mongodb_url, serverSelectionTimeoutMS=5000)
+            c.admin.command("ping")
+            database = c[settings.mongodb_db_name]
+        except Exception as e:
+            logger.warning("seed_books: cannot connect to DB", error=str(e))
+            return
+
+    corrected = 0
+    for b in BOOKS_DATA:
+        ai_ctx = b.get("aiContext", "")
+        try:
+            result = database.books.update_one(
+                {"id": b["id"]},
+                {"$set": {
+                    "ai_context": ai_ctx,
+                    "aiContext": ai_ctx,
+                    "title": b.get("title", ""),
+                    "category": b.get("category", ""),
+                    "description": b.get("description", ""),
+                    "author": b.get("author", ""),
+                    "image_url": b.get("imageUrl", ""),
+                    "pdf_url": b.get("pdfUrl", ""),
+                    "publication_year": b.get("publicationYear", ""),
+                    "updated_at": datetime.now(timezone.utc),
+                },
+                 "$setOnInsert": {
+                    "created_at": datetime.now(timezone.utc),
+                }},
+                upsert=True,
+            )
+            if result.modified_count > 0 or result.upserted_count > 0:
+                corrected += 1
+        except Exception as e:
+            logger.warning("seed_books: failed to update book", book_id=b.get("id"), error=str(e))
+
+    cache_service.invalidate_books()
+    cache_service.invalidate_categories()
+    logger.info("seed_books complete", updated=corrected, total=len(BOOKS_DATA))

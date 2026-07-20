@@ -32,7 +32,15 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting Maududi's Legacy Backend...")
     if not os.environ.get('VERCEL'):
-        init_db()
+        try:
+            init_db()
+        except Exception as e:
+            logger.warning("init_db failed, trying seed_books directly", error=str(e))
+        try:
+            from database import seed_books
+            seed_books()
+        except Exception as e:
+            logger.warning("seed_books failed", error=str(e))
     yield
     # Shutdown
     logger.info("Shutting down Maududi's Legacy Backend...")
