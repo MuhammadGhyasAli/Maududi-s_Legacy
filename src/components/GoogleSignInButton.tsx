@@ -31,6 +31,9 @@ declare global {
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
+let gsiInitialized = false;
+let gsiScriptAdded = false;
+
 interface GoogleSignInButtonProps {
   mode?: 'signin' | 'signup';
   className?: string;
@@ -42,7 +45,6 @@ export default function GoogleSignInButton({ mode = 'signin', className = '' }: 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const initializedRef = useRef(false);
   const callbackRef = useRef<(response: { credential: string }) => void>(undefined);
 
   const handleCredentialResponse = useCallback(async (response: { credential: string }) => {
@@ -71,34 +73,35 @@ export default function GoogleSignInButton({ mode = 'signin', className = '' }: 
   callbackRef.current = handleCredentialResponse;
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || initializedRef.current) return;
-    initializedRef.current = true;
+    if (!GOOGLE_CLIENT_ID || gsiInitialized) return;
 
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      if (window.google?.accounts?.id && buttonRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: (response) => callbackRef.current?.(response),
-        });
-        window.google.accounts.id.renderButton(buttonRef.current, {
-          theme: 'outline',
-          size: 'large',
-          text: mode === 'signin' ? 'signin_with' : 'signup_with',
-          shape: 'rectangular',
-          logo_alignment: 'center',
-        });
-      }
+    const initGsi = () => {
+      if (gsiInitialized || !window.google?.accounts?.id || !buttonRef.current) return;
+      gsiInitialized = true;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (response) => callbackRef.current?.(response),
+      });
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: mode === 'signin' ? 'signin_with' : 'signup_with',
+        shape: 'rectangular',
+        logo_alignment: 'center',
+      });
     };
-    document.body.appendChild(script);
 
-    return () => {
-      const scriptEl = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      if (scriptEl) scriptEl.remove();
-    };
+    if (window.google?.accounts?.id) {
+      initGsi();
+    } else if (!gsiScriptAdded) {
+      gsiScriptAdded = true;
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initGsi;
+      document.body.appendChild(script);
+    }
   }, [mode]);
 
   if (!GOOGLE_CLIENT_ID) {
