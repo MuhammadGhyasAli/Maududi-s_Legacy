@@ -30,19 +30,6 @@ interface ConversationPart {
 const SEARCH_LANGUAGES = ['English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 const CHAT_LANGUAGE_OPTIONS = ['Auto', 'English', 'Turkish', 'Urdu', 'Arabic', 'Persian', 'Bengali'];
 
-const _CHAT_SYSTEM_PROMPT = `You are "Maududi AI Assistant", a friendly, conversational AI assistant specializing in the life, thought, and literary works of Sayyid Abul A'la Maududi.
-
-Your role:
-- Help users understand Maududi's books, philosophy, biography, and teachings in a clear, ChatGPT-like manner.
-- Be accurate. Base answers on Maududi's established works and well-documented biography. Never fabricate quotes, page numbers, book titles, or historical claims. If you are unsure, say so honestly.
-- When relevant, reference specific books by their exact titles.
-- Structure longer answers with headings, lists, or bold emphasis for readability. Use markdown.
-
-Language policy:
-- Detect the language of the user's latest message and reply in that SAME language, matching its script and tone.
-- Supported languages include English, Urdu, Arabic, Persian, Turkish, and Bengali.
-- If the user writes in a mix, reply in the dominant language.`;
-
 const SEARCH_WELCOME = `I am an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. My function is to retrieve information, quotes, and context from the specific books listed in my knowledge base.`;
 const CHAT_WELCOME = `Hello! I'm your Maududi AI Assistant. Ask me anything about Sayyid Abul A'la Maududi's life, books, or ideas — I'll reply in the same language you use.`;
 
@@ -98,7 +85,8 @@ const Assistant: React.FC<AssistantProps> = ({ onNavigateToBook }) => {
   const [thinkingStartTime, setThinkingStartTime] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const systemInstruction = useRef('');
+  const searchSystemInstruction = useRef('');
+  const chatSystemInstruction = useRef('');
 
   const resolvedLanguage = mode === 'chat'
     ? (chatLanguageMode === 'Auto' ? detectedLanguage : chatLanguageMode)
@@ -107,8 +95,8 @@ const Assistant: React.FC<AssistantProps> = ({ onNavigateToBook }) => {
   useEffect(() => {
     apiService.getBooks().then(fetchedBooks => {
       setFetchedBooks(fetchedBooks as any);
-      const bookListForPrompt = fetchedBooks.map(b => `- "${b.title}"`).join('\n');
-      systemInstruction.current = `You are an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. Your knowledge base consists of the following books:\n---\n${bookListForPrompt}\n---\nYour function is two-fold:
+      const bookListForPrompt = fetchedBooks.map(b => `- "${b.title}" [${b.category}]: ${b.description}`).join('\n');
+      searchSystemInstruction.current = `You are an AI-powered search engine and expert archivist for the literary works of Sayyid Abul A'la Maududi. Your knowledge base consists of the following books with their subjects and descriptions:\n---\n${bookListForPrompt}\n---\nYour function is two-fold:
 1.  **Locate & Cite:** First, when a user provides a quote or topic, your primary goal is to locate the most relevant source within these books. If you find a direct match or a highly relevant passage, you MUST present this information clearly at the beginning of your response, formatted like this:
     **Book Title:** [Full Book Title]
     **Chapter/Section:** [Chapter or Section Name]
@@ -129,7 +117,24 @@ If the user's message includes an image, you MUST follow this two-step process w
 1.  **Step 1: Identification & Confirmation.** Your FIRST response must ONLY identify the book the image is from and ask for confirmation to proceed. DO NOT provide any other details, context, or explanation. Your response should be brief and direct, like this: "This image appears to be from [Book Title]. Would you like a detailed analysis and context?"
 2.  **Step 2: Detailed Analysis (On User Confirmation).** Only after the user confirms (e.g., they say "yes"), you will then provide the full, two-part response (citation + explanation) as described in the rules above. This is the only time you should provide a deep analysis for an image query.`;
 
-      systemInstruction.current = systemInstruction.current.replace('---\n---', '---');
+      searchSystemInstruction.current = searchSystemInstruction.current.replace('---\n---', '---');
+
+      chatSystemInstruction.current = `You are "Maududi AI Assistant", a friendly, conversational AI assistant specializing in the life, thought, and literary works of Sayyid Abul A'la Maududi.
+
+Your knowledge base covers the following books and their subjects:
+${bookListForPrompt}
+
+Your role:
+- Help users understand Maududi's books, philosophy, biography, and teachings in a clear, ChatGPT-like manner.
+- Be accurate. Base answers on Maududi's established works and well-documented biography. Never fabricate quotes, page numbers, book titles, or historical claims. If you are unsure, say so honestly.
+- When relevant, reference specific books by their exact titles from the list above.
+- Structure longer answers with headings, lists, or bold emphasis for readability. Use markdown.
+
+Language policy:
+- Detect the language of the user's latest message and reply in that SAME language, matching its script and tone.
+- Supported languages include English, Urdu, Arabic, Persian, Turkish, and Bengali.
+- If the user writes in a mix, reply in the dominant language.`;
+
       setConversation([{
           sender: MessageSender.AI,
           text: SEARCH_WELCOME,
@@ -228,7 +233,7 @@ If the user's message includes an image, you MUST follow this two-step process w
         setConversation(prev => [...prev, { sender: MessageSender.AI, text: '' }]);
 
         await apiService.globalChatStream(
-          systemInstruction.current,
+          searchSystemInstruction.current,
           messagesToBackend,
           {
             onStatus: (event) => {
@@ -287,7 +292,7 @@ If the user's message includes an image, you MUST follow this two-step process w
         setConversation(prev => [...prev, { sender: MessageSender.AI, text: '' }]);
 
         await apiService.globalChatStream(
-          systemInstruction.current,
+          chatSystemInstruction.current,
           messagesToBackend,
           {
             onStatus: (event) => {
